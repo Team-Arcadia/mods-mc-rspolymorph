@@ -47,7 +47,7 @@ tagline.en = "Stop letting Refined Storage pick the wrong recipe for you."
 tagline.fr = "Ne laissez plus Refined Storage choisir la mauvaise recette à votre place."
 
 [icons]
-button = "common/src/main/resources/assets/rspolymorph/textures/gui/sprites/widget/side_button/polymorph.png"
+button = "common/1.21.1/src/main/resources/assets/rspolymorph/textures/gui/sprites/widget/side_button/polymorph.png"
 pattern = "images/tools/textures/pattern.png"
 
 # ------------------------------------------------------------------ sections

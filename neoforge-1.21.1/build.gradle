@@ -44,7 +44,7 @@ neoForge {
 dependencies {
     // Refined Storage 2 — provided at runtime by the user's modpack; compile against the tracked
     // NeoForge jar. No Polymorph dependency (standalone).
-    implementation files('../libs/rs2.jar')
+    implementation rootProject.files('libs/rs2.jar')
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }

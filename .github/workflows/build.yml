@@ -5,11 +5,10 @@ on:
     branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
     paths:
       - 'common/**'
-      - 'common-261/**'
-      - 'neoforge/**'
-      - 'neoforge-261/**'
-      - 'fabric/**'
-      - 'fabric-261/**'
+      - 'neoforge-1.21.1/**'
+      - 'neoforge-26.1.2/**'
+      - 'fabric-1.21.1/**'
+      - 'fabric-26.1.2/**'
       - 'buildSrc/**'
       - 'build.gradle'
       - 'settings.gradle'
@@ -49,5 +48,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: RS-Polymorph-${{ github.ref_name }}
-          path: build/libs/rspolymorph-*.jar
+          path: '*/build/libs/rspolymorph-*.jar'
           retention-days: 30

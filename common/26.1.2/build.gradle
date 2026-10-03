@@ -36,7 +36,7 @@ dependencies {
     annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.4.1'
 
     // Refined Storage 3.2.0 (NeoForge) compile reference.
-    compileOnly files('../libs/rs3.jar')
+    compileOnly rootProject.files('libs/rs3.jar')
 }
 
 // ── Source remap (1.21.1 → 26.1.2 Mojmap renames) ─────────────────────────────
@@ -78,7 +78,7 @@ def forkedFor261 = [
 // loader subprojects consume this single dir, so every class is present exactly once.
 def remapCommonSources = tasks.register('remapCommonSources', Copy) {
     // 1) the shared 1.21.1 sources with the simple Mojmap renames, excluding the forks
-    from('../common/src/main/java') {
+    from(project(':common').file('src/main/java')) {
         forkedFor261.each { exclude it }
         filter { String line ->
             line.replaceAll(/\bResourceLocation\b/, 'Identifier')
@@ -96,7 +96,7 @@ def remapCommonSources = tasks.register('remapCommonSources', Copy) {
 // item-id strings), so the recipe files are excluded from common and replaced by common-261's own.
 def mergedResources = layout.buildDirectory.dir('merged-resources')
 def mergeResources = tasks.register('mergeResources', Copy) {
-    from('../common/src/main/resources') {
+    from(project(':common').file('src/main/resources')) {
         exclude 'data/rspolymorph/recipe/**'
         // The mixin config is forked for 26.x: it adds MixinScreenPopupRender (the extractRenderState
         // z-order fix), which does not exist in the 1.21.1 source tree.

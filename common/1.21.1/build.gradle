@@ -22,7 +22,7 @@ dependencies {
     // Refined Storage 2 — compile-only; the common.* class names are identical across loaders so
     // the mixins (remap=false) resolve byte-for-byte on both NeoForge and Fabric. The local jar is
     // the NeoForge build; its com.refinedmods.refinedstorage.common.* surface matches the Fabric build.
-    compileOnly files('../libs/rs2.jar')
+    compileOnly rootProject.files('libs/rs2.jar')
 }
 
 configurations {

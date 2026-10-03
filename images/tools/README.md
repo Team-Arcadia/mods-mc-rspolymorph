@@ -52,10 +52,10 @@ Every image weighs less than 2 MB, the limit of CurseForge for an uploaded image
 ## Footage
 
 The banners and the gallery pictures were recorded on the 1.21.1 NeoForge target, in a single player
-world, with Iris, Sodium and Complementary Unbound in `neoforge/run-capture/` (not committed). The
+world, with Iris, Sodium and Complementary Unbound in `neoforge-1.21.1/run-capture/` (not committed). The
 camera (`capture/CaptureStudio.java`, with a `quickmove` command added for this mod to shift-click
-items into the Refined Storage network) is copied into `neoforge/src/main/java` for the time of a
-recording with the capture tool, with a temporary `capture` run in `neoforge/build.gradle`, and
+items into the Refined Storage network) is copied into `neoforge-1.21.1/src/main/java` for the time of a
+recording with the capture tool, with a temporary `capture` run in `neoforge-1.21.1/build.gradle`, and
 never committed. The scripts that were played are in `capture/`, in order:
 
 | Script | Records |
@@ -69,8 +69,8 @@ never committed. The scripts that were played are in `capture/`, in order:
 
 The recipe conflict shown (two oak planks: sticks, a bowl or a ladder) is staged: vanilla only has
 the sticks, and `capture/datapack/rsp_conflicts` adds the two others, as a modpack would. Copy it
-into `neoforge/run-capture/saves/rsp_page/datapacks/` after `01-scout.txt` has created the world.
-The frames themselves are not in the repository: they stay in `neoforge/run-capture/screenshots/`.
+into `neoforge-1.21.1/run-capture/saves/rsp_page/datapacks/` after `01-scout.txt` has created the world.
+The frames themselves are not in the repository: they stay in `neoforge-1.21.1/run-capture/screenshots/`.
 
 ## Credits
 
@@ -133,18 +133,18 @@ font 800 pixels de large, la largeur de la colonne de description.
 ## Séquences
 
 Les bannières et les images de galerie ont été enregistrées sur la cible 1.21.1 NeoForge, dans un
-monde solo, avec Iris, Sodium et Complementary Unbound dans `neoforge/run-capture/` (non versionné).
+monde solo, avec Iris, Sodium et Complementary Unbound dans `neoforge-1.21.1/run-capture/` (non versionné).
 La caméra (`capture/CaptureStudio.java`, avec une commande `quickmove` ajoutée pour ce mod afin de
 verser les objets dans le réseau Refined Storage par shift-clic) est copiée dans
-`neoforge/src/main/java` le temps d'un enregistrement avec l'outil de capture, avec une run
-`capture` temporaire dans `neoforge/build.gradle`, et n'est jamais versionnée. Les scripts joués
+`neoforge-1.21.1/src/main/java` le temps d'un enregistrement avec l'outil de capture, avec une run
+`capture` temporaire dans `neoforge-1.21.1/build.gradle`, et n'est jamais versionnée. Les scripts joués
 sont dans `capture/`, dans l'ordre (voir le tableau de la section anglaise).
 
 Le conflit de recettes montré (deux planches de chêne : bâtons, bol ou échelle) est mis en scène :
 le jeu de base n'a que les bâtons, et `capture/datapack/rsp_conflicts` ajoute les deux autres,
-comme le ferait un modpack. Copiez-le dans `neoforge/run-capture/saves/rsp_page/datapacks/` après
+comme le ferait un modpack. Copiez-le dans `neoforge-1.21.1/run-capture/saves/rsp_page/datapacks/` après
 que `01-scout.txt` a créé le monde. Les images enregistrées ne sont pas dans le dépôt : elles restent
-dans `neoforge/run-capture/screenshots/`.
+dans `neoforge-1.21.1/run-capture/screenshots/`.
 
 ## Credits
 

@@ -19,10 +19,10 @@ sys.path.insert(0, HERE)
 import kit  # noqa: E402
 from theme import Theme  # noqa: E402
 
-SRC = os.path.join(ROOT, "neoforge", "run-capture", "screenshots")
+SRC = os.path.join(ROOT, "neoforge-1.21.1", "run-capture", "screenshots")
 OUT = os.path.dirname(HERE)             # images/, the folder this toolkit sits in
 THEME = Theme.load(os.path.join(HERE, "theme.json"))
-BUTTON = os.path.join(ROOT, "common", "src", "main", "resources", "assets", "rspolymorph", "textures", "gui", "sprites",
+BUTTON = os.path.join(ROOT, "common", "1.21.1", "src", "main", "resources", "assets", "rspolymorph", "textures", "gui", "sprites",
                       "widget", "side_button", "polymorph.png")
 
 PATTERN = os.path.join(HERE, "textures", "pattern.png")

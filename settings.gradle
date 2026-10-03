@@ -39,17 +39,25 @@ plugins {
 // (see https://youtrack.jetbrains.com/issue/IDEA-317606)
 rootProject.name = 'arcadia-rspolymorph'
 // MC 1.21.1 / Refined Storage 2.x line
+// Gradle project names stay short (they name the jars: rspolymorph-<project>-<mc>.jar); the folders
+// carry the Minecraft version, as the branches do.
 include('common')
+project(':common').projectDir = file('common/1.21.1')
 include('fabric')
+project(':fabric').projectDir = file('fabric-1.21.1')
 include('neoforge')
+project(':neoforge').projectDir = file('neoforge-1.21.1')
 // MC 26.1.2 / Refined Storage 3.x line (parallel target, shares sources with the 1.21.1 modules).
 // Build the 26.1.2 modules with Gradle running on JDK 25:
 //   ./gradlew :neoforge-261:build -Dorg.gradle.java.home=<path-to-jdk-25>
 include('common-261')
+project(':common-261').projectDir = file('common/26.1.2')
 include('neoforge-261')
+project(':neoforge-261').projectDir = file('neoforge-26.1.2')
 // fabric-261 is implemented (sources + entrypoints + metadata) but NOT enabled in the default
 // build: MC 26.1.x ships UN-OBFUSCATED (no Mojang ProGuard mappings), which only fabric-loom
 // 1.17.0-alpha+ supports, and that alpha conflicts with the stable Loom 1.16.3 used by the
 // 1.21.1 fabric module in this same build. Enable it on a dedicated branch that bumps
 // fabric-loom to 1.17.0-alpha (or once a stable Loom with 26.x support is released):
 //   include('fabric-261')
+//   project(':fabric-261').projectDir = file('fabric-26.1.2')
