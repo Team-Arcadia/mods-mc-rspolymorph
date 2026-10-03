@@ -72,3 +72,6 @@ run-*/
 __pycache__/
 images/preview/
 images/upload/
+
+# Decompiled reference classes (local only)
+temp_rs2_extraction/
