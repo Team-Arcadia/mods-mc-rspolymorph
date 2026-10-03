@@ -1,6 +1,6 @@
 name: "Feature Request / Demande de fonctionnalite"
 description: "Suggest a new feature | Proposer une fonctionnalite"
-labels: ["enhancement"]
+labels: ["type: feature", "status: needs-triage"]
 body:
   - type: textarea
     id: description

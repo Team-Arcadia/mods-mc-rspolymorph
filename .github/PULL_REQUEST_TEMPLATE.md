@@ -1,5 +1,7 @@
 ## Description
 
+<!-- Target `main`, or the version branch (neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2) for a fix to one line only -->
+
 <!-- EN: Brief description of the changes -->
 <!-- FR: Description breve des changements -->
 
@@ -23,8 +25,8 @@
 
 - [ ] Tested in singleplayer / Teste en solo
 - [ ] Tested on dedicated server / Teste sur serveur dedie
-- [ ] Tested with latest Polymorph / Teste avec la derniere version de Polymorph
-- [ ] Tested with latest Refined Storage 2 / Teste avec la derniere version de Refined Storage 2
+- [ ] Tested with Refined Storage 2 (1.21.1) and/or 3 (26.1.2) / Teste avec Refined Storage 2 et/ou 3
+- [ ] Built with `./gradlew build` / Compile avec `./gradlew build`
 - [ ] Pattern Grid preview updates correctly on recipe selection
 - [ ] Crafting Grid preview updates correctly on recipe selection
 - [ ] No breaking changes / Aucune regression

@@ -1,6 +1,6 @@
 name: "Bug Report / Rapport de Bug"
 description: "Report a bug | Signaler un bug"
-labels: ["bug"]
+labels: ["type: bug", "status: needs-triage"]
 body:
   - type: markdown
     attributes:
@@ -13,23 +13,25 @@ body:
     attributes:
       label: "Mod Version"
       description: "Which version of RS Polymorph? | Quelle version ?"
-      placeholder: "1.0.7"
+      placeholder: "1.2.2"
     validations:
       required: true
 
   - type: input
     id: mc-version
     attributes:
-      label: "Minecraft / NeoForge Version"
-      placeholder: "1.21.1 / NeoForge 21.1.219"
+      label: "Minecraft / Loader Version"
+      description: "Minecraft version, loader and loader version | Version de Minecraft et du loader"
+      placeholder: "1.21.1 / NeoForge 21.1.219 (or Fabric Loader 0.16.10)"
     validations:
       required: true
 
   - type: input
     id: deps-version
     attributes:
-      label: "Polymorph & RS2 Versions"
-      placeholder: "Polymorph 1.1.0 / Refined Storage 2.0.2"
+      label: "Refined Storage Version"
+      description: "Polymorph is not required | Polymorph n'est pas requis"
+      placeholder: "Refined Storage 2.0.8 (1.21.1) or 3.2.0 (26.1.2)"
     validations:
       required: true
 
@@ -51,7 +53,8 @@ body:
       options:
         - Crafting Grid
         - Pattern Grid
-        - Both / Les deux
+        - Wireless Crafting Grid (Quartz Arsenal)
+        - Several / Plusieurs
         - N/A
 
   - type: textarea

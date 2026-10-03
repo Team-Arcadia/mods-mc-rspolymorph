@@ -1,0 +1,252 @@
+{
+  "labels": [
+    {
+      "name": "type: bug",
+      "color": "d73a4a",
+      "description": "Something does not work as it should",
+      "aliases": [
+        "bug"
+      ]
+    },
+    {
+      "name": "type: feature",
+      "color": "1d76db",
+      "description": "A new capability",
+      "aliases": [
+        "enhancement",
+        "feature",
+        "feature request"
+      ]
+    },
+    {
+      "name": "type: improvement",
+      "color": "a2eeef",
+      "description": "Makes something that exists better",
+      "aliases": [
+        "improvement"
+      ]
+    },
+    {
+      "name": "type: performance",
+      "color": "f9a03f",
+      "description": "Speed, memory or load",
+      "aliases": [
+        "performance",
+        "perf"
+      ]
+    },
+    {
+      "name": "type: refactor",
+      "color": "d4c5f9",
+      "description": "Code change with no visible effect",
+      "aliases": [
+        "refactor",
+        "refactoring"
+      ]
+    },
+    {
+      "name": "type: docs",
+      "color": "0075ca",
+      "description": "Documentation only",
+      "aliases": [
+        "documentation",
+        "docs"
+      ]
+    },
+    {
+      "name": "type: chore",
+      "color": "bfd4f2",
+      "description": "Build, dependencies, tooling, repository upkeep",
+      "aliases": [
+        "chore",
+        "maintenance"
+      ]
+    },
+    {
+      "name": "type: question",
+      "color": "d876e3",
+      "description": "A question, not a change request",
+      "aliases": [
+        "question"
+      ]
+    },
+    {
+      "name": "priority: critical",
+      "color": "b60205",
+      "description": "Crash, data loss or blocked release: drop everything",
+      "aliases": [
+        "critical"
+      ]
+    },
+    {
+      "name": "priority: high",
+      "color": "d93f0b",
+      "description": "Should be in the next release",
+      "aliases": [
+        "high priority"
+      ]
+    },
+    {
+      "name": "priority: medium",
+      "color": "fbca04",
+      "description": "Planned, no deadline",
+      "aliases": []
+    },
+    {
+      "name": "priority: low",
+      "color": "c2e0c6",
+      "description": "Nice to have",
+      "aliases": [
+        "low priority"
+      ]
+    },
+    {
+      "name": "status: needs-triage",
+      "color": "ededed",
+      "description": "New, nobody has looked at it yet",
+      "aliases": [
+        "needs-triage",
+        "triage",
+        "needs triage"
+      ]
+    },
+    {
+      "name": "status: needs-info",
+      "color": "f9d0c4",
+      "description": "Waiting for details from the reporter",
+      "aliases": [
+        "needs info",
+        "more info needed"
+      ]
+    },
+    {
+      "name": "status: confirmed",
+      "color": "0e8a16",
+      "description": "Reproduced or accepted, ready to be picked up",
+      "aliases": [
+        "confirmed"
+      ]
+    },
+    {
+      "name": "status: in-progress",
+      "color": "5319e7",
+      "description": "Someone is working on it",
+      "aliases": [
+        "in progress",
+        "wip"
+      ]
+    },
+    {
+      "name": "status: blocked",
+      "color": "000000",
+      "description": "Cannot move until something else is done",
+      "aliases": [
+        "blocked"
+      ]
+    },
+    {
+      "name": "good first issue",
+      "color": "7057ff",
+      "description": "Good for newcomers",
+      "aliases": []
+    },
+    {
+      "name": "help wanted",
+      "color": "008672",
+      "description": "Extra attention is needed",
+      "aliases": []
+    },
+    {
+      "name": "duplicate",
+      "color": "cfd3d7",
+      "description": "This issue or pull request already exists",
+      "aliases": []
+    },
+    {
+      "name": "wontfix",
+      "color": "ffffff",
+      "description": "This will not be worked on",
+      "aliases": []
+    },
+    {
+      "name": "invalid",
+      "color": "e4e669",
+      "description": "Not a real problem, or not about this project",
+      "aliases": []
+    },
+    {
+      "name": "area: crafting-grid",
+      "color": "1d76db",
+      "description": "Recipe selection in the Crafting Grid",
+      "aliases": []
+    },
+    {
+      "name": "area: pattern-grid",
+      "color": "1d76db",
+      "description": "Recipe selection in the Pattern Grid and printed patterns",
+      "aliases": []
+    },
+    {
+      "name": "area: autocrafting",
+      "color": "1d76db",
+      "description": "Pattern resolution during autocrafting",
+      "aliases": []
+    },
+    {
+      "name": "area: wireless-grid",
+      "color": "1d76db",
+      "description": "Quartz Arsenal Wireless Crafting Grid compat",
+      "aliases": []
+    },
+    {
+      "name": "area: ui",
+      "color": "1d76db",
+      "description": "Recipe button, popup, tutorial card, tooltips",
+      "aliases": []
+    },
+    {
+      "name": "area: network",
+      "color": "1d76db",
+      "description": "Selection packet, singleplayer and multiplayer sync",
+      "aliases": []
+    },
+    {
+      "name": "area: build",
+      "color": "1d76db",
+      "description": "Gradle, multiloader setup, CI, release jars",
+      "aliases": []
+    },
+    {
+      "name": "loader: neoforge",
+      "color": "5319e7",
+      "description": "Specific to NeoForge",
+      "aliases": []
+    },
+    {
+      "name": "loader: fabric",
+      "color": "5319e7",
+      "description": "Specific to Fabric",
+      "aliases": []
+    },
+    {
+      "name": "mc: 1.21.1",
+      "color": "0e8a16",
+      "description": "Minecraft 1.21.1 line",
+      "aliases": []
+    },
+    {
+      "name": "mc: 26.1.2",
+      "color": "0e8a16",
+      "description": "Minecraft 26.1.2 line",
+      "aliases": []
+    },
+    {
+      "name": "type: compat",
+      "color": "fbca04",
+      "description": "Compatibility with another mod or version",
+      "aliases": [
+        "compatibility"
+      ]
+    }
+  ]
+}
