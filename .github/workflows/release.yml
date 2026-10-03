@@ -37,24 +37,29 @@ jobs:
 
       - name: Generate release notes
         run: |
-          echo "## RS Polymorph v${{ steps.version.outputs.VERSION }}" > RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "### Downloads" >> RELEASE_NOTES.md
-          echo "- \`rspolymorph-${{ steps.version.outputs.VERSION }}.jar\` — Main mod file" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "### Requirements" >> RELEASE_NOTES.md
-          echo "- Minecraft 1.21.1" >> RELEASE_NOTES.md
-          echo "- NeoForge 21.1+" >> RELEASE_NOTES.md
-          echo "- Polymorph >= 1.1.0" >> RELEASE_NOTES.md
-          echo "- Refined Storage 2 >= 2.0.1" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "See [CHANGELOG.md](CHANGELOG.md) for full details." >> RELEASE_NOTES.md
+          V=${{ steps.version.outputs.VERSION }}
+          {
+            echo "## RS Polymorph v$V"
+            echo ""
+            echo "### Downloads"
+            echo "- rspolymorph-neoforge-1.21.1-$V.jar: Minecraft 1.21.1, NeoForge 21.1.219+, Refined Storage 2.x"
+            echo "- rspolymorph-fabric-1.21.1-$V.jar: Minecraft 1.21.1, Fabric Loader 0.16.10+ and Fabric API, Refined Storage 2.x"
+            echo "- rspolymorph-neoforge-26.1.2-$V.jar: Minecraft 26.1.2, NeoForge 26.1.2, Refined Storage 3.x"
+            echo ""
+            echo "No Polymorph needed. Optional: Refined Storage - Quartz Arsenal 1.0.7+ for its Wireless Crafting Grid."
+            echo ""
+            echo "See [CHANGELOG.md](CHANGELOG.md) for full details."
+          } > RELEASE_NOTES.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: RELEASE_NOTES.md
-          files: build/libs/rspolymorph-*.jar
+          files: |
+            neoforge-1.21.1/build/libs/rspolymorph-neoforge-1.21.1-${{ steps.version.outputs.VERSION }}.jar
+            fabric-1.21.1/build/libs/rspolymorph-fabric-1.21.1-${{ steps.version.outputs.VERSION }}.jar
+            neoforge-26.1.2/build/libs/rspolymorph-neoforge-26.1.2-${{ steps.version.outputs.VERSION }}.jar
+          fail_on_unmatched_files: true
           draft: false
           prerelease: false
         env:
