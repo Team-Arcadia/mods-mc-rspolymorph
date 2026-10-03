@@ -2,16 +2,22 @@ name: Build & Test
 
 on:
   push:
-    branches: [ main, staging, develop, hotfix ]
+    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
     paths:
-      - 'src/**'
+      - 'common/**'
+      - 'common-261/**'
+      - 'neoforge/**'
+      - 'neoforge-261/**'
+      - 'fabric/**'
+      - 'fabric-261/**'
+      - 'buildSrc/**'
       - 'build.gradle'
       - 'settings.gradle'
       - 'gradle.properties'
       - 'libs/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, staging, develop ]
+    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
 
 permissions:
   contents: read
