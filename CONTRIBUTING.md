@@ -14,10 +14,10 @@ Thank you for your interest in contributing! | Merci de votre interet !
 ```bash
 git clone https://github.com/Team-Arcadia/mods-mc-rspolymorph.git
 cd mods-mc-rspolymorph
-./gradlew build
+tools/collect_jars.sh --build   # or: cd neoforge-1.21.1 && ./gradlew build
 ```
 
-`libs/polymorph.jar` and `libs/rs2.jar` are tracked in the repository — no manual download is required.
+Each target folder is a standalone Gradle project; Refined Storage is fetched from the Modrinth maven, so no manual download is required. See [docs/BUILDING.md](docs/BUILDING.md).
 
 ## Code Conventions
 

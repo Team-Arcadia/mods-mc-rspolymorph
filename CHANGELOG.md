@@ -21,6 +21,7 @@ All notable changes to RS Polymorph are documented here.
 ### Changed
 
 - **License changed to Apache-2.0** — RS Polymorph is now under the Apache License 2.0 (official text, recognised by GitHub). A new `NOTICE` file carries the attribution that forks and derivative works must keep: credit to "vyrriox / Team Arcadia" and a link to the upstream repository.
+- **Standalone target projects** — Each target (`neoforge-1.21.1`, `fabric-1.21.1`, `neoforge-26.1.2`) is now its own Gradle project; shared code lives in `common/1.21.1` and `common/26.1.2`, and nothing builds from the root. Refined Storage comes from the Modrinth maven, pinned per loader, so the `libs/` jars are gone. `tools/collect_jars.sh --build` builds every target into `jars/<version>/`. The optional fused NeoForge and Fabric jar is no longer produced. The jars now carry the `NOTICE` file and the right mod description (the 26.1.2 jar read "Processes main resources." and had no `LICENSE`).
 - **Repository reorganised** — The repository is now `Team-Arcadia/mods-mc-rspolymorph`. Branches are `main` plus maintenance branches per line (`neoforge-1.21.1`, `fabric-1.21.1`, `neoforge-26.1.2`); `develop`, `staging` and `hotfix` were retired. A label system, updated issue forms and a CI trigger that watches the multiloader source folders were added.
 
 ### Ajouts
@@ -34,6 +35,7 @@ All notable changes to RS Polymorph are documented here.
 ### Modifications
 
 - **Licence passée en Apache-2.0** — RS Polymorph est désormais sous licence Apache 2.0 (texte officiel, reconnu par GitHub). Un nouveau fichier `NOTICE` porte la mention que les forks et travaux dérivés doivent conserver : le crédit « vyrriox / Team Arcadia » et un lien vers le dépôt d'origine.
+- **Projets autonomes par cible** — Chaque cible (`neoforge-1.21.1`, `fabric-1.21.1`, `neoforge-26.1.2`) est désormais son propre projet Gradle ; le code partagé vit dans `common/1.21.1` et `common/26.1.2`, et rien ne se compile depuis la racine. Refined Storage vient du maven Modrinth, fixé par loader, donc les jars de `libs/` ont disparu. `tools/collect_jars.sh --build` compile toutes les cibles dans `jars/<version>/`. Le jar fusionné NeoForge et Fabric optionnel n'est plus produit. Les jars embarquent maintenant le fichier `NOTICE` et la bonne description du mod (le jar 26.1.2 affichait « Processes main resources. » et n'avait pas de `LICENSE`).
 - **Dépôt réorganisé** — Le dépôt est désormais `Team-Arcadia/mods-mc-rspolymorph`. Les branches sont `main` plus une branche de maintenance par ligne (`neoforge-1.21.1`, `fabric-1.21.1`, `neoforge-26.1.2`) ; `develop`, `staging` et `hotfix` ont été retirées. Un système de labels, des formulaires d'issues à jour et un déclencheur CI qui surveille les dossiers sources multiloader ont été ajoutés.
 
 ### Suppressions

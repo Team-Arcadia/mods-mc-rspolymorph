@@ -1,43 +1,101 @@
+// RS Polymorph, Fabric 26.1.2. A standalone Gradle project, NOT built yet: Minecraft 26.x ships
+// unobfuscated, which needs a Fabric Loom with 26.x support (issue #5). Set the Loom version below
+// to that release, then build from this folder and add the folder to CI and tools/collect_jars.sh.
+//
+// The sources are assembled like neoforge-26.1.2: ../common/1.21.1 with the 26.x renames, plus the
+// forks in ../common/26.1.2.
+//
+// Author: vyrriox
+
 plugins {
     id 'java-library'
-    id 'fabric-loom'
-}
-
-base {
-    archivesName = "${mod_id}-fabric-${minecraft_version_261}"
+    id 'fabric-loom' version '1.16.3'   // needs the first stable Loom with Minecraft 26.x support
 }
 
 version = mod_version
 group = mod_group_id
 
+base {
+    archivesName = "${mod_id}-fabric-${minecraft_version}"
+}
+
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(java_version_261 as int)
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version as int)
 }
 
 repositories {
     mavenCentral()
-    maven { name = 'BlameJared'; url = 'https://maven.blamejared.com' }
     exclusiveContent {
-        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
         filter { includeGroup('maven.modrinth') }
     }
 }
 
-def common261Java = configurations.create('common261Java') { canBeResolved = true }
-def common261Resources = configurations.create('common261Resources') { canBeResolved = true }
+def sharedDir = file('../common/1.21.1/src/main')
+def forkDir = file("../common/${minecraft_version}/src/main")
+
+// Keep in step with the list of neoforge-26.1.2/build.gradle.
+def forkedFor261 = [
+        'com/vyrriox/rspolymorph/mixin/MixinPatternResolver.java',
+        'com/vyrriox/rspolymorph/RsPolymorph.java',
+        'com/vyrriox/rspolymorph/network/SelectRecipePacket.java',
+        'com/vyrriox/rspolymorph/mixin/MixinRecipeMatrix.java',
+        'com/vyrriox/rspolymorph/client/RsGridRecipeWidget.java',
+        'com/vyrriox/rspolymorph/client/RecipeSelectorPopup.java',
+        'com/vyrriox/rspolymorph/client/TutorialOverlay.java',
+        'com/vyrriox/rspolymorph/client/RecipeSelectionSideButton.java',
+        'com/vyrriox/rspolymorph/mixin/MixinAbstractGridScreenRender.java',
+        'com/vyrriox/rspolymorph/mixin/MixinScreenPopupRender.java',
+        'com/vyrriox/rspolymorph/mixin/MixinAbstractContainerScreenOffset.java',
+        'com/vyrriox/rspolymorph/mixin/MixinScreenTooltipSuppress.java',
+]
+
+def remappedJava = layout.buildDirectory.dir('remapped-common/java')
+def remapCommonSources = tasks.register('remapCommonSources', Copy) {
+    from(new File(sharedDir, 'java')) {
+        forkedFor261.each { exclude it }
+        filter { String line ->
+            line.replaceAll(/\bResourceLocation\b/, 'Identifier')
+                .replaceAll(/\bGuiGraphics\b/, 'GuiGraphicsExtractor')
+        }
+    }
+    from(new File(forkDir, 'java'))
+    into remappedJava
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+
+def mergedResources = layout.buildDirectory.dir('merged-resources')
+def mergeResources = tasks.register('mergeResources', Copy) {
+    from(new File(sharedDir, 'resources')) {
+        exclude 'data/rspolymorph/recipe/**'
+        exclude 'rspolymorph-common.mixins.json'
+    }
+    from(new File(forkDir, 'resources'))
+    into mergedResources
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+
+sourceSets.main {
+    java.srcDir(remappedJava)
+    resources.srcDir(mergedResources)
+}
+
+tasks.named('compileJava') { dependsOn remapCommonSources }
+tasks.named('processResources') { dependsOn mergeResources }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version_261}"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version_261}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version_261}"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // Refined Storage 3.2.0 (Fabric) — pinned by Modrinth version-ID (loader-deterministic).
-    modImplementation "maven.modrinth:refined-storage:${refinedstorage_261_fabric}"
-
-    // Shared 26.x-adapted common sources/resources.
-    add('common261Java', project(path: ':common-261', configuration: 'common261Java'))
-    add('common261Resources', project(path: ':common-261', configuration: 'common261Resources'))
+    // Refined Storage 3.2.0 for Fabric, pinned by its Modrinth version id.
+    modImplementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
 }
 
 loom {
@@ -50,24 +108,22 @@ loom {
     }
 }
 
-tasks.named('compileJava', JavaCompile) {
-    dependsOn(common261Java)
-    source(common261Java)
-}
-
 processResources {
-    dependsOn(common261Resources)
-    from(common261Resources)
-    var props = [
-            version                 : mod_version,
-            minecraft_version       : minecraft_version_261,
-            fabric_loader_version   : fabric_loader_version_261,
-            mod_id                  : mod_id,
-            mod_name                : mod_name,
-            mod_author              : mod_author,
-            license                 : license,
-            description             : description,
+    def props = [
+            version              : mod_version,
+            minecraft_version    : minecraft_version,
+            fabric_loader_version: fabric_loader_version,
+            mod_id               : mod_id,
+            mod_name             : mod_name,
+            mod_author           : mod_author,
+            license              : license,
+            description          : project.description,
     ]
     inputs.properties(props)
     filesMatching(['fabric.mod.json', 'pack.mcmeta', '*.mixins.json']) { expand props }
+}
+
+jar {
+    from(file('../LICENSE')) { rename { "${it}_${mod_name}" } }
+    from(file('../NOTICE')) { rename { "${it}_${mod_name}" } }
 }

@@ -26,7 +26,7 @@
 - [ ] Tested in singleplayer / Teste en solo
 - [ ] Tested on dedicated server / Teste sur serveur dedie
 - [ ] Tested with Refined Storage 2 (1.21.1) and/or 3 (26.1.2) / Teste avec Refined Storage 2 et/ou 3
-- [ ] Built with `./gradlew build` / Compile avec `./gradlew build`
+- [ ] Built with `tools/collect_jars.sh --build` / Compile avec `tools/collect_jars.sh --build`
 - [ ] Pattern Grid preview updates correctly on recipe selection
 - [ ] Crafting Grid preview updates correctly on recipe selection
 - [ ] No breaking changes / Aucune regression
@@ -38,4 +38,4 @@
 - [ ] Comments in English / Commentaires en anglais
 - [ ] Client mixins declared in `"client"` block / Mixins client dans le bloc "client"
 - [ ] No hardcoded strings (use lang files) / Pas de chaines en dur
-- [ ] Build passes (`./gradlew build`)
+- [ ] Build passes for every target (`tools/collect_jars.sh --build`)

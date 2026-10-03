@@ -1,36 +1,108 @@
+// RS Polymorph, NeoForge 26.1.2. A standalone Gradle project: build it from this folder (Java 25).
+//
+// Minecraft 26.x renamed two vanilla classes the shared 1.21.1 code uses everywhere
+// (ResourceLocation -> Identifier, GuiGraphics -> GuiGraphicsExtractor). Rather than fork every
+// file, the build copies ../common/1.21.1 with those renames applied, and adds ../common/26.1.2,
+// which holds the files whose 26.x API differs in meaning (recipe lookup, assemble, RecipeHolder.id()
+// as a ResourceKey, the extractRenderState GUI pipeline). Those forks are excluded from the copy.
+//
+// Author: vyrriox
+
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev'
-}
-
-base {
-    archivesName = "${mod_id}-neoforge-${minecraft_version_261}"
+    id 'net.neoforged.moddev' version '2.0.140'
 }
 
 version = mod_version
 group = mod_group_id
 
+base {
+    archivesName = "${mod_id}-neoforge-${minecraft_version}"
+}
+
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(java_version_261 as int)
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version as int)
 }
 
 repositories {
     mavenCentral()
-    maven { name = 'NeoForge'; url = 'https://maven.neoforged.net/releases' }
-    maven { name = 'BlameJared'; url = 'https://maven.blamejared.com' }
     exclusiveContent {
-        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
         filter { includeGroup('maven.modrinth') }
     }
 }
 
+def sharedDir = file('../common/1.21.1/src/main')
+def forkDir = file("../common/${minecraft_version}/src/main")
+
+// Files of ../common/1.21.1 replaced by a 26.x fork in ../common/26.1.2.
+def forkedFor261 = [
+        'com/vyrriox/rspolymorph/mixin/MixinPatternResolver.java',
+        'com/vyrriox/rspolymorph/RsPolymorph.java',
+        'com/vyrriox/rspolymorph/network/SelectRecipePacket.java',
+        'com/vyrriox/rspolymorph/mixin/MixinRecipeMatrix.java',
+        'com/vyrriox/rspolymorph/client/RsGridRecipeWidget.java',
+        'com/vyrriox/rspolymorph/client/RecipeSelectorPopup.java',
+        // Uses the 26.x two-phase draw API (graphics.text / nextStratum), not just type renames.
+        'com/vyrriox/rspolymorph/client/TutorialOverlay.java',
+        // GUI render pipeline changed in 26.x (extractRenderState/extractWidgetRenderState).
+        'com/vyrriox/rspolymorph/client/RecipeSelectionSideButton.java',
+        'com/vyrriox/rspolymorph/mixin/MixinAbstractGridScreenRender.java',
+        // 26.x z-order fix: the popup renders on vanilla extractRenderState, after every extract
+        // phase. MixinScreenPopupRender only exists in the 26.x tree.
+        'com/vyrriox/rspolymorph/mixin/MixinScreenPopupRender.java',
+        'com/vyrriox/rspolymorph/mixin/MixinAbstractContainerScreenOffset.java',
+        // 26.x has a different tooltip pipeline: the fork is a fail-soft no-op.
+        'com/vyrriox/rspolymorph/mixin/MixinScreenTooltipSuppress.java',
+]
+
+def remappedJava = layout.buildDirectory.dir('remapped-common/java')
+def remapCommonSources = tasks.register('remapCommonSources', Copy) {
+    from(new File(sharedDir, 'java')) {
+        forkedFor261.each { exclude it }
+        filter { String line ->
+            line.replaceAll(/\bResourceLocation\b/, 'Identifier')
+                .replaceAll(/\bGuiGraphics\b/, 'GuiGraphicsExtractor')
+        }
+    }
+    from(new File(forkDir, 'java'))
+    into remappedJava
+    duplicatesStrategy = DuplicatesStrategy.FAIL   // a fork colliding with a remapped file is a bug
+}
+
+// Shared resources, with the 26.x overrides: recipe JSON (bare item-id ingredients on 26.x) and the
+// mixin config (it adds MixinScreenPopupRender).
+def mergedResources = layout.buildDirectory.dir('merged-resources')
+def mergeResources = tasks.register('mergeResources', Copy) {
+    from(new File(sharedDir, 'resources')) {
+        exclude 'data/rspolymorph/recipe/**'
+        exclude 'rspolymorph-common.mixins.json'
+    }
+    from(new File(forkDir, 'resources'))
+    into mergedResources
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+
+sourceSets.main {
+    java.srcDir(remappedJava)
+    resources.srcDir(mergedResources)
+}
+
+tasks.named('compileJava') { dependsOn remapCommonSources }
+tasks.named('processResources') { dependsOn mergeResources }
+
 neoForge {
-    version = neoforge_version_261
+    version = neoforge_version
 
     runs {
         configureEach {
             systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
-            ideName = "NeoForge ${it.name.capitalize()} (${project.path})"
+            ideName = "NeoForge ${it.name.capitalize()} (${minecraft_version})"
         }
         client { client() }
         server { server(); programArgument '--nogui' }
@@ -43,41 +115,32 @@ neoForge {
     }
 }
 
-// Pull in the shared, 26.x-adapted common sources + resources from common-261.
-def common261Java = configurations.create('common261Java') { canBeResolved = true }
-def common261Resources = configurations.create('common261Resources') { canBeResolved = true }
-
 dependencies {
-    add('common261Java', project(path: ':common-261', configuration: 'common261Java'))
-    add('common261Resources', project(path: ':common-261', configuration: 'common261Resources'))
-
-    // Refined Storage 3.2.0 (NeoForge) — pinned by Modrinth version-ID (loader-deterministic).
-    implementation "maven.modrinth:refined-storage:${refinedstorage_261_neoforge}"
-}
-
-tasks.named('compileJava', JavaCompile) {
-    dependsOn(common261Java)
-    source(common261Java)
+    // Refined Storage 3.2.0 for NeoForge, pinned by its Modrinth version id.
+    implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
 }
 
 processResources {
-    dependsOn(common261Resources)
-    from(common261Resources)
-    var props = [
+    def props = [
             version                      : mod_version,
-            minecraft_version            : minecraft_version_261,
-            minecraft_version_range      : minecraft_version_range_261,
-            neoforge_version             : neoforge_version_261,
-            neoforge_loader_version_range: neoforge_loader_version_range_261,
+            minecraft_version            : minecraft_version,
+            minecraft_version_range      : minecraft_version_range,
+            neoforge_version             : neoforge_version,
+            neoforge_loader_version_range: neoforge_loader_version_range,
             mod_id                       : mod_id,
             mod_name                     : mod_name,
             mod_author                   : mod_author,
             license                      : license,
             credits                      : credits,
-            description                  : description,
-            refinedstorage_version_range : refinedstorage_version_range_261,
+            description                  : project.description,
+            refinedstorage_version_range : refinedstorage_version_range,
             quartz_arsenal_version_range : quartz_arsenal_version_range,
     ]
     inputs.properties(props)
     filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta', '*.mixins.json']) { expand props }
+}
+
+jar {
+    from(file('../LICENSE')) { rename { "${it}_${mod_name}" } }
+    from(file('../NOTICE')) { rename { "${it}_${mod_name}" } }
 }

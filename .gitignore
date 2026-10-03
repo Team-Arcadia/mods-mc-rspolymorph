@@ -7,7 +7,7 @@ artifacts/
 runs/
 repo/
 dist/
-!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -33,7 +33,7 @@ dist/
 *.log
 *.ctxt
 *.jar
-!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
 
 # ── Minecraft / NeoForge ────────────────────────────────
 run/
@@ -54,11 +54,6 @@ desktop.ini
 .claude/
 CLAUDE.md
 
-# ── Local dependencies (tracked — required for CI build) ─
-# libs/ is committed so GitHub Actions can compile against the Refined Storage jars.
-!libs/rs2.jar
-!libs/rs3.jar
-!libs/quartz-arsenal.jar
 
 # ── Release artifacts ───────────────────────────────────
 RELEASE_NOTES.md
@@ -75,3 +70,6 @@ images/upload/
 
 # Decompiled reference classes (local only)
 temp_rs2_extraction/
+
+# Mod jars collected by tools/collect_jars.sh (local only)
+jars/

@@ -12,7 +12,6 @@
 - **Optional**: Refined Storage - Quartz Arsenal 1.0.7 or later, for its Wireless Crafting Grid.
 - **Fabric on 26.1.2** is implemented but not built yet: it waits for a stable Fabric Loom with
   Minecraft 26.x support ([issue #5](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/5)).
-- On 1.21.1, `./gradlew fusejars` can also produce one jar that loads on both NeoForge and Fabric.
 
 ---
 
@@ -30,4 +29,3 @@
 - **Optionnel** : Refined Storage - Quartz Arsenal 1.0.7 ou plus, pour sa grille de craft sans fil.
 - **Fabric en 26.1.2** est implémenté mais pas encore compilé : il attend une version stable de
   Fabric Loom compatible Minecraft 26.x ([issue #5](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/5)).
-- En 1.21.1, `./gradlew fusejars` peut aussi produire un jar unique qui se charge sur NeoForge et Fabric.

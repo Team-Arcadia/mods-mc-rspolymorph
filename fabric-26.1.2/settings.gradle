@@ -1,0 +1,25 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Fabric'
+                    url = uri('https://maven.fabricmc.net')
+                }
+            }
+            filter {
+                // Subgroups too: Loom pulls net.fabricmc.unpick:*, a subgroup of net.fabricmc.
+                includeGroupAndSubgroups('net.fabricmc')
+                includeGroup('fabric-loom')
+            }
+        }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'rspolymorph-fabric-26.1.2'
