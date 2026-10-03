@@ -14,6 +14,10 @@ All notable changes to RS Polymorph are documented here.
 
 - **Debug "Test Stick" items** — The two development-only items (`test_stick_1` / `test_stick_2`), which existed only to demonstrate the multi-recipe case, were removed from the released mod: their registration (both loaders, both MC lines), creative-tab entries, recipes, models, textures, and lang strings are gone. Real packs already provide genuine non-unique crafts, so the debug items served no purpose in a release build.
 
+### Fixed
+
+- **Recipe button tooltip showed an outdated text** — Leftover `assets/polymorph/lang` files from the time the mod depended on Polymorph were still shipped in the 1.21.1 jars. Minecraft merges language files from every namespace, so their `rspolymorph.gui.click_to_select` entry overrode the current one and the side button read "Click to select the item to craft". The folder is removed; the tooltip now reads "Click to select a recipe" (FR: « Cliquez pour sélectionner une recette »).
+
 ### Changed
 
 - **License changed to Apache-2.0** — RS Polymorph is now under the Apache License 2.0 (official text, recognised by GitHub). A new `NOTICE` file carries the attribution that forks and derivative works must keep: credit to "vyrriox / Team Arcadia" and a link to the upstream repository.
@@ -22,6 +26,10 @@ All notable changes to RS Polymorph are documented here.
 ### Ajouts
 
 - **Avertissement de craft non unique sur le bouton de recette (issue #3)** — Quand la grille ouverte correspond à plusieurs recettes, le bouton latéral de sélection le signale désormais pour que le choix ne soit jamais manqué et qu'un mauvais objet ne soit pas crafté par accident. Il reprend l'idiome d'avertissement natif de Refined Storage — une icône d'avertissement rouge dessinée sur le bouton plus une ligne rouge explicative ajoutée à son infobulle — et fait en plus pulser un léger halo doré autour du bouton pour attirer l'œil (des joueurs signalaient ne pas remarquer le bouton du tout). La pulsation s'arrête dès que le popup est ouvert. L'indicateur disparaît automatiquement quand le craft redevient unique. Implémenté sur les trois jars (1.21.1 Fabric/NeoForge, 26.1.2 NeoForge).
+
+### Correctifs
+
+- **Infobulle du bouton de recette avec un texte obsolète** — Des fichiers `assets/polymorph/lang` restés de l'époque où le mod dépendait de Polymorph étaient encore inclus dans les jars 1.21.1. Minecraft fusionne les fichiers de langue de tous les namespaces : leur entrée `rspolymorph.gui.click_to_select` remplaçait l'actuelle et le bouton latéral affichait « Cliquer pour choisir l'objet à fabriquer ». Le dossier est supprimé ; l'infobulle affiche désormais « Cliquez pour sélectionner une recette ».
 
 ### Modifications
 

@@ -43,7 +43,7 @@ Pick the jar matching your Minecraft version and loader (e.g. `rspolymorph-neofo
 ## Usage
 
 1. Open a Crafting Grid or Pattern Grid with a Refined Storage network
-2. Place ingredients that match multiple recipes (e.g. 4 planks → sticks vs. a dye variant)
+2. Place ingredients that match multiple recipes (for example two mods that add a recipe with the same shape and ingredients)
 3. Click the **recipe selection side button** on the left side of the grid
 4. Select your preferred recipe from the popup
 5. The grid preview (Crafting Grid) or the printed pattern (Pattern Grid) will use your selection
@@ -109,7 +109,7 @@ Choisissez le jar correspondant à votre version de Minecraft et loader (ex. `rs
 ## Utilisation
 
 1. Ouvrez une Crafting Grid ou Pattern Grid avec un réseau Refined Storage
-2. Placez des ingrédients qui correspondent à plusieurs recettes (ex. 4 planches → bâtons vs. une variante de teinture)
+2. Placez des ingrédients qui correspondent à plusieurs recettes (par exemple deux mods qui ajoutent une recette de même forme et mêmes ingrédients)
 3. Cliquez sur le **bouton latéral de sélection de recette** sur la gauche de la grille
 4. Sélectionnez votre recette préférée dans le popup
 5. L'aperçu de la grille (Crafting Grid) ou le patron imprimé (Pattern Grid) utilisera votre sélection
