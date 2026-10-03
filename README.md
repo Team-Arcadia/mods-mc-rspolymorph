@@ -22,16 +22,11 @@ This mod does not add any commands — it integrates transparently with the Refi
 
 ## Requirements
 
-| Target | Minecraft | Loader | Refined Storage | Java |
-|--------|-----------|--------|-----------------|------|
-| 1.21.1 NeoForge | 1.21.1 | NeoForge 21.1.219+ | RS 2.x (tested 2.0.8) | 21 |
-| 1.21.1 Fabric | 1.21.1 | Fabric Loader 0.16.10+ (+ Fabric API) | RS 2.x (tested 2.0.8) | 21 |
-| 26.1.2 NeoForge | 26.1.2 | NeoForge 26.1.2.x | RS 3.x (tested 3.2.0) | 25 |
+- Minecraft **1.21.1** (NeoForge or Fabric, Refined Storage 2.x) or **26.1.2** (NeoForge, Refined Storage 3.x)
+- **No Polymorph dependency**: recipe selection is built in
+- **Optional:** Refined Storage - Quartz Arsenal 1.0.7+ for the Wireless Crafting Grid
 
-- **No Polymorph dependency** — recipe selection is built in.
-- **Optional:** Refined Storage - Quartz Arsenal >= 1.0.7 for the Wireless Crafting Grid.
-
-Pick the jar matching your Minecraft version and loader (e.g. `rspolymorph-neoforge-1.21.1-*.jar`, `rspolymorph-fabric-1.21.1-*.jar`, `rspolymorph-neoforge-26.1.2-*.jar`). On 1.21.1 a single combined NeoForge+Fabric jar is also available. *Fabric for 26.1.2 is implemented but pending a stable Fabric Loom with Minecraft 26.x support (see CHANGELOG).*
+Pick the jar matching your Minecraft version and loader. Versions, loaders and Java per jar: [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
 ## Installation
 
@@ -52,8 +47,10 @@ Pick the jar matching your Minecraft version and loader (e.g. `rspolymorph-neofo
 
 - [CHANGELOG.md](CHANGELOG.md) — Version history and per-version test procedures
 - [RULES.md](RULES.md) — Project conventions, architecture, and AI assistant guidelines
-- [CONTRIBUTING.md](.github/CONTRIBUTING.md) — Contribution guide
-- [SECURITY.md](.github/SECURITY.md) — Security policy
+- [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — Versions, loaders and Java per jar
+- [docs/BUILDING.md](docs/BUILDING.md) — Building from source
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Contribution guide
+- [SECURITY.md](SECURITY.md) — Security policy
 
 ## Credits
 
@@ -88,16 +85,11 @@ Ce mod n'ajoute aucune commande — il s'intègre de manière transparente à l'
 
 ## Prérequis
 
-| Cible | Minecraft | Loader | Refined Storage | Java |
-|-------|-----------|--------|-----------------|------|
-| 1.21.1 NeoForge | 1.21.1 | NeoForge 21.1.219+ | RS 2.x (testé 2.0.8) | 21 |
-| 1.21.1 Fabric | 1.21.1 | Fabric Loader 0.16.10+ (+ Fabric API) | RS 2.x (testé 2.0.8) | 21 |
-| 26.1.2 NeoForge | 26.1.2 | NeoForge 26.1.2.x | RS 3.x (testé 3.2.0) | 25 |
+- Minecraft **1.21.1** (NeoForge ou Fabric, Refined Storage 2.x) ou **26.1.2** (NeoForge, Refined Storage 3.x)
+- **Aucune dépendance à Polymorph** : la sélection de recette est intégrée
+- **Optionnel :** Refined Storage - Quartz Arsenal 1.0.7+ pour la Wireless Crafting Grid
 
-- **Aucune dépendance à Polymorph** — la sélection de recette est intégrée.
-- **Optionnel :** Refined Storage - Quartz Arsenal >= 1.0.7 pour la Wireless Crafting Grid.
-
-Choisissez le jar correspondant à votre version de Minecraft et loader (ex. `rspolymorph-neoforge-1.21.1-*.jar`, `rspolymorph-fabric-1.21.1-*.jar`, `rspolymorph-neoforge-26.1.2-*.jar`). Sur 1.21.1, un jar combiné NeoForge+Fabric unique est aussi disponible. *Fabric pour 26.1.2 est implémenté mais en attente d'un Fabric Loom stable supportant Minecraft 26.x (voir CHANGELOG).*
+Choisissez le jar correspondant à votre version de Minecraft et à votre loader. Versions, loaders et Java par jar : [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
 ## Installation
 
@@ -118,8 +110,10 @@ Choisissez le jar correspondant à votre version de Minecraft et loader (ex. `rs
 
 - [CHANGELOG.md](CHANGELOG.md) — Historique des versions et procédures de test
 - [RULES.md](RULES.md) — Conventions du projet, architecture et règles pour les assistants IA
-- [CONTRIBUTING.md](.github/CONTRIBUTING.md) — Guide de contribution
-- [SECURITY.md](.github/SECURITY.md) — Politique de sécurité
+- [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — Versions, loaders et Java par jar
+- [docs/BUILDING.md](docs/BUILDING.md) — Compiler depuis les sources
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Guide de contribution
+- [SECURITY.md](SECURITY.md) — Politique de sécurité
 
 ## Credits
 
