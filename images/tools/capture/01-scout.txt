@@ -1,0 +1,19 @@
+# Scouting: create the world, find a flat open spot near trees, log where it is.
+world rsp_page 20261003
+wait 100
+size 1600 900
+freeze
+hud off
+notoast on
+time 6000
+cmd gamerule announceAdvancements false
+cmd gamerule doMobSpawning false
+flat 48 minecraft:plains
+wait 160
+pos
+status
+shot scout_a
+rot 90 10
+wait 60
+shot scout_b
+quit

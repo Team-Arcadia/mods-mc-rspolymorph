@@ -1,418 +1,106 @@
-<h1 style="text-align: center;"><span style="color: #ffa500;">🔧 RS POLYMORPH - RECIPE CHOICE FOR REFINED STORAGE 🔧</span></h1>
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>⚡ Pick the recipe you actually want ⚡</strong></span></p>
-<p style="text-align: center;"><span style="font-size: large;"><em>A standalone recipe selector for Refined Storage - no Polymorph required.</em></span></p>
+<div align="center" style="text-align:center">
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/hero.gif" alt="RS Polymorph: a Refined Storage network at dusk, its Crafting Grid and Pattern Grid glowing / RS Polymorph : un réseau Refined Storage au crépuscule, sa grille de craft et sa grille de patrons allumées" width="800"></p>
+<p><a href="https://discord.gg/xjF8Rtzyd4"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-discord.png" alt="Discord: Join"></a> <a href="https://www.arcadia-echoes-of-power.fr/"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-website.png" alt="Website: Arcadia"></a> <a href="https://www.arcadia-echoes-of-power.fr/wiki"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-wiki.png" alt="Wiki: Arcadia"></a> <a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-source.png" alt="Source: GitHub"></a> <a href="https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-donate.png" alt="Donate: Stripe"></a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-minecraft.png" alt="Minecraft: 1.21.1 | 26.1.2"> <img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-loaders.png" alt="Loaders: NeoForge | Fabric"> <img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-extra-for.png" alt="For: Refined Storage"></p>
+</div>
 
-<p>&nbsp;</p>
+<div align="center" style="text-align:center">
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/lang-en.gif" alt="English" width="800"></p>
+<p><span style="font-size:18px;color:#e5e5e5"><strong>RS Polymorph</strong> lets you choose which recipe the Refined Storage Crafting Grid and Pattern Grid use when several recipes share the same ingredients. No Polymorph needed.</span></p>
+<p><span style="font-size:20px;color:#4682c8"><em>Stop letting Refined Storage pick the wrong recipe for you.</em></span></p>
+</div>
 
-<p style="text-align: center;"><a href="https://link.me/vyrriox" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Author-vyrriox-FFA500?style=for-the-badge&amp;logo=curseforge&amp;logoColor=white" alt="Author"></a>&nbsp; &nbsp;<a href="https://discord.gg/xjF8Rtzyd4" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&amp;logo=discord&amp;logoColor=white" alt="Discord"></a>&nbsp; &nbsp;<a href="https://www.arcadia-echoes-of-power.fr/" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Website-Arcadia-FFA500?style=for-the-badge&amp;logo=google-chrome&amp;logoColor=white" alt="Website"></a>&nbsp; &nbsp;<a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&amp;logo=github&amp;logoColor=white" alt="GitHub"></a></p>
+<div align="center" style="text-align:center">
+<h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/title-features-en.gif" alt="What It Does" width="800"></h3>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/pick.gif" alt="Two oak planks match three recipes; the recipe button opens a popup, sticks are picked and the grid crafts sticks instead of a ladder" width="800"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/button.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Recipe button:</strong></span> next to the grid, it lists every recipe that matches your ingredients.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/warning.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Never miss a conflict:</strong></span> a red warning and a gold halo show when more than one recipe matches.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/eye.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Live preview:</strong></span> the output changes the moment you pick, and the choice is kept per grid.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/pattern.gif" alt="In the Pattern Grid, sticks are picked over the ladder, the pattern is printed and its tooltip reads 4x Stick" width="800"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/pattern.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Pattern Grid:</strong></span> the same button, and your choice is written into the printed pattern.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/gear.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>The right craft:</strong></span> autocrafting uses the recipe stored on the pattern, not the first match.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/info.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>First-open tutorial:</strong></span> a one-time card explains it, in English or French.</p>
+</div>
 
-<p>&nbsp;</p>
+<div align="center" style="text-align:center">
+<h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/title-start-en.gif" alt="Getting Started" width="800"></h3>
+<p><span style="color:#4682c8;font-size:20px"><strong>1.</strong></span> Install Refined Storage and the RS Polymorph jar for your version and loader, client and server.</p>
+<p><span style="color:#4682c8;font-size:20px"><strong>2.</strong></span> Open a Crafting Grid or a Pattern Grid and place ingredients.</p>
+<p><span style="color:#4682c8;font-size:20px"><strong>3.</strong></span> When the recipe button glows, click it and pick your recipe.</p>
+</div>
 
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square&amp;logo=minecraft&amp;logoColor=white" alt="MC 1.21.1">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Minecraft-26.1.2-62B47A?style=flat-square&amp;logo=minecraft&amp;logoColor=white" alt="MC 26.1.2">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/NeoForge-✓-F16436?style=flat-square" alt="NeoForge">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Fabric-✓-DBD0B4?style=flat-square&amp;logo=fabric&amp;logoColor=black" alt="Fabric">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Refined_Storage-2_%26_3-2196F3?style=flat-square" alt="RS 2 & 3">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Standalone-No_Polymorph-9C27B0?style=flat-square" alt="Standalone">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/License-LGPL--3.0-FFA500?style=flat-square" alt="LGPL-3.0">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Languages-EN%20%2F%20FR-2196F3?style=flat-square" alt="EN / FR"></p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Stable_Release-v1.2.2-00cc00?style=for-the-badge" alt="Stable v1.2.2"></p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 850px; border: 2px solid #FFC107; background-color: rgba(255, 193, 7, 0.15);">
-<tbody>
-<tr>
-<td style="padding: 14px 18px; vertical-align: top; width: 50%; border-right: 2px solid #FFC107;">
-<p><span style="color: #FFC107; font-size: large;"><strong>[EN] Free & Open Source</strong></span></p>
-<p>RS Polymorph is licensed under <strong>LGPL-3.0-or-later</strong>. You are free to use, study, modify, fork and redistribute it, including for commercial purposes, as long as derivative works credit <strong>vyrriox / Team Arcadia</strong> and link back to the upstream repository.</p>
-</td>
-<td style="padding: 14px 18px; vertical-align: top; width: 50%;">
-<p><span style="color: #FFC107; font-size: large;"><strong>[FR] Libre & Open Source</strong></span></p>
-<p>RS Polymorph est sous licence <strong>LGPL-3.0-or-later</strong>. Vous êtes libre de l'utiliser, l'étudier, le modifier, le forker et le redistribuer, y compris à des fins commerciales, à condition que les travaux dérivés créditent <strong>vyrriox / Team Arcadia</strong> et pointent vers le dépôt d'origine.</p>
-</td>
-</tr>
-</tbody>
+<div align="center" style="text-align:center">
+<h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/title-compat-en.gif" alt="Compatibility" width="800"></h3>
+<div align="center" style="display:table;margin-left:auto;margin-right:auto">
+<table style="margin-left:auto;margin-right:auto">
+<tr><th>Minecraft</th><th>NeoForge</th><th>Fabric</th><th>Refined Storage</th></tr>
+<tr><td>1.21.1</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>2.x</td></tr>
+<tr><td>26.1.2</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>3.x</td></tr>
 </table>
+</div>
+<p><em>Optional: Refined Storage - Quartz Arsenal 1.0.7 or later, for its Wireless Crafting Grid.</em></p>
+</div>
+
+<div align="center" style="text-align:center">
+<p>A bug or an idea? Ask on <a href="https://discord.gg/xjF8Rtzyd4" style="color:#4682c8">Discord</a> or <a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml" style="color:#4682c8">open an issue on GitHub</a>.</p>
+</div>
 
 <p>&nbsp;</p>
 
-<table style="margin-left: auto; margin-right: auto; max-width: 850px; border: 2px solid #2196F3; background-color: rgba(33, 150, 243, 0.12);">
-<tbody>
-<tr>
-<td style="padding: 14px 18px; vertical-align: top; width: 50%; border-right: 2px solid #2196F3; text-align: center;">
-<p><span style="color: #2196F3; font-size: large;"><strong>🔌 PLUG-AND-PLAY ADDON</strong></span></p>
-<p>Drop it in your <code>mods/</code> folder next to Refined Storage - <strong>no Polymorph, no configuration, no commands</strong>, no extra blocks or items to learn. A recipe-selection button just <strong>appears</strong> on RS grid screens whenever multiple recipes share your ingredients.</p>
-<p>✅ <strong>Fabric &amp; NeoForge.</strong> ✅ <strong>Minecraft 1.21.1 &amp; 26.1.2.</strong> ✅ <strong>Singleplayer &amp; dedicated servers</strong> - server-safe by design, no client-only class leaks into common code.</p>
-</td>
-<td style="padding: 14px 18px; vertical-align: top; width: 50%; text-align: center;">
-<p><span style="color: #2196F3; font-size: large;"><strong>🔌 ADDON PRÊT À L'EMPLOI</strong></span></p>
-<p>Posez le jar dans votre dossier <code>mods/</code> à côté de Refined Storage - <strong>sans Polymorph, sans config, sans commande</strong>, aucun bloc ou item à apprendre. Un bouton de sélection de recette <strong>apparaît</strong> sur les écrans de grille RS dès que plusieurs recettes partagent vos ingrédients.</p>
-<p>✅ <strong>Fabric &amp; NeoForge.</strong> ✅ <strong>Minecraft 1.21.1 &amp; 26.1.2.</strong> ✅ <strong>Solo &amp; serveur dédié</strong> - sûr côté serveur par design, aucune classe client ne fuit dans le code commun.</p>
-</td>
-</tr>
-</tbody>
+<div align="center" style="text-align:center">
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/lang-fr.gif" alt="Français" width="800"></p>
+<p><span style="font-size:18px;color:#e5e5e5"><strong>RS Polymorph</strong> vous laisse choisir la recette qu'utilisent la grille de craft et la grille de patrons de Refined Storage quand plusieurs recettes partagent les mêmes ingrédients. Aucun besoin de Polymorph.</span></p>
+<p><span style="font-size:20px;color:#4682c8"><em>Ne laissez plus Refined Storage choisir la mauvaise recette à votre place.</em></span></p>
+</div>
+
+<div align="center" style="text-align:center">
+<h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/title-features-fr.gif" alt="Ce Qu&#x27;il Fait" width="800"></h3>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/button.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Bouton de recette&nbsp;:</strong></span> à côté de la grille, il liste chaque recette qui correspond à vos ingrédients.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/warning.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Aucun conflit manqué&nbsp;:</strong></span> un avertissement rouge et un halo doré signalent plusieurs recettes.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/eye.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Aperçu immédiat&nbsp;:</strong></span> la sortie change dès votre choix, et il est mémorisé pour chaque grille.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/pattern.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Grille de patrons&nbsp;:</strong></span> le même bouton, et votre choix est inscrit dans le patron imprimé.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/gear.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Le bon craft&nbsp;:</strong></span> l'autocraft utilise la recette inscrite sur le patron, pas la première trouvée.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/icons/info.png" alt="" width="32"> <span style="color:#4682c8;font-size:18px"><strong>Tutoriel à l'ouverture&nbsp;:</strong></span> une carte unique l'explique, en anglais ou en français.</p>
+</div>
+
+<div align="center" style="text-align:center">
+<h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/title-start-fr.gif" alt="Premiers Pas" width="800"></h3>
+<p><span style="color:#4682c8;font-size:20px"><strong>1.</strong></span> Installez Refined Storage et le jar RS Polymorph de votre version et loader, client et serveur.</p>
+<p><span style="color:#4682c8;font-size:20px"><strong>2.</strong></span> Ouvrez une grille de craft ou une grille de patrons et placez vos ingrédients.</p>
+<p><span style="color:#4682c8;font-size:20px"><strong>3.</strong></span> Quand le bouton de recette s'allume, cliquez et choisissez votre recette.</p>
+</div>
+
+<div align="center" style="text-align:center">
+<h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/title-compat-fr.gif" alt="Compatibilité" width="800"></h3>
+<div align="center" style="display:table;margin-left:auto;margin-right:auto">
+<table style="margin-left:auto;margin-right:auto">
+<tr><th>Minecraft</th><th>NeoForge</th><th>Fabric</th><th>Refined Storage</th></tr>
+<tr><td>1.21.1</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>2.x</td></tr>
+<tr><td>26.1.2</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>3.x</td></tr>
 </table>
+</div>
+<p><em>Optionnel&nbsp;: Refined Storage - Quartz Arsenal 1.0.7 ou plus, pour sa grille de craft sans fil.</em></p>
+</div>
 
+<div align="center" style="text-align:center">
+<p>Un bug ou une idée&nbsp;? Demandez sur <a href="https://discord.gg/xjF8Rtzyd4" style="color:#4682c8">Discord</a> ou <a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml" style="color:#4682c8">ouvrez un ticket sur GitHub</a>.</p>
+</div>
+
+<div align="center" style="text-align:center">
+<h3><span style="font-size:24px;color:#e5e5e5"><strong>Official Hosting Partner / Hébergeur Partenaire Officiel</strong></span></h3>
+<p>Run your own modded server with Refined Storage and RS Polymorph on hosting built for modpacks.<br><em>Lancez votre serveur moddé avec Refined Storage et RS Polymorph sur un hébergement pensé pour les modpacks.</em></p>
+<p><a href="https://wabbanode.com/partner/vyrriox"><img src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerwab.png" alt="WabbaNode" width="800"></a></p>
 <p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<h1 style="text-align: center;"><span style="color: #ffa500;">🇺🇸 Description (English) 🇺🇸</span></h1>
-
-<p style="text-align: center;"><span style="font-size: large;"><strong>🌟 Stop letting Refined Storage pick the wrong recipe for you. 🌟</strong></span></p>
-
-<p>&nbsp;</p>
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🤔 Why RS Polymorph?</strong></span></p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 950px;">
-<tbody>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🧩 Fully Standalone</strong></span><br>RS Polymorph no longer depends on Polymorph. The selection button, the recipe popup and the per-grid persistence are <strong>all built in</strong>. A true Refined Storage add-on that works everywhere RS works.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌍 Two MC Lines, Two Loaders</strong></span><br>One project, ready for <strong>Minecraft 1.21.1</strong> (NeoForge &amp; Fabric) and <strong>Minecraft 26.1.2</strong> (NeoForge), against <strong>Refined Storage 2 and 3</strong>. Grab the jar that matches your setup.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🛠️ Crafting Grid</strong></span><br>The recipe button works on the RS <strong>Crafting Grid</strong>. When several recipes match your ingredients (e.g. planks → sticks vs. a variant), pick the exact one you want before crafting.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>📜 Pattern Grid</strong></span><br>Same workflow on the <strong>Pattern Grid</strong>. Your selection is <strong>stamped onto the printed pattern</strong> via a custom data component, so autocrafting always resolves the recipe you actually chose.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎨 Redesigned Selector</strong></span><br>A clean, native-looking popup: titled header, inset slot frames, a <strong>gold highlight on the recipe currently produced</strong>, on-screen clamping, and a single readable recipe name on hover.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎓 First-Time Tutorial</strong></span><br>The very first time you open an RS grid, a one-time card explains the feature in your language. Dismiss it with a click - it never nags you again.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎯 Live Preview</strong></span><br>The grid's output preview updates <strong>immediately</strong> when you pick a different recipe. No need to print, craft or refresh - what you see is what you get.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>⚠️ Non-Unique Craft Warning</strong></span><br>When more than one recipe matches your grid, the button flags it: a red warning icon, an explanatory tooltip line, and a pulsing gold halo so you never miss the choice or craft the wrong item by accident. Stays quiet when the craft is unique.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🛡️ Server-Safe &amp; Audited</strong></span><br>Built without client-only leaks into common code, with a multi-dimensional audit (bugs, performance, server safety, visuals, accessibility) kept green. Defense in depth.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌐 100% Bilingual EN/FR</strong></span><br>Every user-facing string is translated. English and French lang files ship in the jar.</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🎮 How to Use</strong></span></p>
-<p style="text-align: center;">It really is <strong>this</strong> simple:</p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 800px;">
-<tbody>
-<tr>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>1️⃣</strong></span> Open any RS <strong>Crafting Grid</strong> or <strong>Pattern Grid</strong> screen.</p>
-</td>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>2️⃣</strong></span> Place ingredients that match <strong>multiple recipes</strong>.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>3️⃣</strong></span> Click the <strong>recipe-selection button</strong> next to the grid.</p>
-</td>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>4️⃣</strong></span> Pick your preferred output from the popup. Done - it's remembered per grid.</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>📦 Requirements</strong></span></p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 820px; border-collapse: collapse;">
-<thead>
-<tr style="background-color: rgba(255, 165, 0, 0.18);">
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Minecraft</span></th>
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Loader</span></th>
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Java</span></th>
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Refined Storage</span></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>1.21.1</strong></td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">NeoForge 21.1.219+ &nbsp;/&nbsp; Fabric</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">21</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">RS 2 (≥ 2.0.8)</td>
-</tr>
-<tr style="background-color: rgba(255, 165, 0, 0.10);">
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>26.1.2</strong></td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">NeoForge 26.1.2.73+</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">25</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">RS 3 (≥ 3.2.0)</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><em><strong>Refined Storage is the only dependency.</strong> No Polymorph needed. Download the jar that matches your Minecraft version and loader.</em></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🐛 Bug Reports & Support</strong></span></p>
-<p style="text-align: center;">Found a crash or unexpected behavior? We'd love to hear about it.</p>
-
-<p style="text-align: center;"><a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Report_a_bug-GitHub_Issue-d73a49?style=for-the-badge&amp;logo=github&amp;logoColor=white" alt="Report a bug"></a>&nbsp; &nbsp;<a href="https://discord.gg/xjF8Rtzyd4" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Ask_on-Discord-5865F2?style=for-the-badge&amp;logo=discord&amp;logoColor=white" alt="Discord"></a></p>
-
-<p style="text-align: center;"><em>Please include your full crash log, the versions of RS Polymorph, Refined Storage, your loader (NeoForge/Fabric) and Minecraft, and clear steps to reproduce.</em></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🤝 Contribute</strong></span></p>
-<p style="text-align: center;">RS Polymorph is fully open source under LGPL-3.0-or-later. Pull requests welcome.</p>
-
-<p style="text-align: center;"><a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Star_on-GitHub-FFA500?style=for-the-badge&amp;logo=github&amp;logoColor=white" alt="Star on GitHub"></a>&nbsp; &nbsp;<a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/blob/main/.github/CONTRIBUTING.md" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Contributing_Guide-Read-2196F3?style=for-the-badge&amp;logo=readme&amp;logoColor=white" alt="Contributing"></a>&nbsp; &nbsp;<a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/blob/main/CHANGELOG.md" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Changelog-Scroll-orange?style=for-the-badge&amp;logo=readme&amp;logoColor=white" alt="Changelog"></a></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🤝 Official Hosting Partner</strong></span></p>
-<p style="text-align: center;">Want to run your own modded server with RS Polymorph and Refined Storage? Our official US/international partner offers high-performance Minecraft hosting optimized for modpacks.</p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><a href="https://wabbanode.com/partner/vyrriox" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerwab.png" alt="WabbaNode - Official Hosting Partner" width="800"></a></p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><a href="https://wabbanode.com/partner/vyrriox" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Host_with-WabbaNode-FFA500?style=for-the-badge&amp;logo=server&amp;logoColor=white" alt="Host with WabbaNode"></a></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p>&nbsp;</p>
-
-<h1 style="text-align: center;"><span style="color: #0055a4;">🇫🇷 Description (Français) 🇫🇷</span></h1>
-
-<p style="text-align: center;"><span style="font-size: large;"><strong>🌟 Arrêtez de laisser Refined Storage choisir la mauvaise recette à votre place. 🌟</strong></span></p>
-
-<p>&nbsp;</p>
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🤔 Pourquoi RS Polymorph ?</strong></span></p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 950px;">
-<tbody>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🧩 Entièrement Autonome</strong></span><br>RS Polymorph ne dépend plus de Polymorph. Le bouton de sélection, le popup de recette et la persistance par grille sont <strong>tous intégrés</strong>. Un véritable add-on Refined Storage qui fonctionne partout où RS fonctionne.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌍 Deux Lignes MC, Deux Loaders</strong></span><br>Un seul projet, prêt pour <strong>Minecraft 1.21.1</strong> (NeoForge &amp; Fabric) et <strong>Minecraft 26.1.2</strong> (NeoForge), avec <strong>Refined Storage 2 et 3</strong>. Prenez le jar adapté à votre installation.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🛠️ Grille de Fabrication</strong></span><br>Le bouton de recette fonctionne sur la <strong>Grille de Fabrication</strong> de RS. Quand plusieurs recettes correspondent à vos ingrédients (planches → bâtons vs. variante, par ex.), choisissez celle que vous voulez avant de crafter.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>📜 Grille de Patrons</strong></span><br>Même workflow sur la <strong>Grille de Patrons</strong>. Votre sélection est <strong>marquée sur le patron imprimé</strong> via un data component custom, donc l'autocraft résout toujours la recette que vous avez réellement choisie.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎨 Sélecteur Redesigné</strong></span><br>Un popup épuré, d'aspect natif : en-tête titré, slots en relief, <strong>surbrillance dorée sur la recette produite</strong>, calage à l'écran, et un seul nom de recette lisible au survol.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎓 Tutoriel au Premier Lancement</strong></span><br>La toute première fois que vous ouvrez une grille RS, une carte unique explique la fonctionnalité dans votre langue. Fermez-la d'un clic - elle ne réapparaît plus jamais.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎯 Aperçu en Direct</strong></span><br>L'aperçu de sortie de la grille se met à jour <strong>immédiatement</strong> quand vous choisissez une autre recette. Pas besoin d'imprimer, de crafter ou de rafraîchir - ce que vous voyez est ce que vous obtenez.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>⚠️ Avertissement de Craft Non Unique</strong></span><br>Quand plusieurs recettes correspondent à votre grille, le bouton le signale : icône d'avertissement rouge, ligne d'infobulle explicative, et halo doré pulsant pour ne jamais manquer le choix ni crafter le mauvais objet par accident. Reste discret quand le craft est unique.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🛡️ Sûr Côté Serveur &amp; Audité</strong></span><br>Conçu sans fuite de classe client dans le code commun, avec un audit multi-dimensionnel (bugs, performance, sûreté serveur, visuel, accessibilité) maintenu au vert. Défense en profondeur.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌐 100% Bilingue EN/FR</strong></span><br>Chaque texte visible par l'utilisateur est traduit. Les fichiers de langue anglais et français sont inclus dans le jar.</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🎮 Comment l'utiliser</strong></span></p>
-<p style="text-align: center;">C'est vraiment <strong>aussi simple</strong> que ça :</p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 800px;">
-<tbody>
-<tr>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>1️⃣</strong></span> Ouvrez une <strong>Grille de Fabrication</strong> ou <strong>Grille de Patrons</strong> RS.</p>
-</td>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>2️⃣</strong></span> Placez des ingrédients qui correspondent à <strong>plusieurs recettes</strong>.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>3️⃣</strong></span> Cliquez sur le <strong>bouton de sélection de recette</strong> à côté de la grille.</p>
-</td>
-<td style="padding: 10px 14px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
-<p><span style="color: #ffa500;"><strong>4️⃣</strong></span> Choisissez votre recette préférée dans le popup. Terminé - c'est mémorisé par grille.</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>📦 Prérequis</strong></span></p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 820px; border-collapse: collapse;">
-<thead>
-<tr style="background-color: rgba(255, 165, 0, 0.18);">
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Minecraft</span></th>
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Loader</span></th>
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Java</span></th>
-<th style="text-align: center; padding: 10px 20px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Refined Storage</span></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>1.21.1</strong></td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">NeoForge 21.1.219+ &nbsp;/&nbsp; Fabric</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">21</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">RS 2 (≥ 2.0.8)</td>
-</tr>
-<tr style="background-color: rgba(255, 165, 0, 0.10);">
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>26.1.2</strong></td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">NeoForge 26.1.2.73+</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">25</td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">RS 3 (≥ 3.2.0)</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><em><strong>Refined Storage est la seule dépendance.</strong> Pas besoin de Polymorph. Téléchargez le jar correspondant à votre version de Minecraft et à votre loader.</em></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🐛 Bugs & Support</strong></span></p>
-<p style="text-align: center;">Vous avez un crash ou un comportement inattendu ? On veut bien le savoir.</p>
-
-<p style="text-align: center;"><a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Signaler_un_bug-Issue_GitHub-d73a49?style=for-the-badge&amp;logo=github&amp;logoColor=white" alt="Signaler un bug"></a>&nbsp; &nbsp;<a href="https://discord.gg/xjF8Rtzyd4" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Demander_sur-Discord-5865F2?style=for-the-badge&amp;logo=discord&amp;logoColor=white" alt="Discord"></a></p>
-
-<p style="text-align: center;"><em>Merci d'inclure votre log de crash complet, les versions de RS Polymorph, Refined Storage, votre loader (NeoForge/Fabric) et Minecraft, ainsi que des étapes claires pour reproduire.</em></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🤝 Contribuer</strong></span></p>
-<p style="text-align: center;">RS Polymorph est entièrement open source sous LGPL-3.0-or-later. Les pull requests sont les bienvenues.</p>
-
-<p style="text-align: center;"><a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Star_sur-GitHub-FFA500?style=for-the-badge&amp;logo=github&amp;logoColor=white" alt="Star sur GitHub"></a>&nbsp; &nbsp;<a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/blob/main/.github/CONTRIBUTING.md" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Guide_de_contribution-Lire-2196F3?style=for-the-badge&amp;logo=readme&amp;logoColor=white" alt="Contribution"></a>&nbsp; &nbsp;<a href="https://github.com/Team-Arcadia/Arcadia-RsPolymorph/blob/main/CHANGELOG.md" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Changelog-Parchemin-orange?style=for-the-badge&amp;logo=readme&amp;logoColor=white" alt="Changelog"></a></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🤝 Hébergeur Officiel Partenaire</strong></span></p>
-<p style="text-align: center;">Vous souhaitez héberger votre propre serveur moddé avec RS Polymorph et Refined Storage ? Notre partenaire officiel français propose un hébergement Minecraft haute performance optimisé pour les modpacks.</p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><a href="https://lordhosting.fr/gaming/serveur-minecraft?ref=arcadia" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerlord.png" alt="LordHosting - Hébergeur Officiel Partenaire" width="800"></a></p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><a href="https://lordhosting.fr/gaming/serveur-minecraft?ref=arcadia" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Heberger_avec-LordHosting-FFA500?style=for-the-badge&amp;logo=server&amp;logoColor=white" alt="Héberger avec LordHosting"></a></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<h1 style="text-align: center;"><span style="color: #ffa500;">🌟 PLAY ARCADIA V2 - ECHOES OF POWER 🌟</span></h1>
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>⚡ Where Magic Meets Machinery ⚡</strong></span></p>
-<p style="text-align: center;"><span style="font-size: large;"><em>The flagship modpack RS Polymorph was built for - and ships in by default.</em></span></p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500; border-radius: 8px;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif" alt="Arcadia V2 - Echoes of Power" width="700"></a></p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Mods-490+-FFA500?style=flat-square" alt="490+ mods">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Quests-3000+-9C27B0?style=flat-square" alt="3000+ quests">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Servers-5_Live-2ea44f?style=flat-square" alt="5 live servers">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Languages-EN%20%2F%20FR-2196F3?style=flat-square" alt="EN / FR">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Hours_to_endgame-150--300-FFC107?style=flat-square" alt="Playtime"></p>
-
-<p>&nbsp;</p>
-
-<table style="margin-left: auto; margin-right: auto; max-width: 950px;">
-<tbody>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🔗 True Cross-Mod Progression</strong></span><br>Tech and magic don't live in separate silos. Late-game crafts need <strong>both</strong> ecosystems. 4 custom bridge items (Arcane Circuit, Ethereal Alloy, Industrial Heart, Rune Matrix) tie everything together.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌐 100% Bilingual EN/FR</strong></span><br><strong>25,000+ translation entries</strong> across the entire pack. Quests, items, custom UIs - fully translated. Zero franglais.</p>
-</td>
-</tr>
-<tr>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎮 Curated Server Experience</strong></span><br>In-house mods built for Arcadia: <strong>Arcadia Pets</strong> (collectibles + PvP duels + ELO ladder), Arcadia Guard moderation, Prestige progression, Heart of Arcadia. Not mods bolted together - a tailored ecosystem.</p>
-</td>
-<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>📜 3,000+ Quest-Guided Journey</strong></span><br>31 chapters of FTB Quests covering every mod's progression path. Whether you're fresh or a 1000-hour veteran, you always know what to do next.</p>
-</td>
-</tr>
-</tbody>
-</table>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><span style="font-size: x-large;"><strong>🎮 JOIN THE ADVENTURE - 490 MODS, ONE EPIC JOURNEY 🎮</strong></span></p>
-
-<p style="text-align: center;"><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Play_Now-Arcadia_V2-2ea44f?style=for-the-badge&amp;logo=curseforge&amp;logoColor=white" alt="Play Arcadia V2"></a>&nbsp; &nbsp;<a href="https://arcadia-echoes-of-power.fr/discord" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/discord/1346965857288589472?label=Join%20Discord&amp;logo=discord&amp;style=for-the-badge&amp;color=5865F2&amp;labelColor=0f172a" alt="Join Discord"></a>&nbsp; &nbsp;<a href="https://www.arcadia-echoes-of-power.fr/" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Official-Website-FFA500?style=for-the-badge&amp;logo=google-chrome&amp;logoColor=white" alt="Website"></a>&nbsp; &nbsp;<a href="https://www.arcadia-echoes-of-power.fr/wiki" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Wiki-Guides-2196F3?style=for-the-badge&amp;logo=bookstack&amp;logoColor=white" alt="Wiki"></a></p>
-
-<p>&nbsp;</p>
-
-<p align="center" style="text-align: center;"><span style="font-size: large; color: #ffa500;"><strong>🇫🇷 Découvrez Arcadia V2 : Echoes of Power</strong></span><br><em>Le modpack phare pour lequel RS Polymorph a été conçu - et qui l'inclut par défaut. 490+ mods, 3 000+ quêtes, 5 serveurs actifs, 100 % bilingue EN/FR. <strong>Industrie + Magie + Exploration</strong>, comptez 150 à 300 heures pour atteindre l'endgame.</em></p>
-
-<p>&nbsp;</p>
-
-<hr style="border: 1px solid #FFA500;">
-
-<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large;"><strong>❤️ Support the Project / Soutenir le Projet</strong></span></p>
-<p style="text-align: center;"><em>Your support helps us keep Arcadia alive and evolving!</em><br><em>Votre soutien nous aide à faire vivre et évoluer Arcadia !</em></p>
-<p style="text-align: center;"><a href="https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Donate-Support_Us-9C27B0?style=for-the-badge&amp;logo=stripe&amp;logoColor=white" alt="Donate"></a>&nbsp; &nbsp;<a href="https://www.arcadia-echoes-of-power.fr/partenariat" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Partners-Partenaires-FFA500?style=for-the-badge" alt="Partners"></a></p>
-
-<p>&nbsp;</p>
-
-<p style="text-align: center;"><span style="font-size: small;">&copy; 2026 RS Polymorph | Created by vyrriox / Team Arcadia | LGPL-3.0-or-later | Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft. Refined Storage is © refinedmods. Originally derived from Polymorph (© Illusive Soulworks, LGPL-3.0).</span></p>
+<h3><span style="font-size:24px;color:#e5e5e5"><strong>Play Arcadia V2: Echoes of Power / Jouez à Arcadia V2&nbsp;: Echoes of Power</strong></span></h3>
+<p>RS Polymorph is made by Team Arcadia. Join our modpack and find its server, the <a href="https://www.arcadia-echoes-of-power.fr/" style="color:#4682c8">website</a> and the <a href="https://www.arcadia-echoes-of-power.fr/wiki" style="color:#4682c8">wiki</a>.<br><em>RS Polymorph est fait par la Team Arcadia. Rejoignez notre modpack et retrouvez son serveur, le <a href="https://www.arcadia-echoes-of-power.fr/" style="color:#4682c8">site</a> et le <a href="https://www.arcadia-echoes-of-power.fr/wiki" style="color:#4682c8">wiki</a>.</em></p>
+<p><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"><img src="https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif" alt="Arcadia V2: Echoes of Power modpack" width="800"></a></p>
+<p><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-extra-1-en.png" alt="Play now: Modpack"></a></p>
+</div>
+
+<div align="center" style="text-align:center">
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/divider.gif" alt="" width="800"></p>
+<p><span style="font-size:24px;color:#e5e5e5"><strong>Support the Project / Soutenir le Projet</strong></span></p>
+<p><strong>Your support keeps the project alive.</strong><br><em>Votre soutien fait vivre le projet.</em></p>
+<p><a href="https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/badge-donate.png" alt="Donate: Stripe"></a></p>
+<p><strong>Author / Auteur:</strong> vyrriox &nbsp;|&nbsp; <strong>License / Licence:</strong> LGPL-3.0-or-later</p>
+</div>

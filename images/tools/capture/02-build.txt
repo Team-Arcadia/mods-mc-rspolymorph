@@ -1,0 +1,55 @@
+# Build a small Refined Storage network, open the Crafting Grid once (first-open tutorial), scout its layout.
+world rsp_page 20261003
+wait 100
+size 1600 900
+freeze
+hud off
+notoast on
+time 6000
+guiscale 2
+blur 0
+cmd fill -14 72 234 4 76 250 air replace minecraft:short_grass
+cmd fill -14 72 234 4 76 250 air replace minecraft:tall_grass
+cmd kill @e[type=!minecraft:player]
+cmd setblock -8 72 241 refinedstorage:creative_storage_block
+cmd setblock -7 72 241 refinedstorage:creative_controller
+cmd setblock -6 72 241 refinedstorage:crafting_grid[direction=north]
+cmd setblock -5 72 241 refinedstorage:pattern_grid[direction=north]
+cmd clear @s
+cmd give @s minecraft:oak_planks 64
+cmd give @s refinedstorage:pattern 16
+cmd give @s minecraft:iron_ingot 64
+cmd give @s minecraft:gold_ingot 48
+cmd give @s minecraft:redstone 64
+cmd give @s minecraft:diamond 32
+cmd give @s minecraft:oak_log 64
+cmd give @s minecraft:glass 64
+cmd give @s minecraft:quartz 64
+cmd give @s minecraft:cobblestone 64
+cmd give @s minecraft:emerald 24
+tp -5.0 72 239.0 0 30
+wait 160
+look -5.5 72.5 241.0
+wait 40
+shot build_view
+status
+mouse 3 3
+key key.use
+until screen 60
+wait 30
+status
+shot grid_tutorial
+press SPACE
+wait 20
+shot grid_open
+status
+screen close
+wait 20
+look -4.5 72.5 241.0
+wait 20
+key key.use
+until screen 60
+wait 30
+shot pattern_open
+status
+quit

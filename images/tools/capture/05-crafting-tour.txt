@@ -1,0 +1,80 @@
+# Crafting Grid tour: default recipe (ladder) -> popup -> sticks -> popup -> ladder again. Then the Pattern Grid, first states.
+world rsp_page 20261003
+wait 100
+size 1600 900
+freeze
+hud off
+notoast on
+time 6000
+guiscale 2
+blur 0
+cmd clear @s
+cmd give @s minecraft:oak_planks 64
+cmd give @s refinedstorage:pattern 16
+tp -5.0 72 239.0 0 30
+wait 140
+look -5.5 72.5 241.0
+wait 30
+mouse 3 3
+key key.use
+until screen 60
+wait 20
+click 774 543
+wait 6
+click 638 808
+wait 3
+click 710 553 1
+wait 3
+click 710 589 1
+wait 3
+click 638 808
+wait 20
+shot t0
+click 584 88
+wait 12
+shot t1
+click 768 587
+wait 12
+shot t2
+click 584 88
+wait 12
+shot t3
+click 696 587
+wait 12
+shot t4
+mouse 584 88
+wait 20
+shot g_hover
+mouse 3 3
+wait 6
+click 584 88
+wait 12
+click 768 587
+wait 10
+screen close
+wait 10
+look -4.5 72.5 241.0
+wait 20
+key key.use
+until screen 60
+wait 20
+click 749 515
+wait 6
+click 674 808
+wait 3
+click 925 533
+wait 3
+click 638 808
+wait 3
+click 683 525
+wait 3
+click 683 561
+wait 3
+click 638 808
+wait 20
+shot p0
+click 584 86
+wait 12
+shot p1
+status
+quit

@@ -1,0 +1,53 @@
+# Crafting Grid: fill the network, place two oak planks (three recipes match), hover the button, open the popup.
+world rsp_page 20261003
+wait 100
+size 1600 900
+freeze
+hud off
+notoast on
+time 6000
+guiscale 2
+blur 0
+cmd kill @e[type=!minecraft:player]
+cmd clear @s
+cmd give @s minecraft:oak_planks 64
+cmd give @s refinedstorage:pattern 16
+cmd give @s minecraft:iron_ingot 64
+cmd give @s minecraft:gold_ingot 48
+cmd give @s minecraft:redstone 64
+cmd give @s minecraft:diamond 32
+cmd give @s minecraft:oak_log 64
+cmd give @s minecraft:glass 64
+cmd give @s minecraft:quartz 64
+cmd give @s minecraft:cobblestone 64
+cmd give @s minecraft:emerald 24
+tp -5.0 72 239.0 0 30
+wait 160
+look -5.5 72.5 241.0
+wait 40
+mouse 3 3
+key key.use
+until screen 60
+wait 30
+quickmove 2 3 4 5 6 7 8 9 10
+wait 30
+shot c0_filled
+click 638 808
+wait 4
+click 710 553 1
+wait 4
+click 710 589 1
+wait 4
+click 638 808
+wait 20
+shot c1_conflict
+mouse 584 88
+wait 20
+shot c2_hover
+click 584 88
+wait 6
+mouse 1100 300
+wait 20
+shot c3_popup
+status
+quit

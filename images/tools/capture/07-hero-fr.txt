@@ -1,0 +1,49 @@
+# Top banner views at dusk with the network on the right, then the French screens for the gallery.
+world rsp_page 20261003
+wait 100
+size 1600 900
+freeze
+hud off
+notoast on
+guiscale 2
+blur 0
+time 12700
+fov 40
+target pos -6.0 72.5 241.0 180
+cam 7.0 1.6 15 0.4 -16
+wait 160
+shot hero2_a
+cam 7.5 1.4 -20 0.4 -18
+wait 80
+shot hero2_b
+cam 6.5 2.0 25 0.4 -14
+wait 80
+shot hero2_c
+time 6000
+lang fr_fr
+wait 260
+tp -5.0 72 239.0 0 30
+wait 100
+look -5.5 72.5 241.0
+wait 30
+mouse 3 3
+key key.use
+until screen 60
+wait 30
+shot fr_tutorial
+press SPACE
+wait 10
+click 584 88
+wait 12
+click 696 587
+wait 12
+mouse 584 88
+wait 20
+shot fr_hover
+mouse 3 3
+click 584 88
+wait 12
+shot fr_popup
+click 768 587
+wait 6
+quit

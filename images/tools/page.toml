@@ -1,0 +1,189 @@
+# The CurseForge page of RS Polymorph, in one file.
+#
+#   python images/tools/export_icons.py images/tools/page.toml     the small icons (images/icons)
+#   python images/tools/titles.py images/tools/page.toml           the title ribbons, language labels, divider, badges
+#   python images/tools/build_page.py images/tools/page.toml       the page itself (CURSEFORGE_PAGE.md)
+#
+# Author: vyrriox
+
+[page]
+languages = ["en", "fr"]
+images_base = "https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/"
+images_dir = ".."
+out = "../../CURSEFORGE_PAGE.md"
+root = "../.."
+theme = "theme.json"
+author = "vyrriox"
+license = "LGPL-3.0-or-later"
+
+[mod]
+name = "RS Polymorph"
+
+[hero]
+file = "hero.gif"
+alt.en = "RS Polymorph: a Refined Storage network at dusk, its Crafting Grid and Pattern Grid glowing"
+alt.fr = "RS Polymorph : un réseau Refined Storage au crépuscule, sa grille de craft et sa grille de patrons allumées"
+
+[links]
+discord = "https://discord.gg/xjF8Rtzyd4"
+website = { url = "https://www.arcadia-echoes-of-power.fr/", label = "Website", message = "Arcadia", icon = "globe" }
+wiki = { url = "https://www.arcadia-echoes-of-power.fr/wiki", label = "Wiki", message = "Arcadia" }
+source = "https://github.com/Team-Arcadia/Arcadia-RsPolymorph"
+donate = "https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00"
+
+[badges]
+minecraft = ["1.21.1", "26.1.2"]
+loaders = ["NeoForge", "Fabric"]
+
+  [[badges.extra]]
+  label = "For"
+  message = "Refined Storage"
+  icon = "cube"
+
+[intro]
+pitch.en = "<strong>RS Polymorph</strong> lets you choose which recipe the Refined Storage Crafting Grid and Pattern Grid use when several recipes share the same ingredients. No Polymorph needed."
+pitch.fr = "<strong>RS Polymorph</strong> vous laisse choisir la recette qu'utilisent la grille de craft et la grille de patrons de Refined Storage quand plusieurs recettes partagent les mêmes ingrédients. Aucun besoin de Polymorph."
+tagline.en = "Stop letting Refined Storage pick the wrong recipe for you."
+tagline.fr = "Ne laissez plus Refined Storage choisir la mauvaise recette à votre place."
+
+[icons]
+button = "common/src/main/resources/assets/rspolymorph/textures/gui/sprites/widget/side_button/polymorph.png"
+pattern = "images/tools/textures/pattern.png"
+
+# ------------------------------------------------------------------ sections
+
+[[section]]
+id = "features"
+title.en = "What It Does"
+title.fr = "Ce Qu'il Fait"
+icon = "star"
+
+  [[section.banner]]
+  file = "pick.gif"
+  alt.en = "Two oak planks match three recipes; the recipe button opens a popup, sticks are picked and the grid crafts sticks instead of a ladder"
+  alt.fr = "Deux planches correspondent à trois recettes ; le bouton de recette ouvre un popup, les bâtons sont choisis et la grille fabrique des bâtons au lieu d'une échelle"
+
+  [[section.item]]
+  icon = "button"
+  name.en = "Recipe button"
+  name.fr = "Bouton de recette"
+  text.en = "next to the grid, it lists every recipe that matches your ingredients."
+  text.fr = "à côté de la grille, il liste chaque recette qui correspond à vos ingrédients."
+
+  [[section.item]]
+  icon = "warning"
+  name.en = "Never miss a conflict"
+  name.fr = "Aucun conflit manqué"
+  text.en = "a red warning and a gold halo show when more than one recipe matches."
+  text.fr = "un avertissement rouge et un halo doré signalent plusieurs recettes."
+
+  [[section.item]]
+  icon = "eye"
+  name.en = "Live preview"
+  name.fr = "Aperçu immédiat"
+  text.en = "the output changes the moment you pick, and the choice is kept per grid."
+  text.fr = "la sortie change dès votre choix, et il est mémorisé pour chaque grille."
+
+  [[section.banner]]
+  file = "pattern.gif"
+  after = 3
+  alt.en = "In the Pattern Grid, sticks are picked over the ladder, the pattern is printed and its tooltip reads 4x Stick"
+  alt.fr = "Dans la grille de patrons, les bâtons sont choisis plutôt que l'échelle, le patron est imprimé et son infobulle indique 4x Stick"
+
+  [[section.item]]
+  icon = "pattern"
+  name.en = "Pattern Grid"
+  name.fr = "Grille de patrons"
+  text.en = "the same button, and your choice is written into the printed pattern."
+  text.fr = "le même bouton, et votre choix est inscrit dans le patron imprimé."
+
+  [[section.item]]
+  icon = "gear"
+  name.en = "The right craft"
+  name.fr = "Le bon craft"
+  text.en = "autocrafting uses the recipe stored on the pattern, not the first match."
+  text.fr = "l'autocraft utilise la recette inscrite sur le patron, pas la première trouvée."
+
+  [[section.item]]
+  icon = "info"
+  name.en = "First-open tutorial"
+  name.fr = "Tutoriel à l'ouverture"
+  text.en = "a one-time card explains it, in English or French."
+  text.fr = "une carte unique l'explique, en anglais ou en français."
+
+[[section]]
+id = "start"
+title.en = "Getting Started"
+title.fr = "Premiers Pas"
+icon = "rocket"
+layout = "steps"
+
+  [[section.item]]
+  text.en = "Install Refined Storage and the RS Polymorph jar for your version and loader, client and server."
+  text.fr = "Installez Refined Storage et le jar RS Polymorph de votre version et loader, client et serveur."
+
+  [[section.item]]
+  text.en = "Open a Crafting Grid or a Pattern Grid and place ingredients."
+  text.fr = "Ouvrez une grille de craft ou une grille de patrons et placez vos ingrédients."
+
+  [[section.item]]
+  text.en = "When the recipe button glows, click it and pick your recipe."
+  text.fr = "Quand le bouton de recette s'allume, cliquez et choisissez votre recette."
+
+[[section]]
+id = "compat"
+title.en = "Compatibility"
+title.fr = "Compatibilité"
+icon = "puzzle"
+layout = "table"
+table.columns.en = ["Minecraft", "NeoForge", "Fabric", "Refined Storage"]
+table.columns.fr = ["Minecraft", "NeoForge", "Fabric", "Refined Storage"]
+note.en = "Optional: Refined Storage - Quartz Arsenal 1.0.7 or later, for its Wireless Crafting Grid."
+note.fr = "Optionnel : Refined Storage - Quartz Arsenal 1.0.7 ou plus, pour sa grille de craft sans fil."
+
+  [[section.table.row]]
+  name = "1.21.1"
+  cells = ["yes", "yes", "2.x"]
+
+  [[section.table.row]]
+  name = "26.1.2"
+  cells = ["yes", "no", "3.x"]
+
+# ------------------------------------------------------------------ after the sections
+
+[support]
+url = "https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml"
+text.en = 'A bug or an idea? Ask on <a href="https://discord.gg/xjF8Rtzyd4">Discord</a> or'
+text.fr = 'Un bug ou une idée ? Demandez sur <a href="https://discord.gg/xjF8Rtzyd4">Discord</a> ou'
+link.en = "open an issue on GitHub"
+link.fr = "ouvrez un ticket sur GitHub"
+
+[[partner]]
+shared = true
+title.en = "Official Hosting Partner"
+title.fr = "Hébergeur Partenaire Officiel"
+text.en = "Run your own modded server with Refined Storage and RS Polymorph on hosting built for modpacks."
+text.fr = "Lancez votre serveur moddé avec Refined Storage et RS Polymorph sur un hébergement pensé pour les modpacks."
+image = "https://arcadia-echoes-of-power.fr/storage/curseforge/bannerwab.png"
+alt.en = "WabbaNode"
+alt.fr = "WabbaNode"
+url = "https://wabbanode.com/partner/vyrriox"
+
+[[extra]]
+shared = true
+title.en = "Play Arcadia V2: Echoes of Power"
+title.fr = "Jouez à Arcadia V2 : Echoes of Power"
+text.en = 'RS Polymorph is made by Team Arcadia. Join our modpack and find its server, the <a href="https://www.arcadia-echoes-of-power.fr/">website</a> and the <a href="https://www.arcadia-echoes-of-power.fr/wiki">wiki</a>.'
+text.fr = 'RS Polymorph est fait par la Team Arcadia. Rejoignez notre modpack et retrouvez son serveur, le <a href="https://www.arcadia-echoes-of-power.fr/">site</a> et le <a href="https://www.arcadia-echoes-of-power.fr/wiki">wiki</a>.'
+image = "https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif"
+alt.en = "Arcadia V2: Echoes of Power modpack"
+alt.fr = "Modpack Arcadia V2 : Echoes of Power"
+url = "https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"
+badge = { label = { en = "Play now", fr = "Jouer" }, message = "Modpack", icon = "play" }
+
+[footer]
+title.en = "Support the Project"
+title.fr = "Soutenir le Projet"
+text.en = "Your support keeps the project alive."
+text.fr = "Votre soutien fait vivre le projet."
+badges = ["donate"]
