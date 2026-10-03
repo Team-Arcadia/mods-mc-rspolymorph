@@ -14,9 +14,19 @@ All notable changes to RS Polymorph are documented here.
 
 - **Debug "Test Stick" items** — The two development-only items (`test_stick_1` / `test_stick_2`), which existed only to demonstrate the multi-recipe case, were removed from the released mod: their registration (both loaders, both MC lines), creative-tab entries, recipes, models, textures, and lang strings are gone. Real packs already provide genuine non-unique crafts, so the debug items served no purpose in a release build.
 
+### Changed
+
+- **License changed to Apache-2.0** — RS Polymorph is now under the Apache License 2.0 (official text, recognised by GitHub). A new `NOTICE` file carries the attribution that forks and derivative works must keep: credit to "vyrriox / Team Arcadia" and a link to the upstream repository.
+- **Repository reorganised** — The repository is now `Team-Arcadia/mods-mc-rspolymorph`. Branches are `main` plus maintenance branches per line (`neoforge-1.21.1`, `fabric-1.21.1`, `neoforge-26.1.2`); `develop`, `staging` and `hotfix` were retired. A label system, updated issue forms and a CI trigger that watches the multiloader source folders were added.
+
 ### Ajouts
 
 - **Avertissement de craft non unique sur le bouton de recette (issue #3)** — Quand la grille ouverte correspond à plusieurs recettes, le bouton latéral de sélection le signale désormais pour que le choix ne soit jamais manqué et qu'un mauvais objet ne soit pas crafté par accident. Il reprend l'idiome d'avertissement natif de Refined Storage — une icône d'avertissement rouge dessinée sur le bouton plus une ligne rouge explicative ajoutée à son infobulle — et fait en plus pulser un léger halo doré autour du bouton pour attirer l'œil (des joueurs signalaient ne pas remarquer le bouton du tout). La pulsation s'arrête dès que le popup est ouvert. L'indicateur disparaît automatiquement quand le craft redevient unique. Implémenté sur les trois jars (1.21.1 Fabric/NeoForge, 26.1.2 NeoForge).
+
+### Modifications
+
+- **Licence passée en Apache-2.0** — RS Polymorph est désormais sous licence Apache 2.0 (texte officiel, reconnu par GitHub). Un nouveau fichier `NOTICE` porte la mention que les forks et travaux dérivés doivent conserver : le crédit « vyrriox / Team Arcadia » et un lien vers le dépôt d'origine.
+- **Dépôt réorganisé** — Le dépôt est désormais `Team-Arcadia/mods-mc-rspolymorph`. Les branches sont `main` plus une branche de maintenance par ligne (`neoforge-1.21.1`, `fabric-1.21.1`, `neoforge-26.1.2`) ; `develop`, `staging` et `hotfix` ont été retirées. Un système de labels, des formulaires d'issues à jour et un déclencheur CI qui surveille les dossiers sources multiloader ont été ajoutés.
 
 ### Suppressions
 

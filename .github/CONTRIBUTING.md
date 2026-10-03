@@ -12,8 +12,8 @@ Thank you for your interest in contributing! | Merci de votre interet !
 ## Setup / Installation
 
 ```bash
-git clone https://github.com/Team-Arcadia/Arcadia-RsPolymorph.git
-cd Arcadia-RsPolymorph
+git clone https://github.com/Team-Arcadia/mods-mc-rspolymorph.git
+cd mods-mc-rspolymorph
 ./gradlew build
 ```
 
@@ -44,12 +44,15 @@ release: version bump
 
 | Branch | Purpose | Merges into |
 |--------|---------|-------------|
-| main | Stable releases | - |
-| staging | Pre-release testing | main |
-| develop | Active development | staging |
-| feat/* | New features | develop |
-| fix/* | Bug fixes | develop |
-| hotfix | Critical patches | main + develop |
+| main | Stable releases, default PR target | - |
+| neoforge-1.21.1 | 1.21.1 NeoForge maintenance | main |
+| fabric-1.21.1 | 1.21.1 Fabric maintenance | main |
+| neoforge-26.1.2 | 26.1.2 NeoForge maintenance | main |
+| feat/* | New features | main |
+| fix/* | Bug fixes | main, or one version branch |
+| hotfix/* | Critical patches | main, then version branches |
+
+Labels are defined in `.github/labels.json` (type, priority, status, area, loader, mc).
 
 ## Community / Communaute
 

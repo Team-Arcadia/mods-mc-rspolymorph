@@ -59,7 +59,7 @@ Pick the jar matching your Minecraft version and loader (e.g. `rspolymorph-neofo
 
 Author: vyrriox
 Organization: Team Arcadia
-License: LGPL-3.0-or-later — see [LICENSE](LICENSE). Forks and derivative works are welcome under the same license, provided you credit "vyrriox / Team Arcadia" and link back to the upstream repository. Same license as upstream Polymorph.
+License: Apache-2.0, see [LICENSE](LICENSE). Forks and derivative works are welcome, provided they keep the [NOTICE](NOTICE) file, credit "vyrriox / Team Arcadia" and link back to the upstream repository.
 Discord: [discord.gg/xjF8Rtzyd4](https://discord.gg/xjF8Rtzyd4)
 Website: [arcadia-echoes-of-power.fr](https://arcadia-echoes-of-power.fr/)
 
@@ -125,6 +125,6 @@ Choisissez le jar correspondant à votre version de Minecraft et loader (ex. `rs
 
 Auteur : vyrriox
 Organisation : Team Arcadia
-Licence : LGPL-3.0-or-later — voir [LICENSE](LICENSE). Les forks et travaux dérivés sont les bienvenus sous la même licence, à condition de créditer « vyrriox / Team Arcadia » et de pointer vers le dépôt d'origine. Même licence que Polymorph en amont.
+Licence : Apache-2.0, voir [LICENSE](LICENSE). Les forks et travaux dérivés sont les bienvenus, à condition de conserver le fichier [NOTICE](NOTICE), de créditer « vyrriox / Team Arcadia » et de pointer vers le dépôt d'origine.
 Discord : [discord.gg/xjF8Rtzyd4](https://discord.gg/xjF8Rtzyd4)
 Site web : [arcadia-echoes-of-power.fr](https://arcadia-echoes-of-power.fr/)

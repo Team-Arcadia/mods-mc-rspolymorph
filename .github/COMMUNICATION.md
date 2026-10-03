@@ -5,12 +5,12 @@
 | Channel | Purpose | Language |
 |---------|---------|----------|
 | [Discord](https://discord.gg/xjF8Rtzyd4) | Support, discussion, announcements | FR / EN |
-| [GitHub Issues](https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues) | Bug reports, feature requests | FR / EN |
+| [GitHub Issues](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues) | Bug reports, feature requests | FR / EN |
 
 ## For Players / Pour les joueurs
 
-- **Bug?** Use the [bug report template](https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml)
-- **Feature idea?** Use the [feature request template](https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=feature_request.yml)
+- **Bug?** Use the [bug report template](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/new?template=bug_report.yml)
+- **Feature idea?** Use the [feature request template](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/new?template=feature_request.yml)
 - **Quick question?** Ask on [Discord](https://discord.gg/xjF8Rtzyd4)
 
 ## For Developers / Pour les developpeurs

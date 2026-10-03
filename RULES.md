@@ -10,7 +10,7 @@
 | Tech Stack | Java 21 (MC 1.21.1) / Java 25 (MC 26.1.2), MultiLoader (NeoForge + Fabric), Gradle 9.5.1 |
 | Author | vyrriox |
 | Organization | Team Arcadia |
-| License | LGPL-3.0-or-later (with attribution requirement to "vyrriox / Team Arcadia") |
+| License | Apache-2.0 (NOTICE file: attribution to "vyrriox / Team Arcadia" must be kept) |
 | Version | 1.2.2 |
 | Dependencies | **Standalone — NO Polymorph.** Refined Storage 2.x (MC 1.21.1, tested 2.0.8) or 3.x (MC 26.1.2, tested 3.2.0) |
 | Targets | 1.21.1 NeoForge ✓ · 1.21.1 Fabric ✓ · 26.1.2 NeoForge ✓ · 26.1.2 Fabric (coded, pending Loom 26.x) |
@@ -20,12 +20,15 @@
 
 | Branch | Purpose | Merges into |
 |--------|---------|-------------|
-| `main` | Stable releases, tagged versions | - |
-| `staging` | Pre-release testing & QA | `main` |
-| `develop` | Active development, feature integration | `staging` |
-| `feat/*` | New features | `develop` |
-| `fix/*` | Bug fixes | `develop` |
-| `hotfix` | Critical production patches | `main` + `develop` |
+| `main` | Stable releases, tagged versions; default target of pull requests | - |
+| `neoforge-1.21.1` | Maintenance of the 1.21.1 NeoForge line | `main` (fixes carried over) |
+| `fabric-1.21.1` | Maintenance of the 1.21.1 Fabric line | `main` (fixes carried over) |
+| `neoforge-26.1.2` | Maintenance of the 26.1.2 NeoForge line | `main` (fixes carried over) |
+| `feat/*` | New features | `main` |
+| `fix/*` | Bug fixes | `main`, or the version branch for a fix to one line only |
+| `hotfix/*` | Critical production patches | `main`, then the affected version branches |
+
+Version branches start from `main` and keep the full multiloader tree; a fix made on one is carried to `main` and to the other lines it affects. A `fabric-26.1.2` branch will be added once that build is enabled.
 
 **Commit conventions:** `type: descriptive message` (feat, fix, refactor, docs, perf, release)
 
@@ -127,7 +130,7 @@ arcadia-rspolymorph/
 
 ## 5. Adding a New Feature (Step by Step)
 
-1. Create branch `feat/my-feature` from `develop`
+1. Create branch `feat/my-feature` from `main`
 2. If the feature touches RS2 internals, decompile the relevant `rs2.jar` class first (`javap -p -c`) to verify field/method signatures before writing the Mixin
 3. Implement common logic first (package `com.vyrriox.rspolymorph`)
 4. If UI is needed, add under `client/` and register via `ClientSetup.init()`
@@ -136,7 +139,7 @@ arcadia-rspolymorph/
 7. Add translations to `assets/rspolymorph/lang/{en_us,fr_fr}.json`
 8. Run `./gradlew build`
 9. Test in singleplayer AND dedicated server
-10. Commit and PR into `develop`
+10. Commit and PR into `main`
 
 ## 6. Testing Checklist
 
@@ -153,8 +156,8 @@ arcadia-rspolymorph/
 ## 7. Environment Setup
 
 ```bash
-git clone https://github.com/Team-Arcadia/Arcadia-RsPolymorph.git
-cd Arcadia-RsPolymorph
+git clone https://github.com/Team-Arcadia/mods-mc-rspolymorph.git
+cd mods-mc-rspolymorph
 # Verify libs/polymorph.jar and libs/rs2.jar exist (tracked in the repo)
 ./gradlew build
 ./gradlew runClient
