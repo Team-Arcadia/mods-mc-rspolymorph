@@ -8,7 +8,7 @@
 
 [page]
 languages = ["en", "fr"]
-images_base = "https://cdn.jsdelivr.net/gh/Team-Arcadia/Arcadia-RsPolymorph@main/images/"
+images_base = "https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/"
 images_dir = ".."
 out = "../../CURSEFORGE_PAGE.md"
 root = "../.."
@@ -28,7 +28,7 @@ alt.fr = "RS Polymorph : un réseau Refined Storage au crépuscule, sa grille de
 discord = "https://discord.gg/xjF8Rtzyd4"
 website = { url = "https://www.arcadia-echoes-of-power.fr/", label = "Website", message = "Arcadia", icon = "globe" }
 wiki = { url = "https://www.arcadia-echoes-of-power.fr/wiki", label = "Wiki", message = "Arcadia" }
-source = "https://github.com/Team-Arcadia/Arcadia-RsPolymorph"
+source = "https://github.com/Team-Arcadia/mods-mc-rspolymorph"
 donate = "https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00"
 
 [badges]
@@ -152,7 +152,7 @@ note.fr = "Optionnel : Refined Storage - Quartz Arsenal 1.0.7 ou plus, pour sa g
 # ------------------------------------------------------------------ after the sections
 
 [support]
-url = "https://github.com/Team-Arcadia/Arcadia-RsPolymorph/issues/new?template=bug_report.yml"
+url = "https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/new?template=bug_report.yml"
 text.en = 'A bug or an idea? Ask on <a href="https://discord.gg/xjF8Rtzyd4">Discord</a> or'
 text.fr = 'Un bug ou une idée ? Demandez sur <a href="https://discord.gg/xjF8Rtzyd4">Discord</a> ou'
 link.en = "open an issue on GitHub"
