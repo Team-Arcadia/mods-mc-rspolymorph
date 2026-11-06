@@ -55,3 +55,45 @@
 **Root cause:** A server without an accepted EULA exits normally and eula.txt stays false in a development run.
 **Fix:** Added runServerSelftest through the game test launch, which needs no EULA, and which reports RSP-SELFTEST lines.
 **Prevention:** Trust the RSP-SELFTEST DONE line of the run, never the exit code. Never accept the EULA for the user.
+
+## [2026-11-06 13:50] NeoForge 20.4 does not read neoforge.mods.toml
+**Context:** Adding the neoforge-1.20.4 target, whose brief asked for neoforge.mods.toml
+**Error:** Metadata name in the brief does not match the loader: FML 2.0.17 only looks for META-INF/mods.toml
+**Root cause:** neoforge.mods.toml arrived after 1.20.4; FML 2.0.17 and the NeoForge 20.4.253 and RS 1.13 jars all use mods.toml
+**Fix:** Target ships META-INF/mods.toml with type=required dependencies and a mixins entry
+**Prevention:** Check the loader jar for the metadata file name on any NeoForge line older than 1.20.5
+
+## [2026-11-06 14:39] Forge 39 dev runs die on UnionFileSystem
+**Context:** Running runClient and runGametest of forge-1.18.1 through ModDevGradle legacy
+**Error:** InaccessibleObjectException: module java.base does not opens java.lang.invoke to cpw.mods.securejarhandler
+**Root cause:** The Forge 39 userdev run config omits that add-opens, later lines declare it
+**Fix:** jvmArgument --add-opens=java.base/java.lang.invoke=cpw.mods.securejarhandler in forge-1.18.1/build.gradle
+**Prevention:** When a Forge line below 40 exits at once in dev, compare its VM args with the next line
+
+## [2026-11-06 14:52] Occultism on 26.1 breaks world exit without JEI
+**Context:** Compat selftest on neoforge-26.1.2 with the Polymorph family
+**Error:** NoClassDefFoundError mezz/jei/api/IModPlugin from Occultism JeiPlugin ClientRecipeSync.onLoggingOut, then 9 stopped FAIL lines; the pinned NeoForge build was also refused by Occultism and Modonomicon
+**Root cause:** Occultism registers a logout listener in its JEI plugin class while declaring JEI optional; not related to this mod
+**Fix:** Ran with a newer NeoForge through -P neoforge_version and with JEI in the mods folder
+**Prevention:** Read a stopped FAIL stack trace first: it may come from another mod; add its optional dependency for the run
+
+## [2026-11-06 14:55] Filter on a ProcessResources task is invisible to Gradle up-to-date checks
+**Context:** Adding the selftest mixin config to the mods.toml of neoforge-1.20.4 with filesMatching and filter, as neoforge-1.21.1 does
+**Error:** The run compiled the selftest but the game never loaded its mixin, so no report file and the client stayed on the title screen
+**Root cause:** A filter closure is not a task input: the task stayed up to date or came from the build cache, and on this ProcessResources task the filter sees the template after expand
+**Fix:** Appended the block in doLast and declared the config name with inputs.property
+**Prevention:** Any conditional output of a metadata task needs a declared input; check the mods.toml in build/resources after the change
+
+## [2026-11-06 14:55] Forge 1.20.1 builds GameTestServer without its create factory
+**Context:** Porting MixinGameTestServerSelftest to forge-1.20.1 with the injector on create that the modern line uses
+**Error:** All 0 required tests passed and no rspolymorph-selftest-server.txt, loop verdict OK
+**Root cause:** Forge calls the GameTestServer constructor, so create never runs; NeoForge 1.20.4 calls create, which refuses an empty test list before initServer
+**Fix:** The selftest mixin injects at the head of both create and initServer, ServerSelftest runs once
+**Prevention:** Only the DONE line counts: an OK verdict with 0 tests proved nothing
+
+## [2026-11-06 14:55] RS 1.x nodes placed with setblock never join the network
+**Context:** Selftest placing a creative controller and grids with the setblock command
+**Error:** timed out waiting for the grid to join the network; grids worked but with no network
+**Root cause:** RS discovers nodes from the entity place event only, which setblock does not fire, so the first run tested the no-network path of RS
+**Fix:** The selftest asks the controller's node graph to invalidate after each placed block and waits for the connected state before opening the grid
+**Prevention:** A selftest on RS 1.x checks isGridActive before trusting a crafting result
