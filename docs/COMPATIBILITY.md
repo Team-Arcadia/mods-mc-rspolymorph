@@ -24,6 +24,7 @@
 | `rspolymorph-forge-1.11.2-<version>.jar` | 1.11.2 | Forge | 1.4.20+ | 8 | FML coremod, nothing extra to install |
 | `rspolymorph-forge-1.11-<version>.jar` | 1.11 | Forge | 1.3.5+ | 8 | FML coremod, nothing extra to install |
 | `rspolymorph-forge-1.10.2-<version>.jar` | 1.10.2 | Forge | 1.2.26+ | 8 | FML coremod, nothing extra to install |
+| `rspolymorph-forge-1.10-<version>.jar` | 1.10 | Forge | 0.8.10-beta+ | 8 | FML coremod, nothing extra to install |
 
 - **Polymorph is not needed**: recipe selection is built in.
 - **Install on both sides**: the client draws the button and the popup, the server applies the
@@ -80,6 +81,7 @@
 | `rspolymorph-forge-1.11.2-<version>.jar` | 1.11.2 | Forge | 1.4.20+ | 8 | Coremod FML, rien de plus à installer |
 | `rspolymorph-forge-1.11-<version>.jar` | 1.11 | Forge | 1.3.5+ | 8 | Coremod FML, rien de plus à installer |
 | `rspolymorph-forge-1.10.2-<version>.jar` | 1.10.2 | Forge | 1.2.26+ | 8 | Coremod FML, rien de plus à installer |
+| `rspolymorph-forge-1.10-<version>.jar` | 1.10 | Forge | 0.8.10-beta+ | 8 | Coremod FML, rien de plus à installer |
 
 - **Polymorph n'est pas nécessaire** : la sélection de recette est intégrée.
 - **À installer des deux côtés** : le client affiche le bouton et le popup, le serveur applique le

@@ -41,7 +41,7 @@
 <tr><td>1.19.2, 1.18.2, 1.18.1</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
 <tr><td>1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
 <tr><td>1.15.2, 1.15.1, 1.14.4</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
-<tr><td>1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
+<tr><td>1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2, 1.10</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
 </table>
 </div>
 <p><em>Optional: Refined Storage - Quartz Arsenal 1.0.7 or later, for its Wireless Crafting Grid.</em></p>
@@ -88,7 +88,7 @@
 <tr><td>1.19.2, 1.18.2, 1.18.1</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
 <tr><td>1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
 <tr><td>1.15.2, 1.15.1, 1.14.4</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
-<tr><td>1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
+<tr><td>1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2, 1.10</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
 </table>
 </div>
 <p><em>Optionnel&nbsp;: Refined Storage - Quartz Arsenal 1.0.7 ou plus, pour sa grille de craft sans fil.</em></p>

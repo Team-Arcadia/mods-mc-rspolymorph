@@ -11,7 +11,7 @@ loader-independent code is shared from `common/<minecraft version>`.
 | `forge-1.16.5`, `forge-1.16.4`, `forge-1.16.3`, `forge-1.16.2`, `forge-1.16.1`, `forge-1.15.2`, `forge-1.15.1`, `forge-1.14.4` | ForgeGradle 6, Gradle 8.14 | Java 21 | Java 8 |
 | `forge-1.12.2` | RetroFuturaGradle 1.4.9, Gradle 8.14 | Java 21, not a Java 8 `JAVA_HOME` | Java 8 |
 | `forge-1.12` | ForgeGradle 2.3, Gradle 4.10 | Java 8 only | Java 8 |
-| `forge-1.11.2`, `forge-1.11`, `forge-1.10.2` | ForgeGradle 2.2, Gradle 3.5 | Java 8 only | Java 8 |
+| `forge-1.11.2`, `forge-1.11`, `forge-1.10.2`, `forge-1.10` | ForgeGradle 2.2, Gradle 3.5 | Java 8 only | Java 8 |
 
 Every target writes `build/libs/rspolymorph-<folder>-<version>.jar`.
 
@@ -35,6 +35,7 @@ Every target writes `build/libs/rspolymorph-<folder>-<version>.jar`.
 | `forge-1.12` | `common/1.12`, then `common/1.12.2` |
 | `forge-1.11.2`, `forge-1.11` | `common/1.11.2`, `common/1.12`, then `common/1.12.2` |
 | `forge-1.10.2` | `common/1.10.2`, `common/1.11.2`, `common/1.12`, then `common/1.12.2` |
+| `forge-1.10` | `common/1.10`, `common/1.10.2`, `common/1.11.2`, `common/1.12`, `common/1.12.2` |
 
 ```bash
 git clone https://github.com/Team-Arcadia/mods-mc-rspolymorph.git
@@ -107,7 +108,7 @@ code indépendant du loader est partagé depuis `common/<version de minecraft>`.
 | `forge-1.16.5`, `forge-1.16.4`, `forge-1.16.3`, `forge-1.16.2`, `forge-1.16.1`, `forge-1.15.2`, `forge-1.15.1`, `forge-1.14.4` | ForgeGradle 6, Gradle 8.14 | Java 21 | Java 8 |
 | `forge-1.12.2` | RetroFuturaGradle 1.4.9, Gradle 8.14 | Java 21, pas un `JAVA_HOME` Java 8 | Java 8 |
 | `forge-1.12` | ForgeGradle 2.3, Gradle 4.10 | Java 8 uniquement | Java 8 |
-| `forge-1.11.2`, `forge-1.11`, `forge-1.10.2` | ForgeGradle 2.2, Gradle 3.5 | Java 8 uniquement | Java 8 |
+| `forge-1.11.2`, `forge-1.11`, `forge-1.10.2`, `forge-1.10` | ForgeGradle 2.2, Gradle 3.5 | Java 8 uniquement | Java 8 |
 
 Chaque cible produit `build/libs/rspolymorph-<dossier>-<version>.jar`. L'ordre des couches de code
 partagé par cible est dans le tableau « Shared code » ci-dessus : la première couche l'emporte.

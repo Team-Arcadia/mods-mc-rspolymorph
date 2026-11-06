@@ -8,7 +8,7 @@ All notable changes to RS Polymorph are documented here.
 
 ### Added
 
-- **Forge and NeoForge targets for older Minecraft versions** — RS Polymorph now ships for NeoForge 1.20.4 and for Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11 and 1.10.2. The 1.20.1 jar also runs on NeoForge 47.1 and the 1.12 jar also runs on 1.12.1. Versions, floors and Java per jar are in `docs/COMPATIBILITY.md`.
+- **Forge and NeoForge targets for older Minecraft versions** — RS Polymorph now ships for NeoForge 1.20.4 and for Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11, 1.10.2 and 1.10. The 1.20.1 jar also runs on NeoForge 47.1 and the 1.12 jar also runs on 1.12.1. Versions, floors and Java per jar are in `docs/COMPATIBILITY.md`.
 - **Fabric on Minecraft 26.1.2** — The `fabric-26.1.2` target is enabled and released, with Refined Storage 3.x and Java 25.
 - **Coexistence with Polymorph and Polymorph+** — Both mods work next to RS Polymorph. On 1.16.5, 1.18.2, 1.19.2 and 1.20.1 Polymorph+ has its own Refined Storage integration, so RS Polymorph leaves the crafting grid selection to it and keeps tagging patterns.
 - **In-game selftest** — `-Pselftest` compiles an automated test of the real screens and of the dedicated server distribution, for development only. A build without the flag holds none of it, and a build with it names its jar `-SELFTEST`.
@@ -41,7 +41,7 @@ All notable changes to RS Polymorph are documented here.
 
 ### Ajouts
 
-- **Cibles Forge et NeoForge pour les anciennes versions de Minecraft** — RS Polymorph sort désormais pour NeoForge 1.20.4 et pour Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11 et 1.10.2. Le jar 1.20.1 fonctionne aussi sur NeoForge 47.1 et le jar 1.12 aussi sur 1.12.1. Les versions, minimums et Java par jar sont dans `docs/COMPATIBILITY.md`.
+- **Cibles Forge et NeoForge pour les anciennes versions de Minecraft** — RS Polymorph sort désormais pour NeoForge 1.20.4 et pour Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11, 1.10.2 et 1.10. Le jar 1.20.1 fonctionne aussi sur NeoForge 47.1 et le jar 1.12 aussi sur 1.12.1. Les versions, minimums et Java par jar sont dans `docs/COMPATIBILITY.md`.
 - **Fabric sur Minecraft 26.1.2** — La cible `fabric-26.1.2` est activée et publiée, avec Refined Storage 3.x et Java 25.
 - **Cohabitation avec Polymorph et Polymorph+** — Les deux mods fonctionnent à côté de RS Polymorph. En 1.16.5, 1.18.2, 1.19.2 et 1.20.1, Polymorph+ a sa propre intégration Refined Storage : RS Polymorph lui laisse la sélection de la grille de craft et continue de marquer les patrons.
 - **Test automatique en jeu** — `-Pselftest` compile un test automatique des vrais écrans et de la distribution serveur dédié, pour le développement uniquement. Un build sans cette option n'en contient rien, et un build avec nomme son jar `-SELFTEST`.
