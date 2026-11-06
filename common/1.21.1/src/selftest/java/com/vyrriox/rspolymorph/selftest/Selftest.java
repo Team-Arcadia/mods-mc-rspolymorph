@@ -102,6 +102,8 @@ public final class Selftest {
     private static final ResourceLocation RECIPE_STONECUTTING = ResourceLocation.fromNamespaceAndPath("minecraft", "stone_slab_from_stonecutting");
     private static final ResourceLocation RECIPE_BOWL = ResourceLocation.fromNamespaceAndPath("rsp_selftest", "conflict_bowl");
 
+    private static final String REMOTE = System.getProperty("rspolymorph.selftest.remote");
+
     private static final Queue<Runnable> QUEUE = new ConcurrentLinkedQueue<>();
     private static volatile int ticks;
     private static boolean started;
@@ -145,6 +147,12 @@ public final class Selftest {
     private void run() {
         try {
             Files.deleteIfExists(reportFile);
+            if (REMOTE != null) {
+                section("world", this::startRemote);
+                section("remote", this::remoteScenario);
+                finish();
+                return;
+            }
             section("world", this::startWorld);
             section("audit", this::audit);
             section("tutorial", this::tutorial);
@@ -161,6 +169,134 @@ public final class Selftest {
             fail("scenario", t);
         }
         finish();
+    }
+
+    /**
+     * Joins the dedicated server named by {@code -Drspolymorph.selftest.remote=host:port}. The player must be an
+     * operator there and the server must hold the test data pack. Nothing here can read the server's objects, so a
+     * result counts only once the server sent it back: reopening a menu resends the whole inventory.
+     */
+    private void startRemote() throws Exception {
+        client(() -> {
+            SelftestCompat.skipOnboarding(mc);
+            mc.options.pauseOnLostFocus = false;
+            SelftestCompat.setWindowSize(mc, 1280, 720);
+            return null;
+        });
+        waitTicks(5);
+        client(() -> {
+            mc.options.guiScale().set(2);
+            SelftestCompat.applyGuiScale(mc);
+            return null;
+        });
+        await("the title screen", 2400, () -> mc.getOverlay() == null && mc.screen instanceof TitleScreen);
+        Files.createDirectories(tutorialFlag().getParent());
+        Files.writeString(tutorialFlag(), "seen");
+        String[] address = REMOTE.split(":");
+        client(() -> {
+            SelftestCompat.connect(mc, address[0], Integer.parseInt(address[1]));
+            return null;
+        });
+        await("the server", 2400, () -> mc.player != null && mc.level != null && mc.screen == null);
+        waitTicks(40);
+        origin = client(() -> mc.player.blockPosition());
+        check("remote.is_a_dedicated_server", () -> require(client(() -> mc.getSingleplayerServer() == null), "an integrated server runs"));
+        command("clear @a");
+        command("setblock " + at(origin.offset(2, 0, 3)) + " refinedstorage:creative_controller");
+        await("the controller on the client", 60, () -> !mc.level.getBlockState(origin.offset(2, 0, 3)).isAir());
+    }
+
+    private void remoteScenario() throws Exception {
+        BlockPos crafting = placeGrid("crafting_grid");
+        command("give @a minecraft:clay_ball 16");
+        await("the ingredients", 60, () -> count(mc.player, Items.CLAY_BALL) == 16);
+        open(crafting);
+        client(() -> {
+            putEach(Items.CLAY_BALL, 3, 0, 1);
+            return null;
+        });
+        await("the default result", 100, () -> !clientResult().isEmpty());
+        ItemStack first = clientResult();
+        ItemStack other = other(first);
+        check("remote.button_lights_on_conflict", () -> await("the side button", 60, () -> sideButton().active));
+        check("remote.popup_lists_both", () -> {
+            clickSideButton();
+            require(client(() -> widget().isPopupOpen()), "no popup");
+            require(client(() -> popupEntries().size()) == 2, "wrong entries");
+        });
+        check("remote.pick_changes_result", () -> {
+            clickPopupEntry(other.getItem());
+            await("the result to change", 60, () -> isStack(clientResult(), other));
+        });
+        waitTicks(20);
+        closeScreen();
+        open(crafting);
+        check("remote.selection_kept_by_server_after_reopen", () ->
+                await("the selected result", 60, () -> isStack(clientResult(), other)));
+        check("remote.take_gives_selected", () -> {
+            client(() -> {
+                pickup(resultSlot(menu()).index, 0);
+                return null;
+            });
+            waitTicks(10);
+            client(() -> {
+                pickup(freeInventorySlot(menu()).index, 0);
+                return null;
+            });
+            waitTicks(10);
+        });
+        check("remote.shift_craft_uses_selection", () -> {
+            await("the result to stay", 60, () -> isStack(clientResult(), other));
+            client(() -> {
+                SelftestCompat.quickMove(mc, menu().containerId, resultSlot(menu()).index);
+                return null;
+            });
+            waitTicks(20);
+            closeScreen();
+            open(crafting);
+            waitTicks(20);
+            int made = client(() -> count(mc.player, other.getItem()));
+            require(made == 3 * other.getCount(), "the server gave " + made + " of " + other.getItem());
+            require(client(() -> count(mc.player, first.getItem())) == 0, "the other recipe's output was given");
+            require(client(() -> count(mc.player, Items.CLAY_BALL)) == 10, "clay left: " + client(() -> count(mc.player, Items.CLAY_BALL)));
+        });
+        closeScreen();
+
+        BlockPos patternPos = placeGrid("pattern_grid");
+        command("clear @a");
+        command("give @a minecraft:clay_ball 4");
+        command("give @a refinedstorage:pattern 8");
+        await("the items", 60, () -> count(mc.player, Items.CLAY_BALL) == 4);
+        open(patternPos);
+        client(() -> {
+            Slot patterns = emptyPatterns(menu());
+            pickup(patterns.index, 0);
+            pickup(patternInput(menu()).index, 0);
+            ghost(Items.CLAY_BALL, 0, 1);
+            return null;
+        });
+        await("the preview", 100, () -> !clientResult().isEmpty());
+        ItemStack previewOther = other(clientResult());
+        check("remote.pattern_selection", () -> {
+            await("the side button", 60, () -> sideButton().active);
+            clickSideButton();
+            clickPopupEntry(previewOther.getItem());
+            await("the preview to change", 60, () -> isStack(clientResult(), previewOther));
+        });
+        waitTicks(20);
+        check("remote.pattern_printed_with_selection", () -> {
+            await("the create button", 60, () -> ((AbstractWidget) field(screen(), "createPatternButton")).active);
+            client(() -> {
+                AbstractWidget button = (AbstractWidget) field(screen(), "createPatternButton");
+                SelftestCompat.click(screen(), button.getX() + button.getWidth() / 2.0, button.getY() + button.getHeight() / 2.0, 0);
+                return null;
+            });
+            await("the printed pattern", 60, () -> !patternOutput(menu()).getItem().isEmpty());
+            ItemStack tagged = client(() -> patternOutput(menu()).getItem().copy());
+            ResourceLocation want = conflictId(previewOther.getItem());
+            require(want.equals(tagOf(tagged)), "tag: " + tagOf(tagged));
+        });
+        closeScreen();
     }
 
     private void startWorld() throws Exception {
@@ -860,6 +996,14 @@ public final class Selftest {
     }
 
     private void command(String command) {
+        if (REMOTE != null) {
+            client(() -> {
+                SelftestCompat.remoteCommand(mc, command);
+                return null;
+            });
+            waitTicks(4);
+            return;
+        }
         server(() -> {
             MinecraftServer server = mc.getSingleplayerServer();
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), command);

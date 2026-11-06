@@ -65,6 +65,15 @@ final class SelftestCompat {
         SelftestWorlds.createFlatWorld(mc, name);
     }
 
+    /** The remote scenario runs on one target per line, not on this fork. */
+    static void connect(Minecraft mc, String host, int port) {
+        throw new UnsupportedOperationException("remote scenario");
+    }
+
+    static void remoteCommand(Minecraft mc, String command) {
+        throw new UnsupportedOperationException("remote scenario");
+    }
+
     static void reopenWorld(Minecraft mc, String name) {
         SelftestWorlds.reopenWorld(mc, name);
     }

@@ -120,6 +120,13 @@ public final class Selftest {
                 mc.gameSettings.pauseOnLostFocus = false;
                 return null;
             });
+            if (System.getProperty("rspolymorph.selftest.remote") != null) {
+                section("remote", this::remote);
+                print("DONE pass=" + pass + " fail=" + fail);
+                System.out.flush();
+                FMLCommonHandler.instance().exitJava(fail == 0 ? 0 : 1, true);
+                return;
+            }
             section("metadata", this::metadata);
             section("world", this::world);
             section("tutorial", this::tutorial);
@@ -689,6 +696,189 @@ public final class Selftest {
     }
 
     // ---------------------------------------------------------------- world and grid steps
+
+    /**
+     * Joins the dedicated server named by {@code -Drspolymorph.selftest.remote=host:port}, where the player is an
+     * operator. Nothing here can read the server's objects: a result counts once a reopened menu resent the inventory.
+     */
+    private void remote() throws Exception {
+        String[] address = System.getProperty("rspolymorph.selftest.remote").split(":");
+        new File(flagFile().getParent()).mkdirs();
+        flagFile().createNewFile();
+        client(() -> {
+            mc.displayGuiScreen(new net.minecraft.client.multiplayer.GuiConnecting(mc.currentScreen, mc,
+                    new net.minecraft.client.multiplayer.ServerData("selftest", address[0] + ":" + address[1], false)));
+            return null;
+        });
+        waitFor("the server", 180000L, () -> mc.world != null && mc.player != null && mc.currentScreen == null);
+        pause(2000);
+        check("remote.is_a_dedicated_server", mc.getIntegratedServer() == null, "an integrated server runs");
+        base = mc.player.getPosition();
+        BlockPos controller = base.east(2);
+        crafting = controller.east();
+        pattern = controller.south();
+        remoteCommand("setblock " + at(controller) + " refinedstorage:controller type=creative");
+        remoteCommand("setblock " + at(crafting) + " refinedstorage:grid type=crafting");
+        remoteCommand("setblock " + at(pattern) + " refinedstorage:grid type=pattern");
+        remoteCommand("clear @a");
+        remoteCommand("give @a minecraft:gravel 16");
+        remoteCommand("give @a minecraft:flint 16");
+        waitFor("the grid on the client", () -> mc.world.getTileEntity(crafting) != null && mc.player.inventory.hasItemStack(new ItemStack(Items.FLINT)));
+        remoteOpen(crafting);
+        remotePut(Item.getItemFromBlock(Blocks.GRAVEL), 0, 3, 1);
+        remotePut(Items.FLINT, 1, 3, 1);
+        waitFor("two candidates", () -> SelftestAccess.candidates() == 2);
+        ItemStack first = waitResult();
+        Item other = isItem(first, Items.DIAMOND) ? Items.EMERALD : Items.DIAMOND;
+        ResourceLocation otherId = other == Items.EMERALD ? EMERALD : DIAMOND;
+        pause(200);
+        check("remote.button_shows_on_conflict", client(SelftestAccess::buttonVisible), "hidden");
+        clickButton();
+        List<ResourceLocation> ids = client(SelftestAccess::popupIds);
+        check("remote.popup_lists_both", ids.size() == 2 && ids.contains(otherId), ids.toString());
+        client(() -> {
+            SelftestAccess.clickPopupCell(mc.currentScreen, ids.indexOf(otherId));
+            return null;
+        });
+        waitFor("the selected result", () -> isItem(resultOnClient(), other));
+        pass("remote.pick_changes_result");
+        pause(1000);
+        closeScreen();
+        remoteOpen(crafting);
+        waitFor("the selected result after reopening", () -> isItem(resultOnClient(), other));
+        pass("remote.selection_kept_by_server_after_reopen");
+        clientClick(ClickType.PICKUP);
+        pause(500);
+        client(() -> {
+            for (Slot slot : mc.player.openContainer.inventorySlots) {
+                if (slot.inventory == mc.player.inventory && !slot.getHasStack()) {
+                    mc.playerController.windowClick(mc.player.openContainer.windowId, slot.slotNumber, 0, ClickType.PICKUP, mc.player);
+                    break;
+                }
+            }
+            return null;
+        });
+        pause(500);
+        clientClick(ClickType.QUICK_MOVE);
+        pause(1000);
+        closeScreen();
+        remoteOpen(crafting);
+        pause(1000);
+        int made = remoteCount(other);
+        check("remote.crafted_selected_on_server", made == 3, made + " of " + other);
+        check("remote.other_recipe_not_given", remoteCount(first.getItem()) == 0, "given");
+        check("remote.ingredients_used", remoteCount(Items.FLINT) == 13, "flint " + remoteCount(Items.FLINT));
+        closeScreen();
+
+        remoteCommand("clear @a");
+        remoteCommand("give @a minecraft:gravel 4");
+        remoteCommand("give @a minecraft:flint 4");
+        remoteCommand("give @a refinedstorage:pattern 8");
+        waitFor("the items", () -> remoteCount(Items.FLINT) == 4 && remoteCount(RSItems.PATTERN) == 8);
+        remoteOpen(pattern);
+        client(() -> {
+            NetworkNodeGrid node = SelftestClientNode.of(mc);
+            for (Slot slot : mc.player.openContainer.inventorySlots) {
+                if (slot instanceof net.minecraftforge.items.SlotItemHandler
+                        && ((net.minecraftforge.items.SlotItemHandler) slot).getItemHandler() == node.getPatterns()) {
+                    int window = mc.player.openContainer.windowId;
+                    mc.playerController.windowClick(window, remoteSlot(RSItems.PATTERN).slotNumber, 0, ClickType.PICKUP, mc.player);
+                    mc.playerController.windowClick(window, slot.slotNumber, 0, ClickType.PICKUP, mc.player);
+                    break;
+                }
+            }
+            return null;
+        });
+        pause(500);
+        remoteGhost(Item.getItemFromBlock(Blocks.GRAVEL), 0);
+        remoteGhost(Items.FLINT, 1);
+        waitFor("two candidates in the pattern grid", () -> SelftestAccess.candidates() == 2);
+        ItemStack preview = waitResult();
+        Item patternOther = isItem(preview, Items.DIAMOND) ? Items.EMERALD : Items.DIAMOND;
+        ResourceLocation patternOtherId = patternOther == Items.EMERALD ? EMERALD : DIAMOND;
+        pause(200);
+        clickButton();
+        List<ResourceLocation> patternIds = client(SelftestAccess::popupIds);
+        client(() -> {
+            SelftestAccess.clickPopupCell(mc.currentScreen, patternIds.indexOf(patternOtherId));
+            return null;
+        });
+        waitFor("the preview", () -> isItem(resultOnClient(), patternOther));
+        pass("remote.pattern_selection");
+        pause(1000);
+        client(() -> {
+            RS.INSTANCE.network.sendToServer(new MessageGridPatternCreate(pattern.getX(), pattern.getY(), pattern.getZ()));
+            return null;
+        });
+        waitFor("the printed pattern", () -> !SelftestClientNode.of(mc).getPatterns().getStackInSlot(1).isEmpty());
+        ItemStack printed = client(() -> SelftestClientNode.of(mc).getPatterns().getStackInSlot(1).copy());
+        check("remote.pattern_printed_with_selection", patternOtherId.equals(RecipeAccess.taggedRecipe(printed)), str(printed));
+        closeScreen();
+    }
+
+    private static String at(BlockPos pos) {
+        return pos.getX() + " " + pos.getY() + " " + pos.getZ();
+    }
+
+    private void remoteCommand(String command) throws Exception {
+        client(() -> {
+            mc.player.sendChatMessage("/" + command);
+            return null;
+        });
+        pause(300);
+    }
+
+    private void remoteOpen(BlockPos pos) throws Exception {
+        client(() -> {
+            mc.playerController.processRightClickBlock(mc.player, mc.world, pos, EnumFacing.UP,
+                    new net.minecraft.util.math.Vec3d(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5), EnumHand.MAIN_HAND);
+            return null;
+        });
+        waitFor("grid screen", () -> mc.currentScreen instanceof GuiGrid && mc.player.openContainer.windowId != 0);
+        pause(500);
+    }
+
+    private int remoteCount(Item item) {
+        int total = 0;
+        for (ItemStack stack : mc.player.inventory.mainInventory) {
+            if (stack.getItem() == item) total += stack.getCount();
+        }
+        return total;
+    }
+
+    private Slot remoteSlot(Item item) {
+        for (Slot slot : mc.player.openContainer.inventorySlots) {
+            if (slot.inventory == mc.player.inventory && slot.getStack().getItem() == item) return slot;
+        }
+        throw new IllegalStateException("no " + item + " in the inventory");
+    }
+
+    private Slot remoteMatrixSlot(int index) {
+        NetworkNodeGrid node = SelftestClientNode.of(mc);
+        for (Slot slot : mc.player.openContainer.inventorySlots) {
+            if (slot.inventory == node.getCraftingMatrix() && slot.getSlotIndex() == index) return slot;
+        }
+        throw new IllegalStateException("no matrix slot " + index);
+    }
+
+    /** Puts one by one with right clicks, as a player spreads items. */
+    private void remotePut(Item item, int matrix, int amount, int button) throws Exception {
+        client(() -> {
+            int window = mc.player.openContainer.windowId;
+            Slot source = remoteSlot(item);
+            mc.playerController.windowClick(window, source.slotNumber, 0, ClickType.PICKUP, mc.player);
+            for (int i = 0; i < amount; i++) {
+                mc.playerController.windowClick(window, remoteMatrixSlot(matrix).slotNumber, button, ClickType.PICKUP, mc.player);
+            }
+            mc.playerController.windowClick(window, source.slotNumber, 0, ClickType.PICKUP, mc.player);
+            return null;
+        });
+        pause(300);
+    }
+
+    private void remoteGhost(Item item, int matrix) throws Exception {
+        remotePut(item, matrix, 1, 0);
+    }
 
     private void joinWorld(boolean create) throws Exception {
         client(() -> {

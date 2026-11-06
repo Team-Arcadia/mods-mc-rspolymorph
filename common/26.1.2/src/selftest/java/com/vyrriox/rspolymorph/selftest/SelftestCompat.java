@@ -70,6 +70,17 @@ final class SelftestCompat {
                 mc.screen);
     }
 
+    static void connect(Minecraft mc, String host, int port) {
+        net.minecraft.client.gui.screens.ConnectScreen.startConnecting(mc.screen, mc,
+                new net.minecraft.client.multiplayer.resolver.ServerAddress(host, port),
+                new net.minecraft.client.multiplayer.ServerData("selftest", host + ":" + port,
+                        net.minecraft.client.multiplayer.ServerData.Type.OTHER), false, null);
+    }
+
+    static void remoteCommand(Minecraft mc, String command) {
+        mc.player.connection.sendCommand(command);
+    }
+
     static void disconnect(Minecraft mc) {
         mc.disconnectFromWorld(Component.translatable("menu.savingLevel"));
         mc.setScreen(new TitleScreen());

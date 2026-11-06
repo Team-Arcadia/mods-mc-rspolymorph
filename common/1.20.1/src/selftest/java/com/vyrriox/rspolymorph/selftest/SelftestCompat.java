@@ -77,6 +77,16 @@ final class SelftestCompat {
                         .value().createWorldDimensions());
     }
 
+    static void connect(Minecraft mc, String host, int port) {
+        net.minecraft.client.gui.screens.ConnectScreen.startConnecting(mc.screen, mc,
+                new net.minecraft.client.multiplayer.resolver.ServerAddress(host, port),
+                new net.minecraft.client.multiplayer.ServerData("selftest", host + ":" + port, false), false);
+    }
+
+    static void remoteCommand(Minecraft mc, String command) {
+        mc.player.connection.sendCommand(command);
+    }
+
     static void reopenWorld(Minecraft mc, String name) {
         mc.createWorldOpenFlows().loadLevel(mc.screen, name);
     }
@@ -129,11 +139,14 @@ final class SelftestCompat {
     /** Sets the pointer again: the real cursor, if it moves over the window, would overwrite it. */
     static void holdPointer(Minecraft mc) {
         try {
-            for (String name : new String[]{"xpos", "ypos"}) {
-                Field f = net.minecraft.client.MouseHandler.class.getDeclaredField(name);
-                f.setAccessible(true);
-                f.setDouble(mc.mouseHandler, name.equals("xpos") ? pointerX : pointerY);
-            }
+            // Development names in a dev run, SRG names in a real install.
+            boolean srg = net.minecraftforge.fml.loading.FMLEnvironment.production;
+            Field x = net.minecraft.client.MouseHandler.class.getDeclaredField(srg ? "f_91507_" : "xpos");
+            Field y = net.minecraft.client.MouseHandler.class.getDeclaredField(srg ? "f_91508_" : "ypos");
+            x.setAccessible(true);
+            y.setAccessible(true);
+            x.setDouble(mc.mouseHandler, pointerX);
+            y.setDouble(mc.mouseHandler, pointerY);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("cannot move the pointer", e);
         }

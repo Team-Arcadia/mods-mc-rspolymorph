@@ -111,6 +111,8 @@ public final class Selftest {
     private static final ResourceLocation RECIPE_STONECUTTING = new ResourceLocation("minecraft", "stone_slab_from_stonecutting");
     private static final ResourceLocation RECIPE_BOWL = new ResourceLocation("rsp_selftest", "conflict_bowl");
 
+    private static final String REMOTE = System.getProperty("rspolymorph.selftest.remote");
+
     private static final Queue<Runnable> QUEUE = new ConcurrentLinkedQueue<>();
     private static volatile int ticks;
     private static boolean started;
@@ -159,6 +161,12 @@ public final class Selftest {
     private void run() {
         try {
             Files.deleteIfExists(reportFile);
+            if (REMOTE != null) {
+                section("world", this::startRemote);
+                section("remote", this::remoteScenario);
+                finish();
+                return;
+            }
             section("world", this::startWorld);
             section("audit", this::audit);
             if (GridOwnership.polymorphOwnsGrids()) {
@@ -179,6 +187,160 @@ public final class Selftest {
             fail("scenario", t);
         }
         finish();
+    }
+
+    /**
+     * Joins the dedicated server named by {@code -Drspolymorph.selftest.remote=host:port}. The player must be an
+     * operator there and the server must hold the test data pack. Nothing here can read the server's objects, so a
+     * result counts only once the server sent it back: reopening a menu resends the whole inventory.
+     */
+    private void startRemote() throws Exception {
+        client(() -> {
+            SelftestCompat.skipOnboarding(mc);
+            mc.options.pauseOnLostFocus = false;
+            SelftestCompat.setWindowSize(mc, 1280, 720);
+            return null;
+        });
+        waitTicks(5);
+        client(() -> {
+            SelftestCompat.setGuiScale(mc, 2);
+            return null;
+        });
+        await("the title screen", 2400, () -> mc.getOverlay() == null && mc.screen instanceof TitleScreen);
+        Files.createDirectories(tutorialFlag().getParent());
+        Files.writeString(tutorialFlag(), "seen");
+        String[] address = REMOTE.split(":");
+        client(() -> {
+            SelftestCompat.connect(mc, address[0], Integer.parseInt(address[1]));
+            return null;
+        });
+        await("the server", 2400, () -> mc.player != null && mc.level != null && mc.screen == null);
+        waitTicks(40);
+        origin = client(() -> mc.player.blockPosition());
+        check("remote.is_a_dedicated_server", () -> require(client(() -> mc.getSingleplayerServer() == null), "an integrated server runs"));
+        check("remote.recipes_synced", () -> require(client(() -> mc.level.getRecipeManager().byKey(RECIPE_BOWL).isPresent()),
+                "the server's data pack did not reach the client"));
+        command("clear @a");
+        command("setblock " + at(origin.offset(2, 0, 3)) + " refinedstorage:creative_controller");
+        await("the controller on the client", 60, () -> !mc.level.getBlockState(origin.offset(2, 0, 3)).isAir());
+    }
+
+    /** Placed with the item from the hand, as a player does: that is what makes RS look for the network. */
+    private BlockPos placeByHand(String block) {
+        BlockPos pos = origin.offset(3 + nextGrid++, 0, 3);
+        command("clear @a");
+        command("give @a refinedstorage:" + block);
+        await("the block in the inventory", 60, () -> !mc.player.getInventory().getItem(0).isEmpty());
+        command("tp @a " + pos.getX() + ".5 " + pos.getY() + " " + (pos.getZ() - 2) + ".5");
+        await("the player to arrive", 60, () -> mc.player.blockPosition().closerThan(pos, 3.5));
+        waitTicks(10);
+        client(() -> {
+            mc.player.getInventory().selected = 0;
+            SelftestCompat.useOn(mc, pos.below());
+            return null;
+        });
+        await("the block on the client", 60, () -> !mc.level.getBlockState(pos).isAir());
+        await("the grid to join the network", 200, () -> mc.level.getBlockState(pos).getValue(NetworkNodeBlock.CONNECTED));
+        return pos;
+    }
+
+    private void remoteScenario() throws Exception {
+        BlockPos crafting = placeByHand("crafting_grid");
+        command("clear @a");
+        command("give @a minecraft:clay_ball 16");
+        await("the ingredients", 60, () -> count(mc.player, Items.CLAY_BALL) == 16);
+        open(crafting);
+        check("remote.grid_opens_connected", () -> await("the grid to be active", 60, () -> grid().isGridActive()));
+        client(() -> {
+            putEach(Items.CLAY_BALL, 3, 0, 1);
+            return null;
+        });
+        await("the default result", 60, () -> !clientResult().isEmpty());
+        ItemStack first = clientResult();
+        ItemStack other = other(first);
+        check("remote.button_shows_on_conflict", () -> await("the side button", 60, () -> sideButton().visible));
+        check("remote.popup_lists_both", () -> {
+            clickSideButton();
+            List<Item> outputs = client(() -> popupEntries().stream().map(e -> e.output().getItem()).toList());
+            require(outputs.size() == 2 && outputs.contains(Items.BOWL) && outputs.contains(Items.LADDER), "entries: " + outputs);
+        });
+        check("remote.pick_changes_result", () -> {
+            clickPopupEntry(other.getItem());
+            await("the result to change", 60, () -> isStack(clientResult(), other));
+        });
+        waitTicks(20);
+        closeScreen();
+        open(crafting);
+        check("remote.selection_kept_by_server_after_reopen", () ->
+                await("the selected result", 60, () -> isStack(clientResult(), other)));
+        check("remote.take_gives_selected", () -> {
+            client(() -> {
+                pickup(resultSlot(menu()).index, 0);
+                return null;
+            });
+            waitTicks(10);
+            client(() -> {
+                pickup(freeInventorySlot(menu()).index, 0);
+                return null;
+            });
+            waitTicks(10);
+        });
+        check("remote.shift_craft_uses_selection", () -> {
+            await("the result to stay", 60, () -> isStack(clientResult(), other));
+            client(() -> {
+                SelftestCompat.quickMove(mc, menu().containerId, resultSlot(menu()).index);
+                return null;
+            });
+            waitTicks(20);
+            closeScreen();
+            open(crafting);
+            waitTicks(20);
+            int made = client(() -> count(mc.player, other.getItem()));
+            require(made == 3 * other.getCount(), "the server gave " + made + " of " + other.getItem());
+            require(client(() -> count(mc.player, first.getItem())) == 0, "the other recipe's output was given");
+            require(client(() -> count(mc.player, Items.CLAY_BALL)) == 10, "clay left: " + client(() -> count(mc.player, Items.CLAY_BALL)));
+        });
+        closeScreen();
+
+        BlockPos patternPos = placeByHand("pattern_grid");
+        command("clear @a");
+        command("give @a minecraft:clay_ball 4");
+        command("give @a refinedstorage:pattern 8");
+        await("the items", 60, () -> count(mc.player, Items.CLAY_BALL) == 4);
+        open(patternPos);
+        client(() -> {
+            Slot patterns = emptyPatterns(menu());
+            pickup(patterns.index, 0);
+            pickup(patternInput(menu()).index, 0);
+            ghost(Items.CLAY_BALL, 0, 1);
+            return null;
+        });
+        await("the preview", 60, () -> !clientResult().isEmpty());
+        ItemStack previewFirst = clientResult();
+        ItemStack previewOther = other(previewFirst);
+        check("remote.pattern_selection", () -> {
+            await("the side button", 60, () -> sideButton().visible);
+            clickSideButton();
+            clickPopupEntry(previewOther.getItem());
+            await("the preview to change", 60, () -> isStack(clientResult(), previewOther));
+        });
+        waitTicks(20);
+        check("remote.pattern_printed_with_selection", () -> {
+            await("a pattern to be printable", 60, () -> grid().canCreatePattern());
+            client(() -> {
+                GridScreen screen = (GridScreen) screen();
+                SelftestCompat.click(screen, screen.getGuiLeft() + 172 + 8,
+                        screen.getGuiTop() + screen.getTopHeight() + screen.getVisibleRows() * 18 + 22 + 8, 0);
+                return null;
+            });
+            await("the printed pattern", 60, () -> !client(() -> patternOutput(menu()).getItem().isEmpty()));
+            ItemStack tagged = client(() -> patternOutput(menu()).getItem().copy());
+            ResourceLocation want = conflictId(previewOther.getItem());
+            require(want.equals(tagOf(tagged)), "tag: " + tagOf(tagged));
+            ItemStack output = client(() -> resolve(tagged, mc.level));
+            require(isStack(output, previewOther), "resolves " + output);
+        });
+        closeScreen();
     }
 
     private void startWorld() throws Exception {
@@ -636,7 +798,13 @@ public final class Selftest {
             });
             await("the slot to be hovered", 20, () -> {
                 SelftestCompat.holdPointer(mc);
-                Slot hovered = (Slot) field(screen(), "hoveredSlot");
+                // The SRG name in a real Forge install, the development name elsewhere.
+                Slot hovered;
+                try {
+                    hovered = (Slot) find(screen().getClass(), "f_97734_").get(screen());
+                } catch (NoSuchFieldException e) {
+                    hovered = (Slot) field(screen(), "hoveredSlot");
+                }
                 return hovered != null && hovered.getItem().getItem() == Items.CLAY_BALL;
             });
         });
@@ -1080,6 +1248,14 @@ public final class Selftest {
     }
 
     private void command(String command) {
+        if (REMOTE != null) {
+            client(() -> {
+                SelftestCompat.remoteCommand(mc, command);
+                return null;
+            });
+            waitTicks(4);
+            return;
+        }
         server(() -> {
             SelftestCompat.command(mc.getSingleplayerServer(), command);
             return null;
@@ -1210,11 +1386,8 @@ public final class Selftest {
     private String gridSearchText() {
         Object search = field(screen(), "searchField");
         if (search == null) return "";
-        try {
-            return (String) search.getClass().getMethod("getValue").invoke(search);
-        } catch (ReflectiveOperationException e) {
-            throw new Failure("cannot read the search box: " + e);
-        }
+        // A cast, not reflection: the name is remapped in a real install.
+        return ((net.minecraft.client.gui.components.EditBox) search).getValue();
     }
 
     private static List<Slot> matrixSlots(AbstractContainerMenu menu) {
