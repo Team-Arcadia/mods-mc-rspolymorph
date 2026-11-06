@@ -328,3 +328,10 @@
 **Root cause:** ContainerGrid sends MessageGridCraftingShift when the Shift key is down, and transferStackInSlot does nothing, so the window click of the selftest could not craft
 **Fix:** On forge-1.9 the selftest sends that message, which is what a real shift click sends; the expected 15 selected items and no default are unchanged
 **Prevention:** Read slotClick of the target's container before saying a shift craft is broken
+
+## [2026-11-06 21:19] Selftest reflection used development names in real Forge installs
+**Context:** Selftest jar in official Forge 1.20.1 installs
+**Error:** NoSuchMethodException SearchWidget.getValue and NoSuchFieldException hoveredSlot and xpos
+**Root cause:** Reflection strings are not remapped by reobf; SRG names apply in production
+**Fix:** Cast to EditBox and look up the SRG field names first
+**Prevention:** Never reflect on Minecraft members by development name in code that runs in production
