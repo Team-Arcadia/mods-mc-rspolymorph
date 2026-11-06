@@ -214,7 +214,15 @@ public final class Selftest {
             SelftestCompat.connect(mc, address[0], Integer.parseInt(address[1]));
             return null;
         });
-        await("the server", 2400, () -> mc.player != null && mc.level != null && mc.screen == null);
+        long connectedAt = System.currentTimeMillis();
+        boolean[] probed = {false};
+        await("the server", 2400, () -> {
+            if (!probed[0] && mc.player == null && System.currentTimeMillis() - connectedAt > 10_000) {
+                probed[0] = true;
+                probeStalledConnection();
+            }
+            return mc.player != null && mc.level != null && mc.screen == null;
+        });
         waitTicks(40);
         origin = client(() -> mc.player.blockPosition());
         check("remote.is_a_dedicated_server", () -> require(client(() -> mc.getSingleplayerServer() == null), "an integrated server runs"));
@@ -223,6 +231,38 @@ public final class Selftest {
         command("clear @a");
         command("setblock " + at(origin.offset(2, 0, 3)) + " refinedstorage:creative_controller");
         await("the controller on the client", 60, () -> !mc.level.getBlockState(origin.offset(2, 0, 3)).isAir());
+    }
+
+    /** Reports a login stuck for 10 s and asks Netty for one read: fields are found by type to work on SRG names. */
+    private void probeStalledConnection() {
+        try {
+            Object screen = mc.screen;
+            net.minecraft.network.Connection connection = null;
+            if (screen != null) {
+                for (Field f : screen.getClass().getDeclaredFields()) {
+                    if (f.getType() == net.minecraft.network.Connection.class) {
+                        f.setAccessible(true);
+                        connection = (net.minecraft.network.Connection) f.get(screen);
+                    }
+                }
+            }
+            if (connection == null) {
+                line("RSP-PROBE screen=" + (screen == null ? "null" : screen.getClass().getName()) + " no connection");
+                return;
+            }
+            io.netty.channel.Channel channel = null;
+            for (Field f : net.minecraft.network.Connection.class.getDeclaredFields()) {
+                if (f.getType() == io.netty.channel.Channel.class) {
+                    f.setAccessible(true);
+                    channel = (io.netty.channel.Channel) f.get(connection);
+                }
+            }
+            line("RSP-PROBE screen=" + screen.getClass().getName() + " open=" + channel.isOpen() + " autoRead=" + channel.config().isAutoRead());
+            channel.eventLoop().execute(channel::read);
+            line("RSP-PROBE read() called");
+        } catch (ReflectiveOperationException e) {
+            line("RSP-PROBE failed: " + e);
+        }
     }
 
     /** Placed with the item from the hand, as a player does: that is what makes RS look for the network. */
