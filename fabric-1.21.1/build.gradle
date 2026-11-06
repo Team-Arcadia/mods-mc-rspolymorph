@@ -48,6 +48,18 @@ sourceSets.main {
     resources.srcDir(new File(commonDir, 'resources'))
 }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+if (selftest) {
+    def selftestDir = file("../common/${minecraft_version}/src/selftest")
+    sourceSets.main {
+        java.srcDir(new File(selftestDir, 'java'))
+        resources.srcDir(new File(selftestDir, 'resources'))
+    }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered {
@@ -84,6 +96,22 @@ loom {
             ideConfigGenerated(true)
             runDir('runs/server')
         }
+        if (selftest) {
+            clientSelftest {
+                client()
+                setConfigName('Fabric Client Selftest')
+                runDir('runs/selftest')
+                vmArg('-Drspolymorph.selftest=true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                server()
+                runDir('runs/selftest-server')
+                vmArg('-Dfabric-api.gametest')
+                vmArg('-Drspolymorph.selftest.server=true')
+                vmArg('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
+        }
     }
 }
 
@@ -107,6 +135,15 @@ processResources {
     ]
     inputs.properties(props)
     filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('fabric.mod.json') {
+            filter { String line ->
+                line.trim() == '"rspolymorph-common.mixins.json"'
+                        ? line + ',\n    "rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

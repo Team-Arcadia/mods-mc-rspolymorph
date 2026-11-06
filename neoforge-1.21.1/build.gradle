@@ -48,6 +48,18 @@ sourceSets.main {
     resources.srcDir(new File(commonDir, 'resources'))
 }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+if (selftest) {
+    def selftestDir = file("../common/${minecraft_version}/src/selftest")
+    sourceSets.main {
+        java.srcDir(new File(selftestDir, 'java'))
+        resources.srcDir(new File(selftestDir, 'resources'))
+    }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 neoForge {
     version = neoforge_version
 
@@ -67,6 +79,20 @@ neoForge {
         server {
             server()
             programArgument '--nogui'
+        }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = file('run/selftest')
+                systemProperty('rspolymorph.selftest', 'true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = file('run/selftest-server')
+                systemProperty('rspolymorph.selftest.server', 'true')
+                jvmArgument('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
         }
     }
 
@@ -103,6 +129,15 @@ processResources {
     ]
     inputs.properties(props)
     filesMatching(['pack.mcmeta', 'META-INF/neoforge.mods.toml', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('META-INF/neoforge.mods.toml') {
+            filter { String line ->
+                line == 'config="rspolymorph-common.mixins.json"'
+                        ? line + '\n\n[[mixins]]\nconfig="rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

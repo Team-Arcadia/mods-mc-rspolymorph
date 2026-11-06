@@ -87,6 +87,32 @@ sourceSets.main {
 tasks.named('compileJava') { dependsOn remapCommonSources }
 tasks.named('processResources') { dependsOn mergeResources }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The shared code is remapped like the mod's, SelftestCompat is forked, and the
+// jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+if (selftest) {
+    def selftestJava = layout.buildDirectory.dir('remapped-selftest/java')
+    def remapSelftestSources = tasks.register('remapSelftestSources', Sync) {
+        from(file('../common/1.21.1/src/selftest/java')) {
+            exclude 'com/vyrriox/rspolymorph/selftest/SelftestCompat.java'
+            filter { String line ->
+                line.replaceAll(/\bResourceLocation\b/, 'Identifier')
+                    .replaceAll(/\bGuiGraphics\b/, 'GuiGraphicsExtractor')
+            }
+        }
+        from(file("../common/${minecraft_version}/src/selftest/java"))
+        into selftestJava
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+    }
+    sourceSets.main {
+        java.srcDir(selftestJava)
+        resources.srcDir(file('../common/1.21.1/src/selftest/resources'))
+    }
+    tasks.named('compileJava') { dependsOn remapSelftestSources }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
@@ -105,6 +131,21 @@ loom {
     runs {
         client { client(); ideConfigGenerated(true); runDir('runs/client') }
         server { server(); ideConfigGenerated(true); runDir('runs/server') }
+        if (selftest) {
+            clientSelftest {
+                client()
+                runDir('runs/selftest')
+                vmArg('-Drspolymorph.selftest=true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                server()
+                runDir('runs/selftest-server')
+                vmArg('-Dfabric-api.gametest')
+                vmArg('-Drspolymorph.selftest.server=true')
+                vmArg('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
+        }
     }
 }
 
@@ -122,6 +163,15 @@ processResources {
     ]
     inputs.properties(props)
     filesMatching(['fabric.mod.json', 'pack.mcmeta', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('fabric.mod.json') {
+            filter { String line ->
+                line.trim() == '"rspolymorph-common.mixins.json"'
+                        ? line + ',\n    "rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

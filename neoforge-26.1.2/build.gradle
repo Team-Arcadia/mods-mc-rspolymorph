@@ -96,6 +96,32 @@ sourceSets.main {
 tasks.named('compileJava') { dependsOn remapCommonSources }
 tasks.named('processResources') { dependsOn mergeResources }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The shared code is remapped like the mod's, SelftestCompat is forked, and the
+// jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+if (selftest) {
+    def selftestJava = layout.buildDirectory.dir('remapped-selftest/java')
+    def remapSelftestSources = tasks.register('remapSelftestSources', Sync) {
+        from(file('../common/1.21.1/src/selftest/java')) {
+            exclude 'com/vyrriox/rspolymorph/selftest/SelftestCompat.java'
+            filter { String line ->
+                line.replaceAll(/\bResourceLocation\b/, 'Identifier')
+                    .replaceAll(/\bGuiGraphics\b/, 'GuiGraphicsExtractor')
+            }
+        }
+        from(file("../common/${minecraft_version}/src/selftest/java"))
+        into selftestJava
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+    }
+    sourceSets.main {
+        java.srcDir(selftestJava)
+        resources.srcDir(file('../common/1.21.1/src/selftest/resources'))
+    }
+    tasks.named('compileJava') { dependsOn remapSelftestSources }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 neoForge {
     version = neoforge_version
 
@@ -106,6 +132,22 @@ neoForge {
         }
         client { client() }
         server { server(); programArgument '--nogui' }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = file('run/selftest')
+                systemProperty('rspolymorph.selftest', 'true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = file('run/selftest-server')
+                systemProperty('rspolymorph.selftest.server', 'true')
+                // This development jar keeps the client classes, see ServerSelftest.
+                systemProperty('rspolymorph.selftest.joinedJar', 'true')
+                jvmArgument('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
+        }
     }
 
     mods {
@@ -138,6 +180,15 @@ processResources {
     ]
     inputs.properties(props)
     filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('META-INF/neoforge.mods.toml') {
+            filter { String line ->
+                line == 'config="rspolymorph-common.mixins.json"'
+                        ? line + '\n\n[[mixins]]\nconfig="rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

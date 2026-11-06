@@ -30,6 +30,29 @@ tools/collect_jars.sh --build                # every target, jars copied to jars
 - The version is `mod_version` in the `gradle.properties` of each target: a release changes it in
   every target folder.
 
+## In-game selftest
+
+`-Pselftest` compiles an automated test of the real screens and runs it in a game client. A window
+opens for about two minutes, a flat world is created, the test plays, the game closes by itself.
+
+```bash
+cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # any of the four targets
+```
+
+- Each check prints `RSP-SELFTEST PASS <name>` or `RSP-SELFTEST FAIL <name>: <why>`, and the run ends
+  with `RSP-SELFTEST DONE pass=N fail=M`. The same lines go to `rspolymorph-selftest.txt` in the run
+  folder, screenshots to its `screenshots/`: `run/selftest` on NeoForge, `runs/selftest` on Fabric.
+- The sources are in `common/<minecraft version>/src/selftest`, with a mixin config of their own. A build
+  without `-Pselftest` does not compile them, and a build with it names its jar `...-SELFTEST-...`:
+  never release that one.
+- `./gradlew runServerSelftest -Pselftest` proves the dedicated server distribution in `run/selftest-server`
+  or `runs/selftest-server`, with `rspolymorph-selftest-server.txt`. It goes through the game test launch,
+  so it needs no EULA and leaves `eula.txt` alone. It loads the mod, audits the common mixins, force-loads
+  what they target and proves that no client class is reachable. Only trust its `DONE` line, never an exit
+  code: a server that stops early exits 0 and prints nothing.
+- To test next to another mod, drop its jar in the `mods` folder of that run folder. The run keeps the
+  same checks.
+
 ---
 
 # Compilation
@@ -63,3 +86,27 @@ tools/collect_jars.sh --build                # toutes les cibles, jars copiés d
 - `jars/` est local et ignoré par git : il garde les jars de chaque version compilée.
 - La version est `mod_version` dans le `gradle.properties` de chaque cible : une release la change
   dans chaque dossier cible.
+
+## Test automatique en jeu
+
+`-Pselftest` compile un test automatique des vrais écrans et le lance dans un client. Une fenêtre
+s'ouvre pendant deux minutes environ, un monde plat est créé, le test se joue, le jeu se ferme seul.
+
+```bash
+cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # n'importe laquelle des quatre cibles
+```
+
+- Chaque vérification affiche `RSP-SELFTEST PASS <nom>` ou `RSP-SELFTEST FAIL <nom>: <raison>`, et le
+  lancement se termine par `RSP-SELFTEST DONE pass=N fail=M`. Les mêmes lignes vont dans
+  `rspolymorph-selftest.txt` du dossier de lancement, les captures dans son `screenshots/` : `run/selftest`
+  sur NeoForge, `runs/selftest` sur Fabric.
+- Les sources sont dans `common/<version de minecraft>/src/selftest`, avec leur propre configuration de
+  mixins. Un build sans `-Pselftest` ne les compile pas, et un build avec nomme son jar `...-SELFTEST-...` :
+  ne jamais publier celui-là.
+- `./gradlew runServerSelftest -Pselftest` prouve la distribution serveur dédié dans `run/selftest-server` ou
+  `runs/selftest-server`, avec `rspolymorph-selftest-server.txt`. Il passe par le lancement des game tests,
+  donc sans EULA et sans toucher à `eula.txt`. Il charge le mod, audite les mixins communs, force le
+  chargement de leurs cibles et prouve qu'aucune classe client n'est atteignable. Ne se fier qu'à sa ligne
+  `DONE`, jamais à un code de sortie : un serveur arrêté tôt sort avec 0 et n'affiche rien.
+- Pour tester à côté d'un autre mod, déposer son jar dans le dossier `mods` de ce dossier de lancement. Les
+  vérifications restent les mêmes.
