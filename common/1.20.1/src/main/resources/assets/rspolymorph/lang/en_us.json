@@ -1,0 +1,10 @@
+{
+  "rspolymorph.gui.recipe_selection": "Recipe Selection",
+  "rspolymorph.gui.click_to_select": "Click to select a recipe",
+  "rspolymorph.gui.multiple_recipes_warning": "Multiple recipes match: pick one to avoid a wrong craft",
+  "rspolymorph.tutorial.title": "RS Polymorph: Recipe Selection",
+  "rspolymorph.tutorial.line1": "Some items share the same crafting ingredients.",
+  "rspolymorph.tutorial.line2": "Use the recipe button next to the grid to pick which one to craft.",
+  "rspolymorph.tutorial.line3": "Your choice is remembered per grid.",
+  "rspolymorph.tutorial.dismiss": "Click anywhere, or press Space, to dismiss"
+}

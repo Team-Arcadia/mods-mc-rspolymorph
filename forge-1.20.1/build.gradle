@@ -1,0 +1,147 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.147'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-forge-${minecraft_version}"
+}
+
+// Minecraft 1.20.1 ships Java 17 to players.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+// All the logic and every mixin live in common/; this project only adds the loader glue.
+def commonDir = file("../common/${minecraft_version}/src/main")
+sourceSets.main.java.srcDir(new File(commonDir, 'java'))
+sourceSets.main.resources.srcDir(new File(commonDir, 'resources'))
+
+// -PuseNeoForge compiles and runs on NeoForge 47.1 (the 1.20.1 fork of Forge) in its own game
+// folder, to prove the jar also loads there. Releases are built without it.
+def useNeoForge = providers.gradleProperty('useNeoForge').isPresent()
+
+// -PpolymorphJar=<path to a Polymorph or Polymorph+ jar> adds it to the dev runs only, in its own game
+// folder, to prove both mods load together. It is never compiled against or shipped.
+def polymorphJar = providers.gradleProperty('polymorphJar').map { new File(it) }.getOrNull()
+
+legacyForge {
+    enable {
+        if (useNeoForge) {
+            neoForgeVersion = "${minecraft_version}-${neo_version}"
+        } else {
+            forgeVersion = "${minecraft_version}-${forge_version}"
+        }
+    }
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        // Dedicated server side (no client classes, no client mixins) that stops by itself.
+        gametest {
+            type = 'gameTestServer'
+        }
+        configureEach {
+            gameDirectory = project.file(polymorphJar != null ? 'run-polymorph' : useNeoForge ? 'run-neoforge' : 'run')
+            logLevel = org.slf4j.event.Level.INFO
+            // -PauditMixins applies every mixin at startup instead of on the first use of its target.
+            if (providers.gradleProperty('auditMixins').isPresent()) {
+                systemProperty 'rspolymorph.auditMixins', 'true'
+            }
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+mixin {
+    add(sourceSets.main, "${mod_id}.refmap.json")
+    config("${mod_id}-common.mixins.json")
+}
+
+repositories {
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    if (polymorphJar != null) {
+        flatDir {
+            dirs polymorphJar.parentFile
+        }
+    }
+}
+
+dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    // The mod* configurations remap the jar from SRG names to the development mappings.
+    modImplementation "maven.modrinth:refined-storage:${refinedstorage_version_id}"
+    if (polymorphJar != null) {
+        modRuntimeOnly(name: polymorphJar.name - '.jar')
+    }
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version_range     : minecraft_version_range,
+            forge_version_range         : forge_version_range,
+            loader_version_range        : loader_version_range,
+            refinedstorage_version_range: refinedstorage_version_range,
+            mod_id                      : mod_id,
+            mod_name                    : mod_name,
+            mod_author                  : mod_author,
+            mod_version                 : mod_version,
+            mod_license                 : mod_license,
+            mod_credits                 : mod_credits,
+            mod_description             : mod_description,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// Forge 1.20.1 runs on SRG names outside of development: the plugin remaps this jar with its
+// reobfJar task, which writes the jar to release in build/libs (the plain one goes to build/devlibs).
+tasks.named('jar', Jar).configure {
+    from(file('../LICENSE')) {
+        rename { "LICENSE_${mod_id}" }
+    }
+    from(file('../NOTICE')) {
+        rename { "NOTICE_${mod_id}" }
+    }
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_id,
+                'Specification-Vendor'  : mod_author,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : mod_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor' : mod_author,
+                // Forge 1.20.1 only reads mixin configs from the manifest, not from mods.toml.
+                'MixinConfigs'          : "${mod_id}-common.mixins.json"
+        ])
+    }
+}
