@@ -3,6 +3,8 @@
 # folder, not in git): jars/1.2.2/, jars/1.2.3/... so the jars of earlier versions are kept.
 # Run it after building: "./gradlew build" in each target folder, or pass --build to build them all
 # first. A target is a folder named <loader>-<minecraft version> with a build.gradle.
+# With --build, the targets on a Gradle older than 5 (ForgeGradle 2.x) run on the JDK of JAVA8_HOME,
+# when it is set, since they start on Java 8 only. The others must not get that JAVA_HOME.
 #
 # Author: vyrriox
 set -euo pipefail
@@ -10,15 +12,21 @@ set -euo pipefail
 ROOT=$(git rev-parse --show-toplevel)
 cd "$ROOT"
 
+failed=0
 for dir in */; do
     target=${dir%/}
-    if [[ ! "$target" =~ ^(neoforge|fabric)-.+$ ]] || [ ! -f "$target/build.gradle" ]; then
+    if [[ ! "$target" =~ ^(neoforge|forge|fabric)-.+$ ]] || [ ! -f "$target/build.gradle" ]; then
         continue
     fi
     if [ "${1:-}" = "--build" ]; then
         echo "== building $target"
-        if ! (cd "$target" && ./gradlew build --console=plain -q); then
+        java_home=${JAVA_HOME:-}
+        if grep -qE 'gradle-[34]\.[0-9.]+-bin' "$target/gradle/wrapper/gradle-wrapper.properties"; then
+            java_home=${JAVA8_HOME:-$java_home}
+        fi
+        if ! (cd "$target" && JAVA_HOME="$java_home" ./gradlew build --console=plain -q); then
             echo "$target: build failed" >&2
+            failed=$((failed + 1))
             continue
         fi
     fi
@@ -38,3 +46,4 @@ for dir in */; do
     cp "$jar" "jars/$version/"
     echo "$target: jars/$version/$(basename "$jar")"
 done
+[ "$failed" -eq 0 ]
