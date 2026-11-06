@@ -17,6 +17,7 @@ package com.vyrriox.rspolymorph.mixin;
 
 import com.refinedmods.refinedstorage.apiimpl.network.node.GridNetworkNode;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
+import com.refinedmods.refinedstorage.inventory.item.BaseItemHandler;
 import com.vyrriox.rspolymorph.IRsPolymorphGrid;
 import com.vyrriox.rspolymorph.RecipeAccess;
 import com.vyrriox.rspolymorph.RsPolymorph;
@@ -24,6 +25,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -55,6 +57,10 @@ public abstract class MixinGridNetworkNode extends NetworkNode implements IRsPol
     @Final
     private CraftingInventory matrix;
 
+    @Shadow
+    @Final
+    private BaseItemHandler patterns;
+
     @Unique
     private ResourceLocation rspolymorph$selected;
 
@@ -65,6 +71,9 @@ public abstract class MixinGridNetworkNode extends NetworkNode implements IRsPol
     @Shadow
     public abstract void onCraftingMatrixChanged();
 
+    @Shadow
+    public abstract boolean isProcessingPattern();
+
     @Override
     public boolean rspolymorph$select(ResourceLocation recipeId) {
         if (RecipeAccess.findCrafting(world, recipeId, matrix) == null) {
@@ -73,6 +82,29 @@ public abstract class MixinGridNetworkNode extends NetworkNode implements IRsPol
         rspolymorph$selected = recipeId;
         onCraftingMatrixChanged();
         return true;
+    }
+
+    /**
+     * Refined Storage loads a pattern put in the output slot back into the matrix, from a listener of
+     * the patterns handler. Listeners run in order, so this one sees the loaded matrix.
+     */
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void rspolymorph$listenToPatterns(CallbackInfo ci) {
+        patterns.addListener((handler, slot, reading) -> {
+            ItemStack pattern = handler.getStackInSlot(slot);
+            if (reading || slot != 1 || pattern.isEmpty() || isProcessingPattern()) {
+                return;
+            }
+            ResourceLocation tagged = RecipeAccess.taggedRecipe(pattern);
+            if (tagged == null) {
+                return;
+            }
+            // The grid already shows it after a print, which also lands here: nothing to pin then.
+            ICraftingRecipe recipe = RecipeAccess.findCrafting(world, tagged, matrix);
+            if (recipe != null && recipe != currentRecipe) {
+                rspolymorph$select(tagged);
+            }
+        });
     }
 
     @Inject(method = "onCraftingMatrixChanged", at = @At("HEAD"))
