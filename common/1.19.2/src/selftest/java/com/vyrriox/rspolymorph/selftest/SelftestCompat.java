@@ -117,10 +117,11 @@ final class SelftestCompat {
     /** Sets the pointer again: the real cursor, if it moves over the window, would overwrite it. */
     static void holdPointer(Minecraft mc) {
         try {
-            for (String name : new String[]{"xpos", "ypos"}) {
+            boolean srg = net.minecraftforge.fml.loading.FMLEnvironment.production;
+            for (String name : new String[]{srg ? "f_91507_" : "xpos", srg ? "f_91508_" : "ypos"}) {
                 Field f = net.minecraft.client.MouseHandler.class.getDeclaredField(name);
                 f.setAccessible(true);
-                f.setDouble(mc.mouseHandler, name.equals("xpos") ? pointerX : pointerY);
+                f.setDouble(mc.mouseHandler, name.equals(srg ? "f_91507_" : "xpos") ? pointerX : pointerY);
             }
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("cannot move the pointer", e);

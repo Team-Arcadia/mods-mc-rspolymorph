@@ -32,6 +32,9 @@ def adaptLine = { String line ->
             // The selftest's widget positions are public fields before 1.19.3.
             .replace('b.getX() + b.getWidth()', 'b.x + b.getWidth()')
             .replace('b.getY() + b.getHeight()', 'b.y + b.getHeight()')
+            // Reflection on game members: a production game runs on SRG names.
+            .replace('field(screen(), "hoveredSlot")', 'field(screen(), net.minecraftforge.fml.loading.FMLEnvironment.production ? "f_97734_" : "hoveredSlot")')
+            .replace('getMethod("getValue")', 'getMethod(net.minecraftforge.fml.loading.FMLEnvironment.production ? "m_94155_" : "getValue")')
             .replace('mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0)', 'mc.options.setSoundCategoryVolume(SoundSource.MASTER, 0.0F)')
     if (legacyComponents) {
         adapted = adapted
