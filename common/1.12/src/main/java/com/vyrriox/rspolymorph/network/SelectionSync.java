@@ -20,15 +20,19 @@ import com.raoulvdberge.refinedstorage.container.ContainerGrid;
 import com.vyrriox.rspolymorph.IRsPolymorphGrid;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Before Refined Storage 1.6 the client's own grid works out the crafting result whenever a slot of
  * its matrix arrives, and the server never sends that result: vanilla leaves crafting result slots out
  * of its slot updates. So the client has to know the selection too. It gets it when a grid opens and
- * when the selection changes.
+ * when the selection changes, and a change goes to every player who has this grid open.
  *
  * Author: vyrriox
  */
@@ -41,6 +45,34 @@ public final class SelectionSync {
                 && ((ContainerGrid) open).getGrid() instanceof NetworkNodeGrid) {
             send((EntityPlayerMP) event.getEntityPlayer(), open.windowId, (NetworkNodeGrid) ((ContainerGrid) open).getGrid());
         }
+    }
+
+    /** Sends the selection of this grid to everyone who has it open. @return the messages sent */
+    static int sendToViewers(NetworkNodeGrid node) {
+        return sendToViewers(node, node.getWorld().playerEntities);
+    }
+
+    public static int sendToViewers(NetworkNodeGrid node, List<? extends EntityPlayer> players) {
+        int sent = 0;
+        for (EntityPlayerMP viewer : viewers(node, players)) {
+            // A fake player of another mod has no connection to send to.
+            if (viewer.connection != null) {
+                send(viewer, viewer.openContainer.windowId, node);
+                sent++;
+            }
+        }
+        return sent;
+    }
+
+    public static List<EntityPlayerMP> viewers(NetworkNodeGrid node, List<? extends EntityPlayer> players) {
+        List<EntityPlayerMP> viewers = new ArrayList<>();
+        for (EntityPlayer player : players) {
+            if (player instanceof EntityPlayerMP && player.openContainer instanceof ContainerGrid
+                    && ((ContainerGrid) player.openContainer).getGrid() == node) {
+                viewers.add((EntityPlayerMP) player);
+            }
+        }
+        return viewers;
     }
 
     static void send(EntityPlayerMP player, int windowId, NetworkNodeGrid node) {

@@ -55,7 +55,7 @@ public final class SelectRecipeHandler {
             node.onCraftingMatrixChanged();
             // The result slot reaches the client now, not on the next tick.
             open.detectAndSendChanges();
-            SelectionSync.send(player, open.windowId, node);
+            SelectionSync.sendToViewers(node);
         }
     }
 }
