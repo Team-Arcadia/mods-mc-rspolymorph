@@ -4,6 +4,76 @@ All notable changes to RS Polymorph are documented here.
 
 ---
 
+## [1.3.0] - 2026-11-06
+
+### Added
+
+- **Forge and NeoForge targets for older Minecraft versions** — RS Polymorph now ships for NeoForge 1.20.4 and for Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11 and 1.10.2. The 1.20.1 jar also runs on NeoForge 47.1 and the 1.12 jar also runs on 1.12.1. Versions, floors and Java per jar are in `docs/COMPATIBILITY.md`.
+- **Fabric on Minecraft 26.1.2** — The `fabric-26.1.2` target is enabled and released, with Refined Storage 3.x and Java 25.
+- **Coexistence with Polymorph and Polymorph+** — Both mods work next to RS Polymorph. On 1.16.5, 1.18.2, 1.19.2 and 1.20.1 Polymorph+ has its own Refined Storage integration, so RS Polymorph leaves the crafting grid selection to it and keeps tagging patterns.
+- **In-game selftest** — `-Pselftest` compiles an automated test of the real screens and of the dedicated server distribution, for development only. A build without the flag holds none of it, and a build with it names its jar `-SELFTEST`.
+
+### Changed
+
+- **Every printed crafting pattern is tagged with its recipe** — A printed pattern now always records the recipe of the crafting matrix, even when only one recipe matches, so a recipe added later by a mod or a pack cannot change what an existing pattern crafts.
+- **Plain storage grids no longer show the button** — The recipe button only appears on grids that craft or print patterns.
+- **The network protocol changed: update client and server together** — The selection packet now carries the container id, so a 1.3.0 client and an older server, or the reverse, do not work together.
+- **Refined Storage 2.0.9 and 3.2.1** — The mod is built against those versions. The floors stay lower: Refined Storage 2.0.8 on 1.21.1 and 3.2.0 on 26.1.2.
+
+### Fixed
+
+- **Selection packets are validated on the server** — The server checks the container id of the open menu, a matrix of the recipe's type in that menu and a match with the current input, and ignores the packet otherwise.
+- **Exception from a spoofed packet on a wireless grid (26.x)** — A forged selection packet on a grid without a block entity threw an exception on the server. It is now ignored.
+- **Stale widget and pinned level** — The side button could keep a previous grid's widget, and grids could keep a reference to an old level after a dimension change. Neither is held any more.
+- **26.x tutorial card and popup** — On 26.1.2, Space dismisses the tutorial card again, the narrator announces it, the tooltips under it are suppressed, and the popup shows the right item counts.
+- **NeoForge grids gained an empty attachment** — Reading the selection of a grid created a data attachment on its block entity. Only a real selection writes one now.
+- **Reloading a tagged pattern restores the selection** — Putting a tagged pattern back in the Pattern Grid selects its recipe again.
+- **Crafting remainders on the old line** — On the coremod targets, the remainders of a craft now come from the selected recipe, not from the first match.
+- **Selection change seen by every player (before Refined Storage 1.6)** — A selection change now reaches every player who has the same grid open.
+
+### Performance
+
+- **No recipe work on muted matrix updates** — A matrix update that Refined Storage mutes no longer runs any recipe logic of this mod.
+- **Id compare before any lookup** — The current recipe is compared by id first, so nothing is looked up when the selection has not changed.
+- **No recipe scans on selection or pattern resolve** — Selecting a recipe and resolving the recipe stored on a pattern use a direct lookup by id instead of scanning the recipes, which matters during autocrafting.
+- **No text rebuilt every frame** — The popup and the side button keep their text between frames.
+- **Static maps and static selection removed** — Grid state now lives in fields on Refined Storage's own objects and dies with the grid, so nothing can leak or bleed between players.
+
+### Ajouts
+
+- **Cibles Forge et NeoForge pour les anciennes versions de Minecraft** — RS Polymorph sort désormais pour NeoForge 1.20.4 et pour Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11 et 1.10.2. Le jar 1.20.1 fonctionne aussi sur NeoForge 47.1 et le jar 1.12 aussi sur 1.12.1. Les versions, minimums et Java par jar sont dans `docs/COMPATIBILITY.md`.
+- **Fabric sur Minecraft 26.1.2** — La cible `fabric-26.1.2` est activée et publiée, avec Refined Storage 3.x et Java 25.
+- **Cohabitation avec Polymorph et Polymorph+** — Les deux mods fonctionnent à côté de RS Polymorph. En 1.16.5, 1.18.2, 1.19.2 et 1.20.1, Polymorph+ a sa propre intégration Refined Storage : RS Polymorph lui laisse la sélection de la grille de craft et continue de marquer les patrons.
+- **Test automatique en jeu** — `-Pselftest` compile un test automatique des vrais écrans et de la distribution serveur dédié, pour le développement uniquement. Un build sans cette option n'en contient rien, et un build avec nomme son jar `-SELFTEST`.
+
+### Modifications
+
+- **Chaque patron de craft imprimé est marqué avec sa recette** — Un patron imprimé enregistre désormais toujours la recette de la matrice de craft, même quand une seule recette correspond : une recette ajoutée plus tard par un mod ou un pack ne peut pas changer ce que craft un patron existant.
+- **Les grilles de stockage simples n'affichent plus le bouton** — Le bouton de recette n'apparaît que sur les grilles qui craftent ou impriment des patrons.
+- **Le protocole réseau a changé : mettre à jour le client et le serveur ensemble** — Le paquet de sélection porte désormais l'identifiant du conteneur : un client 1.3.0 et un serveur plus ancien, ou l'inverse, ne fonctionnent pas ensemble.
+- **Refined Storage 2.0.9 et 3.2.1** — Le mod est compilé avec ces versions. Les minimums restent plus bas : Refined Storage 2.0.8 en 1.21.1 et 3.2.0 en 26.1.2.
+
+### Correctifs
+
+- **Les paquets de sélection sont validés côté serveur** — Le serveur vérifie l'identifiant du menu ouvert, la présence d'une matrice du type de la recette dans ce menu et la correspondance avec les ingrédients actuels, et ignore le paquet sinon.
+- **Exception causée par un paquet forgé sur une grille sans fil (26.x)** — Un paquet de sélection forgé sur une grille sans block entity levait une exception sur le serveur. Il est désormais ignoré.
+- **Widget périmé et niveau retenu** — Le bouton latéral pouvait garder le widget d'une grille précédente, et les grilles une référence à un ancien niveau après un changement de dimension. Plus rien de cela n'est retenu.
+- **Carte de tutoriel et popup en 26.x** — En 26.1.2, Espace ferme de nouveau la carte de tutoriel, le narrateur l'annonce, les infobulles dessous sont masquées et le popup affiche les bonnes quantités d'objets.
+- **Les grilles NeoForge gagnaient une pièce jointe vide** — Lire la sélection d'une grille créait une pièce jointe de données sur son block entity. Seule une vraie sélection en écrit une désormais.
+- **Recharger un patron marqué restaure la sélection** — Remettre un patron marqué dans la Pattern Grid resélectionne sa recette.
+- **Restes de craft sur l'ancienne ligne** — Sur les cibles à coremod, les restes d'un craft viennent désormais de la recette sélectionnée, et non de la première trouvée.
+- **Changement de sélection vu par tous les joueurs (avant Refined Storage 1.6)** — Un changement de sélection atteint désormais tous les joueurs qui ont la même grille ouverte.
+
+### Performance
+
+- **Aucun travail de recette sur les mises à jour muettes de la matrice** — Une mise à jour de matrice que Refined Storage rend muette n'exécute plus aucune logique de recette de ce mod.
+- **Comparaison d'identifiant avant toute recherche** — La recette courante est d'abord comparée par identifiant : rien n'est recherché quand la sélection n'a pas changé.
+- **Aucun parcours des recettes à la sélection ou à la résolution d'un patron** — Sélectionner une recette et résoudre celle stockée sur un patron passent par une recherche directe par identifiant au lieu de parcourir les recettes, ce qui compte pendant l'autocraft.
+- **Plus de texte reconstruit à chaque image** — Le popup et le bouton latéral gardent leur texte d'une image à l'autre.
+- **Maps statiques et sélection statique supprimées** — L'état d'une grille vit désormais dans des champs des objets de Refined Storage et disparaît avec la grille : rien ne peut fuir ni passer d'un joueur à l'autre.
+
+---
+
 ## [1.2.2] - 2026-06-29
 
 ### Added

@@ -3,14 +3,38 @@
 Each target is a standalone Gradle project, in its own folder, with its own wrapper. The
 loader-independent code is shared from `common/<minecraft version>`.
 
-| Folder | Builds | Java |
-|--------|--------|------|
-| `neoforge-1.21.1` | `build/libs/rspolymorph-neoforge-1.21.1-<version>.jar` | 21 |
-| `fabric-1.21.1` | `build/libs/rspolymorph-fabric-1.21.1-<version>.jar` | 21 |
-| `neoforge-26.1.2` | `build/libs/rspolymorph-neoforge-26.1.2-<version>.jar` | 25 |
-| `fabric-26.1.2` | Not built yet: waits for a stable Fabric Loom with Minecraft 26.x support ([#5](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/5)) | 25 |
-| `common/1.21.1` | Shared code for 1.21.1, read by both 1.21.1 targets | |
-| `common/26.1.2` | The files whose 26.x API differs; the rest of `common/1.21.1` is reused with the 26.x renames | |
+| Folders | Builds with | Run Gradle on | Compiles for |
+|---------|-------------|---------------|--------------|
+| `neoforge-26.1.2`, `fabric-26.1.2` | ModDevGradle on Gradle 9.5, Loom 1.18 on Gradle 9.7 | Java 25 | Java 25 |
+| `neoforge-1.21.1`, `fabric-1.21.1` | ModDevGradle, Loom 1.16, Gradle 9.5 | Java 21 | Java 21 |
+| `neoforge-1.20.4`, `forge-1.20.1`, `forge-1.19.2`, `forge-1.18.2`, `forge-1.18.1` | ModDevGradle (legacy Forge variant on Forge), Gradle 9.2 | Java 21 | Java 17 |
+| `forge-1.16.5`, `forge-1.16.4`, `forge-1.16.3`, `forge-1.16.2`, `forge-1.16.1`, `forge-1.15.2`, `forge-1.15.1`, `forge-1.14.4` | ForgeGradle 6, Gradle 8.14 | Java 21 | Java 8 |
+| `forge-1.12.2` | RetroFuturaGradle 1.4.9, Gradle 8.14 | Java 21, not a Java 8 `JAVA_HOME` | Java 8 |
+| `forge-1.12` | ForgeGradle 2.3, Gradle 4.10 | Java 8 only | Java 8 |
+| `forge-1.11.2`, `forge-1.11`, `forge-1.10.2` | ForgeGradle 2.2, Gradle 3.5 | Java 8 only | Java 8 |
+
+Every target writes `build/libs/rspolymorph-<folder>-<version>.jar`.
+
+### Shared code
+
+`common/<minecraft version>` holds the code, and each target assembles its sources from layers:
+
+| Target | Layers, the first one wins |
+|--------|----------------------------|
+| `neoforge-1.21.1`, `fabric-1.21.1` | `common/1.21.1` |
+| `neoforge-26.1.2`, `fabric-26.1.2` | `common/26.1.2`, then `common/1.21.1` with the 26.x renames |
+| `forge-1.20.1` | `common/1.20.1` |
+| `neoforge-1.20.4` | `common/1.20.4`, then `common/1.20.1` |
+| `forge-1.19.2`, `forge-1.18.2`, `forge-1.18.1` | `common/1.19.2`, then `common/1.20.1` |
+| `forge-1.16.5`, `forge-1.16.4`, `forge-1.16.3`, `forge-1.16.2` | `common/1.16.5` |
+| `forge-1.16.1` | `common/1.16.1`, then `common/1.16.5` |
+| `forge-1.15.2` | `common/1.15.2`, then `common/1.16.5` |
+| `forge-1.15.1` | `common/1.15.1`, `common/1.15.2`, then `common/1.16.5` |
+| `forge-1.14.4` | `common/1.14.4`, `common/1.15.1`, `common/1.15.2`, then `common/1.16.5` |
+| `forge-1.12.2` | `common/1.12.2` |
+| `forge-1.12` | `common/1.12`, then `common/1.12.2` |
+| `forge-1.11.2`, `forge-1.11` | `common/1.11.2`, `common/1.12`, then `common/1.12.2` |
+| `forge-1.10.2` | `common/1.10.2`, `common/1.11.2`, `common/1.12`, then `common/1.12.2` |
 
 ```bash
 git clone https://github.com/Team-Arcadia/mods-mc-rspolymorph.git
@@ -23,7 +47,9 @@ cd ..
 tools/collect_jars.sh --build                # every target, jars copied to jars/<version>/
 ```
 
-- Gradle toolchains download Java 21 or 25 when they are missing: any JDK can start the build.
+- Start Gradle on the Java of the table. Toolchains download the compile JDK when it is missing,
+  except on ForgeGradle 2.x, which compiles on the Java that runs it.
+- `tools/collect_jars.sh --build` runs the ForgeGradle 2.x targets on `JAVA8_HOME` when it is set.
 - Refined Storage comes from the Modrinth maven, pinned by version id per loader. Nothing has to be
   downloaded by hand.
 - `jars/` is local and ignored by git: it keeps the jars of every version you built.
@@ -36,7 +62,7 @@ tools/collect_jars.sh --build                # every target, jars copied to jars
 opens for about two minutes, a flat world is created, the test plays, the game closes by itself.
 
 ```bash
-cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # any of the four targets
+cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # any target
 ```
 
 - Each check prints `RSP-SELFTEST PASS <name>` or `RSP-SELFTEST FAIL <name>: <why>`, and the run ends
@@ -57,6 +83,12 @@ cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # any of the f
   `common/<minecraft version>/src/selftest`. The run folders are `run/selftest` and `run/selftest-server`.
 - On `forge-1.20.1`, `-PpolymorphJar=<a jar with development names>` runs in `run-polymorph/selftest` a scenario
   of its own: this mod stays out of selection and printed patterns are still tagged.
+- `-Prs_jar=<path>` with `-Pselftest` runs the selftest against another Refined Storage jar, to check a
+  version floor.
+- On `forge-1.12`, `-Ptarget_mc=1.12.1` makes the development runs and `runObfClient` use Minecraft 1.12.1.
+  The jar is still built on 1.12 and is the same for both. `-Pselftest -Pobf_run` runs the built jar with
+  production names on the ForgeGradle 2.x targets.
+- `-PpolymorphJar` also exists on `forge-1.16.5`, with a Polymorph+ jar.
 - On that line `-PauditMixins` works only with `-Pselftest`: it applies every mixin as soon as the game reaches
   the selftest's hooks, in any run, and logs `RSP-AUDIT`. A released jar has no such code.
 
@@ -67,14 +99,18 @@ cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # any of the f
 Chaque cible est un projet Gradle autonome, dans son propre dossier, avec son propre wrapper. Le
 code indépendant du loader est partagé depuis `common/<version de minecraft>`.
 
-| Dossier | Produit | Java |
-|---------|---------|------|
-| `neoforge-1.21.1` | `build/libs/rspolymorph-neoforge-1.21.1-<version>.jar` | 21 |
-| `fabric-1.21.1` | `build/libs/rspolymorph-fabric-1.21.1-<version>.jar` | 21 |
-| `neoforge-26.1.2` | `build/libs/rspolymorph-neoforge-26.1.2-<version>.jar` | 25 |
-| `fabric-26.1.2` | Pas encore compilé : attend une version stable de Fabric Loom compatible Minecraft 26.x ([#5](https://github.com/Team-Arcadia/mods-mc-rspolymorph/issues/5)) | 25 |
-| `common/1.21.1` | Code partagé 1.21.1, lu par les deux cibles 1.21.1 | |
-| `common/26.1.2` | Les fichiers dont l'API 26.x diffère ; le reste de `common/1.21.1` est réutilisé avec les renommages 26.x | |
+| Dossiers | Compilé avec | Gradle tourne sur | Compile pour |
+|----------|--------------|-------------------|--------------|
+| `neoforge-26.1.2`, `fabric-26.1.2` | ModDevGradle sur Gradle 9.5, Loom 1.18 sur Gradle 9.7 | Java 25 | Java 25 |
+| `neoforge-1.21.1`, `fabric-1.21.1` | ModDevGradle, Loom 1.16, Gradle 9.5 | Java 21 | Java 21 |
+| `neoforge-1.20.4`, `forge-1.20.1`, `forge-1.19.2`, `forge-1.18.2`, `forge-1.18.1` | ModDevGradle (variante legacy Forge sur Forge), Gradle 9.2 | Java 21 | Java 17 |
+| `forge-1.16.5`, `forge-1.16.4`, `forge-1.16.3`, `forge-1.16.2`, `forge-1.16.1`, `forge-1.15.2`, `forge-1.15.1`, `forge-1.14.4` | ForgeGradle 6, Gradle 8.14 | Java 21 | Java 8 |
+| `forge-1.12.2` | RetroFuturaGradle 1.4.9, Gradle 8.14 | Java 21, pas un `JAVA_HOME` Java 8 | Java 8 |
+| `forge-1.12` | ForgeGradle 2.3, Gradle 4.10 | Java 8 uniquement | Java 8 |
+| `forge-1.11.2`, `forge-1.11`, `forge-1.10.2` | ForgeGradle 2.2, Gradle 3.5 | Java 8 uniquement | Java 8 |
+
+Chaque cible produit `build/libs/rspolymorph-<dossier>-<version>.jar`. L'ordre des couches de code
+partagé par cible est dans le tableau « Shared code » ci-dessus : la première couche l'emporte.
 
 ```bash
 git clone https://github.com/Team-Arcadia/mods-mc-rspolymorph.git
@@ -87,7 +123,9 @@ cd ..
 tools/collect_jars.sh --build                # toutes les cibles, jars copiés dans jars/<version>/
 ```
 
-- Les toolchains Gradle téléchargent Java 21 ou 25 s'ils manquent : n'importe quel JDK peut lancer le build.
+- Lancer Gradle sur le Java du tableau. Les toolchains téléchargent le JDK de compilation s'il manque,
+  sauf avec ForgeGradle 2.x, qui compile sur le Java qui le lance.
+- `tools/collect_jars.sh --build` lance les cibles ForgeGradle 2.x sur `JAVA8_HOME` s'il est défini.
 - Refined Storage vient du maven Modrinth, fixé par identifiant de version pour chaque loader. Rien
   n'est à télécharger à la main.
 - `jars/` est local et ignoré par git : il garde les jars de chaque version compilée.
@@ -100,7 +138,7 @@ tools/collect_jars.sh --build                # toutes les cibles, jars copiés d
 s'ouvre pendant deux minutes environ, un monde plat est créé, le test se joue, le jeu se ferme seul.
 
 ```bash
-cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # n'importe laquelle des quatre cibles
+cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # n'importe quelle cible
 ```
 
 - Chaque vérification affiche `RSP-SELFTEST PASS <nom>` ou `RSP-SELFTEST FAIL <nom>: <raison>`, et le
@@ -122,5 +160,11 @@ cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # n'importe la
   `common/<version de minecraft>/src/selftest`. Les dossiers de lancement sont `run/selftest` et `run/selftest-server`.
 - Sur `forge-1.20.1`, `-PpolymorphJar=<un jar aux noms de développement>` joue dans `run-polymorph/selftest` un scénario
   à part : ce mod reste hors de la sélection et les patterns imprimés restent marqués.
+- `-Prs_jar=<chemin>` avec `-Pselftest` lance le test contre un autre jar de Refined Storage, pour vérifier
+  une version minimale.
+- Sur `forge-1.12`, `-Ptarget_mc=1.12.1` fait utiliser Minecraft 1.12.1 aux lancements de développement et à
+  `runObfClient`. Le jar reste compilé sur 1.12 et sert aux deux. `-Pselftest -Pobf_run` lance le jar compilé,
+  avec les noms de production, sur les cibles ForgeGradle 2.x.
+- `-PpolymorphJar` existe aussi sur `forge-1.16.5`, avec un jar Polymorph+.
 - Sur cette ligne, `-PauditMixins` ne marche qu'avec `-Pselftest` : il applique tous les mixins dès que le jeu atteint
   les points d'entrée du test, dans n'importe quel lancement, et écrit `RSP-AUDIT` au log. Un jar publié n'a pas ce code.
