@@ -1,0 +1,207 @@
+// ForgeGradle 2.3 on Gradle 4.10.3: start it with a Java 8 JAVA_HOME, it runs on nothing newer.
+// One jar for Minecraft 1.12 and 1.12.1 on Refined Storage 1.5.28. It is built on 1.12. With
+// -Ptarget_mc=1.12.1 the dev runs and runObfClient use 1.12.1 instead (see docs/BUILDING.md).
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+def targetMc = project.hasProperty('target_mc') ? project.property('target_mc') : minecraft_version
+def forgeVersion = targetMc == '1.12.1' ? forge_version_1121 : forge_version
+def selftest = project.hasProperty('selftest')
+def obfRun = project.hasProperty('obf_run')
+
+group = mod_group_id
+version = mod_version
+archivesBaseName = "${mod_id}-forge-${minecraft_version}" + (selftest ? '-SELFTEST' : '')
+sourceCompatibility = targetCompatibility = 1.8
+
+repositories {
+    maven {
+        name = 'ForgeMaven'
+        url = 'https://maven.minecraftforge.net/'
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+    }
+}
+
+// Forks over the closest line, the first folder wins: a file of a later folder that an earlier one
+// also holds is left out, so that any other overlap fails the build.
+def layers = ['1.12', '1.12.2'].collect { new File(rootDir, "../common/${it}/src") }
+def assembled = new File(buildDir, 'assembledCommon')
+
+String adaptLine(String line) {
+    return line
+            .replace('refinedstorage.gui.control.SideButton', 'refinedstorage.gui.sidebutton.SideButton')
+            .replace('.getGridType()', '.getType()')
+            // The server's log4j console appender does not start in a dev run: write past it.
+            .replace('System.out.println("RSP-SELFTEST " + text);', 'new java.io.PrintStream(new java.io.FileOutputStream(java.io.FileDescriptor.out), true).println("RSP-SELFTEST " + text);')
+            // On RS 1.5.28 a stack of the processing matrix comes back in the crafting matrix after a
+            // reload (seen in the selftest, cause not found): the reload check takes a new grid that never held one.
+            .replace('// Selection survives on the pattern grid too, checked after the reload in persist.', 'closeScreen(); server(s -> { s.getWorld(0).setBlockToAir(pattern); s.getWorld(0).setBlockState(pattern, gridState(GridType.PATTERN)); return null; }); pause(300); open(pattern);')
+            .replace('refinedstorage.block.enums.ControllerType', 'refinedstorage.block.ControllerType')
+            .replace('refinedstorage.inventory.item.ItemHandlerBase', 'refinedstorage.inventory.ItemHandlerBase')
+            // No @MCVersion: FML would refuse the coremod on the other version of the shared jar.
+            .replace('@IFMLLoadingPlugin.MCVersion("1.12.2")', '')
+            .replace('containsVersion(new DefaultArtifactVersion("1.12.2"))', 'containsVersion(new DefaultArtifactVersion("1.12")) && mod.acceptableMinecraftVersionRange().containsVersion(new DefaultArtifactVersion("1.12.1"))')
+            .replace('!mod.acceptableMinecraftVersionRange().containsVersion(new DefaultArtifactVersion("1.12.1"))', '!mod.acceptableMinecraftVersionRange().containsVersion(new DefaultArtifactVersion("1.12.2"))')
+            .replace('new DefaultArtifactVersion("1.6.16")', 'new DefaultArtifactVersion("1.5.28")')
+            .replace('new DefaultArtifactVersion("1.6.15")', 'new DefaultArtifactVersion("1.5.27")')
+}
+
+task assembleCommonSources(type: Sync) {
+    into assembled
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    // A filter closure is not a tracked input.
+    inputs.file(buildFile)
+    def seen = new HashSet<String>()
+    layers.each { layer ->
+        def forked = new HashSet<String>(seen)
+        from(layer) {
+            exclude { element -> !element.isDirectory() && forked.contains(element.relativePath.pathString) }
+            filesMatching('**/*.java') {
+                filter { String line -> adaptLine(line) }
+            }
+        }
+        fileTree(layer).visit { element ->
+            if (!element.isDirectory()) {
+                seen.add(element.relativePath.pathString)
+            }
+        }
+    }
+}
+
+sourceSets.main.java.srcDir(new File(assembled, 'main/java'))
+sourceSets.main.resources.srcDir(new File(assembled, 'main/resources'))
+if (selftest) {
+    sourceSets.main.java.srcDir(new File(assembled, 'selftest/java'))
+}
+// FML reads a mod's metadata and assets from the folder of its classes, in a dev run too.
+sourceSets.main.output.resourcesDir = sourceSets.main.java.outputDir
+
+tasks.matching { it.name in ['sourceMainJava', 'compileJava', 'processResources'] }.all {
+    dependsOn assembleCommonSources
+}
+
+def coremods = 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod' +
+        (selftest ? ',com.vyrriox.rspolymorph.selftest.SelftestCoremod' : '')
+
+minecraft {
+    version = "${targetMc}-${forgeVersion}"
+    mappings = mcp_mappings
+    runDir = 'run'
+    // In a dev run FML only finds a coremod that this property names. Never with a jar in a mods
+    // folder: the property fails first, and FML's class loader remembers a class it could not find.
+    if (!obfRun) {
+        clientJvmArgs += "-Dfml.coreMods.load=${coremods}".toString()
+    }
+    if (selftest) {
+        clientJvmArgs += '-Drspolymorph.selftest=true'
+        clientJvmArgs += '-Drspolymorph.selftest.server=true'
+    }
+}
+
+configurations {
+    obfForge
+    obfMods
+}
+
+dependencies {
+    // Refined Storage is released in SRG names: this remaps it to the MCP names of the dev run.
+    deobfCompile "maven.modrinth:refined-storage:${refinedstorage_version_id}"
+    obfForge("net.minecraftforge:forge:${targetMc}-${forgeVersion}:universal@jar") { transitive = false }
+    obfMods("maven.modrinth:refined-storage:${refinedstorage_version_id}@jar") { transitive = false }
+}
+
+processResources {
+    def props = [
+            mod_id           : mod_id,
+            mod_name         : mod_name,
+            mod_version      : mod_version,
+            mod_author       : mod_author,
+            mod_credits      : mod_credits,
+            mod_description  : mod_description,
+            minecraft_version: minecraft_version_list
+    ]
+    inputs.properties(props)
+    filesMatching('mcmod.info') {
+        expand(props)
+    }
+}
+
+// The coremod ships in the same jar as the mod: the two attributes tell FML to load both from it.
+jar {
+    // The resources sit in the folder of the classes, so the output lists them twice.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod',
+                'FMLCorePluginContainsFMLMod': 'true',
+                'ForceLoadAsMod': 'true',
+                'Specification-Title': mod_id,
+                'Specification-Vendor': mod_author,
+                'Specification-Version': '1',
+                'Implementation-Title': mod_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor': mod_author
+        )
+    }
+}
+
+if (selftest) {
+    // The dedicated server half of the selftest. It never starts a server: it takes the same classes
+    // down FML's server launch path and stops at the first line of the server's main method, before
+    // eula.txt is read (see ServerSelftest).
+    task runServerSelftest(type: JavaExec) {
+        group = 'verification'
+        main = 'GradleStartServer'
+        workingDir = file('run/selftest-server')
+        jvmArgs "-Dfml.coreMods.load=${coremods}".toString(), '-Drspolymorph.selftest.server=true', '-Xmx1G'
+    }
+    afterEvaluate {
+        def run = tasks.getByName('runServer')
+        runServerSelftest.dependsOn run.dependsOn, 'jar'
+        runServerSelftest.doFirst {
+            workingDir.mkdirs()
+            classpath = run.classpath
+        }
+    }
+
+    // The released form of the mod in a mods folder, the closest proof to a real install: the Forge
+    // universal jar and the vanilla client on the class path, Forge's own patches, SRG names, no
+    // installer and no dev launcher. -Pselftest -Pobf_run, optionally -Ptarget_mc=1.12.1.
+    task runObfClient(type: JavaExec) {
+        group = 'verification'
+        dependsOn 'reobfJar', 'extractNatives'
+        main = 'net.minecraft.launchwrapper.Launch'
+        def dir = file('run/obf')
+        def cache = new File(gradle.gradleUserHomeDir, 'caches/minecraft')
+        workingDir = dir
+        jvmArgs '-Xmx2G', '-Drspolymorph.selftest=true', '-Dfml.ignoreInvalidMinecraftCertificates=true',
+                "-Djava.library.path=${new File(cache, "net/minecraft/natives/${targetMc}")}".toString()
+        args '--tweakClass', 'net.minecraftforge.fml.common.launcher.FMLTweaker',
+                '--version', 'forge', '--gameDir', dir.path,
+                '--assetsDir', new File(cache, 'assets').path, '--assetIndex', targetMc,
+                '--accessToken', '0', '--userProperties', '{}', '--userType', 'legacy',
+                '--username', 'Dev', '--uuid', '00000000000000000000000000000000'
+        doFirst {
+            delete new File(dir, 'mods')
+            copy {
+                from configurations.obfMods
+                // -Pobf_jar=<file> runs a jar built earlier, such as the 1.12 build on 1.12.1.
+                from project.hasProperty('obf_jar') ? file(project.property('obf_jar')) : jar.archivePath
+                into new File(dir, 'mods')
+            }
+            classpath = configurations.obfForge + configurations.forgeGradleMcDeps +
+                    files(new File(cache, "net/minecraft/minecraft/${targetMc}/minecraft-${targetMc}.jar"))
+        }
+    }
+}
