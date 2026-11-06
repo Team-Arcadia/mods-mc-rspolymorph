@@ -1,0 +1,10 @@
+{
+  "rspolymorph.gui.recipe_selection": "Sélection de recette",
+  "rspolymorph.gui.click_to_select": "Cliquez pour sélectionner une recette",
+  "rspolymorph.gui.multiple_recipes_warning": "Plusieurs recettes correspondent : choisissez-en une pour éviter un mauvais craft",
+  "rspolymorph.tutorial.title": "RS Polymorph : sélection de recette",
+  "rspolymorph.tutorial.line1": "Certains objets partagent les mêmes ingrédients.",
+  "rspolymorph.tutorial.line2": "Utilisez le bouton de recette à côté de la grille pour choisir quoi fabriquer.",
+  "rspolymorph.tutorial.line3": "Votre choix est mémorisé pour chaque grille.",
+  "rspolymorph.tutorial.dismiss": "Cliquez n'importe où, ou appuyez sur Espace, pour fermer"
+}
