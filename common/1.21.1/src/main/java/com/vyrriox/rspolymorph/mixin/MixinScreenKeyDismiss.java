@@ -25,11 +25,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Lets keyboard-only / Steam Deck players dismiss the first-open tutorial card with Space or Enter.
- * Vanilla Esc is deliberately left untouched so it keeps its close-the-screen meaning. HEAD-cancel
- * on the container screen's {@code keyPressed}; {@code require = 0} so a differing signature (e.g. the
- * MC 26.x KeyEvent-based key handling) is a clean no-op, never a class-load failure. Vanilla target →
- * remapped (Loom remaps for Fabric, NeoForge runs Mojmap). No-op when no tutorial is up, so it never
- * interferes with the grid search box.
+ * Vanilla Esc is deliberately left untouched so it keeps its close-the-screen meaning. No-op when no
+ * tutorial is up, so it never interferes with the grid search box.
  *
  * Author: vyrriox
  */
@@ -47,8 +44,9 @@ public abstract class MixinScreenKeyDismiss {
             return;
         }
         RsGridRecipeWidget widget = RsGridRecipeWidget.getActiveInstance();
-        if (widget != null && widget.dismissTutorialByKey()) {
-            cir.setReturnValue(true); // consumed — don't pass the key to the screen
+        if (widget != null && widget.isOpenForScreen((AbstractContainerScreen<?>) (Object) this)
+                && widget.dismissTutorialByKey()) {
+            cir.setReturnValue(true); // consumed, don't pass the key to the screen
         }
     }
 }

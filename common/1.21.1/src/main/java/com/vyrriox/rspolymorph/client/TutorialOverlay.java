@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * A one-time, centred tutorial card shown the first time a player opens an RS grid screen. It
  * explains the recipe-selection feature (the side button + popup) and is dismissed by a click or by
- * pressing Space/Enter. Pure vanilla GUI — drawn over the screen by {@link RsGridRecipeWidget}; no
- * Polymorph, no loader API. {@link TutorialState} decides whether it should appear.
+ * pressing Space/Enter. Pure vanilla GUI, drawn over the screen by {@link RsGridRecipeWidget}; no
+ * loader API. {@link TutorialState} decides whether it should appear.
  *
  * Author: vyrriox
  */

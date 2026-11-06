@@ -32,7 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 public final class FabricNetworkPlatform implements NetworkPlatform {
 
     @Override
-    public void sendSelectToServer(ResourceLocation recipeId) {
-        ClientPlayNetworking.send(new SelectRecipePacket(recipeId));
+    public void sendSelectToServer(int containerId, ResourceLocation recipeId) {
+        ClientPlayNetworking.send(new SelectRecipePacket(containerId, recipeId));
     }
 }

@@ -26,8 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Draws the standalone recipe-selection popup over the RS grid screen and routes clicks to it,
- * replacing the role Polymorph's {@code SelectionWidget} + its render mixin used to play.
+ * Draws the recipe-selection popup over the RS grid screen and routes clicks to it.
  *
  * The class target is RS's {@code AbstractGridScreen} ({@code remap=false}), but {@code render}
  * and {@code mouseClicked} are inherited vanilla methods, so those injectors use {@code remap=true}
@@ -58,17 +57,12 @@ public abstract class MixinAbstractGridScreenRender {
     )
     private void rspolymorph$popupClick(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
         RsGridRecipeWidget widget = RsGridRecipeWidget.getActiveInstance();
-        // Route the click when EITHER the popup or the first-open tutorial card is up — both are
-        // handled by handleClick. Gating only on isPopupOpen() left the tutorial undismissable.
-        if (widget == null || (!widget.isPopupOpen() && !widget.isShowingTutorial())) return;
+        if (widget == null || !widget.isOpenForScreen((AbstractContainerScreen<?>) (Object) this)) return;
+        // Route the click when EITHER the popup or the first-open tutorial card is up: both are
+        // handled by handleClick.
+        if (!widget.isPopupOpen() && !widget.isShowingTutorial()) return;
         if (widget.handleClick(mouseX, mouseY)) {
-            cir.setReturnValue(true); // consumed — don't let the click reach slots
+            cir.setReturnValue(true); // consumed, don't let the click reach slots
         }
     }
-
-    // NOTE: no Screen#removed() hook — removed() is an inherited vanilla method that no RS screen
-    // class declares, so a mixin on AbstractGridScreen cannot target it (it would fail to apply and
-    // crash at class load). The active widget is instead bounded by replacement: every grid open
-    // runs init() -> ClientSetup.onGridScreenInit() which overwrites activeInstance, so at most one
-    // closed screen is retained until the next grid opens (one object, not a growing leak).
 }

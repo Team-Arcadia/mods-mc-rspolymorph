@@ -52,10 +52,10 @@ public final class RsPolymorphFabric implements ModInitializer {
         RsPolymorph.setSelectedRecipeComponent(component);
 
         // Register the C2S payload type and its server-side receiver.
-        PayloadTypeRegistry.playC2S().register(SelectRecipePacket.TYPE, SelectRecipePacket.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(SelectRecipePacket.TYPE, SelectRecipePacket.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(SelectRecipePacket.TYPE, (payload, context) ->
                 context.server().execute(() ->
-                        SelectRecipePacket.applyOnServer(context.player(), payload.recipeId())));
+                        SelectRecipePacket.applyOnServer(context.player(), payload.containerId(), payload.recipeId())));
 
         // Touch the grid store so its persistent attachment is registered at startup (the Fabric
         // attachment is created in FabricGridRecipeStore's class initializer).

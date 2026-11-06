@@ -16,13 +16,16 @@
 package com.vyrriox.rspolymorph.client;
 
 import com.refinedmods.refinedstorage.common.grid.screen.AbstractGridScreen;
+import com.refinedmods.refinedstorage.common.support.RecipeMatrixContainer;
 import com.refinedmods.refinedstorage.common.support.containermenu.DisabledSlot;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.inventory.Slot;
 
+import java.util.List;
+
 /**
- * Client-only helpers for the standalone recipe-selection UI. No Polymorph: the widget is created
+ * Client-only helpers for the recipe-selection UI. The widget is created
  * directly when a grid screen initializes (from {@code MixinAbstractBaseScreen}) and the result
  * slot is detected from RS's own slot types.
  *
@@ -32,29 +35,28 @@ public final class ClientSetup {
 
     private ClientSetup() {}
 
-    /** Retained as a no-op entry point for symmetry with the loader entrypoints. */
-    public static void init() {
-        // Nothing to register globally anymore — the widget is built per screen in onGridScreenInit.
-    }
-
     /**
-     * Builds the {@link RsGridRecipeWidget} for a freshly-initialized grid screen, locating the
-     * crafting result slot to anchor the popup. Called from {@code MixinAbstractBaseScreen} after
-     * {@code init()} so all slots exist.
+     * Builds the {@link RsGridRecipeWidget} for a freshly-initialized grid screen. Called from
+     * {@code MixinAbstractBaseScreen} after {@code init()} so all slots exist.
+     *
+     * @return true if the grid can craft (it has matrix slots and a result slot) and got a widget;
+     *         a plain storage grid gets neither widget nor side button
      */
-    public static void onGridScreenInit(AbstractGridScreen<?> screen) {
+    public static boolean onGridScreenInit(AbstractGridScreen<?> screen) {
+        List<RecipeMatrixContainer> containers = RsGridRecipeWidget.findContainers(screen.getMenu());
+        if (containers.isEmpty()) return false;
         Slot resultSlot = findResultSlot(screen);
-        if (resultSlot != null) {
-            // Constructing the widget registers it as the active instance.
-            new RsGridRecipeWidget(screen, resultSlot);
-        }
+        if (resultSlot == null) return false;
+        // Constructing the widget registers it as the active instance.
+        new RsGridRecipeWidget(screen, resultSlot, containers);
+        return true;
     }
 
     /**
      * Finds the crafting result slot on the grid screen. RS's own {@code CraftingGridResultSlot}
      * is package-private, so we match on the vanilla {@code ResultSlot} it extends first, then fall
      * back to any active {@code DisabledSlot} (public RS slot used for the grid result), then any
-     * {@code DisabledSlot}. This mirrors the detection the mod used before going standalone.
+     * {@code DisabledSlot}.
      */
     private static Slot findResultSlot(AbstractContainerScreen<?> screen) {
         for (Slot slot : screen.getMenu().slots) {

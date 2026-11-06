@@ -1,7 +1,5 @@
 {
   "modmenu.description.rspolymorph": "Standalone recipe selection for Refined Storage crafting and pattern grids.",
-  "rspolymorph.button.select": "Select Recipe",
-  "rspolymorph.button.clear": "Clear Selection",
   "rspolymorph.gui.recipe_selection": "Recipe Selection",
   "rspolymorph.gui.click_to_select": "Click to select a recipe",
   "rspolymorph.gui.multiple_recipes_warning": "Multiple recipes match — pick one to avoid a wrong craft",

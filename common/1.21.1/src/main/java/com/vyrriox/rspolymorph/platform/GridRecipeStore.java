@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * Loader-agnostic persistence of the player's recipe selection per RS2 grid block entity,
- * keyed by {@link RecipeType}. Replaces Polymorph's {@code IBlockEntityRecipeData} capability.
+ * keyed by {@link RecipeType}.
  *
  * Implemented with Data Attachments on each loader (NeoForge {@code AttachmentType} /
  * Fabric {@code AttachmentRegistry}), which ride the block entity's own NBT save pipeline,
@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  * serialization on RS2's classes. Resolved by the common code via {@link Services#GRID_STORE}.
  *
  * Grids with NO block entity (the Quartz Arsenal wireless crafting grid) are NOT handled here —
- * they keep using the in-memory per-matrix store in {@code RsPolymorph} because they have
+ * they keep the selection in memory on the matrix (see {@code IRsRecipeMatrix}) because they have
  * nowhere durable to persist.
  *
  * Author: vyrriox
@@ -42,8 +42,8 @@ public interface GridRecipeStore {
     ResourceLocation get(BlockEntity be, RecipeType<?> type);
 
     /**
-     * Persists {@code recipeId} for {@code be} under {@code type}. A {@code null} id clears the
-     * selection for that type. Marks the block entity dirty so the change is saved.
+     * Persists {@code recipeId} for {@code be} under {@code type}. Marks the block entity dirty so
+     * the change is saved.
      */
     void set(BlockEntity be, RecipeType<?> type, ResourceLocation recipeId);
 }

@@ -15,41 +15,36 @@
  */
 package com.vyrriox.rspolymorph.client;
 
-import com.vyrriox.rspolymorph.IRsRecipeMatrix;
 import com.vyrriox.rspolymorph.RsPolymorph;
-import com.vyrriox.rspolymorph.mixin.AccessorAbstractGridContainerMenu;
 import com.vyrriox.rspolymorph.platform.Services;
 import com.refinedmods.refinedstorage.common.Platform;
-import com.refinedmods.refinedstorage.common.support.RecipeMatrix;
 import com.refinedmods.refinedstorage.common.support.RecipeMatrixContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Standalone recipe-selection driver for an RS2 grid screen — the Polymorph-free replacement for
- * what used to extend Polymorph's {@code PersistentRecipesWidget}. It discovers the candidate
- * recipes for the open grid and drives a {@link RecipeSelectorPopup} (our own UI). Selection is
- * sent to the server through {@link Services#network()} exactly as before.
+ * Recipe-selection driver for an RS grid screen. It discovers the candidate recipes for the open
+ * grid and drives a {@link RecipeSelectorPopup}. The selection is sent to the server through
+ * {@link Services#network()}.
  *
  * One instance exists per open grid screen ({@link #activeInstance}); it is created by
- * {@code MixinAbstractBaseScreen} and rendered/clicked by {@code MixinAbstractGridScreenRender}.
+ * {@code MixinAbstractBaseScreen}, drawn and clicked through the screen mixins, and released by
+ * {@code MixinContainerScreenRemoved} when the screen closes.
  *
  * Author: vyrriox
  */
@@ -59,7 +54,8 @@ public class RsGridRecipeWidget {
 
     private final Slot outputSlot;
     private final AbstractContainerScreen<?> screen;
-    private final BlockEntity activeBlockEntity;
+    /** The menu's slots never change, so the matrix containers are found once. */
+    private final List<RecipeMatrixContainer> containers;
     private final RecipeSelectorPopup popup;
 
     /** True while the one-time first-open tutorial card should be shown over this screen. */
@@ -71,22 +67,17 @@ public class RsGridRecipeWidget {
     /** Grid contents hash at the moment the popup was opened (popup closes if inputs change). */
     private int popupOpenedAtHash = 0;
 
-    // hasMultipleRecipes() cache — recomputed only when the input hash changes.
+    // hasMultipleRecipes() cache: recomputed only when the input hash changes.
     private boolean cachedHasMultiple = false;
     private int lastHashForMultipleCheck = Integer.MIN_VALUE;
 
-    // Per-frame cache for container discovery + input hash.
-    private List<RecipeMatrixContainer> cachedContainers = null;
-    private int cachedInputHash = Integer.MIN_VALUE;
-    private long lastCacheFrame = -1;
-
     /** A candidate recipe together with the input it was matched against (used to assemble output). */
-    private record RecipeMatch(RecipeHolder<?> holder, RecipeInput input) {}
+    private record RecipeMatch(RecipeHolder<?> holder, CraftingInput input) {}
 
-    public RsGridRecipeWidget(AbstractContainerScreen<?> screen, Slot outputSlot) {
+    public RsGridRecipeWidget(AbstractContainerScreen<?> screen, Slot outputSlot, List<RecipeMatrixContainer> containers) {
         this.screen = screen;
         this.outputSlot = outputSlot;
-        this.activeBlockEntity = findBlockEntity(screen);
+        this.containers = containers;
         this.popup = new RecipeSelectorPopup(this::selectRecipe);
         this.showTutorial = !TutorialState.hasSeen();
         activeInstance = this;
@@ -96,15 +87,11 @@ public class RsGridRecipeWidget {
         return activeInstance;
     }
 
-    /** Clears the active instance when its screen closes (called from the screen removed hook). */
+    /** Clears the active instance when its screen closes (see MixinContainerScreenRemoved). */
     public static void clearIfActive(AbstractContainerScreen<?> screen) {
         if (activeInstance != null && activeInstance.screen == screen) {
             activeInstance = null;
         }
-    }
-
-    public Slot getOutputSlot() {
-        return outputSlot;
     }
 
     public boolean isPopupOpen() {
@@ -116,96 +103,30 @@ public class RsGridRecipeWidget {
         return showTutorial;
     }
 
-    /** True if the popup is open and the cursor is over it (drives slot-tooltip suppression). */
-    public boolean isMouseOverPopup(double mouseX, double mouseY) {
-        return popup.isMouseOver(mouseX, mouseY);
-    }
-
-    /** True if this widget belongs to the given screen (guards rendering to the right screen). */
+    /** True if this widget belongs to the given screen (guards every screen mixin). */
     public boolean isOpenForScreen(AbstractContainerScreen<?> screen) {
         return this.screen == screen;
     }
 
     // -------------------------------------------------------------------------
-    // BlockEntity discovery (unchanged logic from the Polymorph version)
+    // Container discovery + recipe query
     // -------------------------------------------------------------------------
 
-    private static BlockEntity findBlockEntity(AbstractContainerScreen<?> screen) {
-        for (Slot slot : screen.getMenu().slots) {
-            if (slot.container instanceof RecipeMatrixContainer rmc) {
-                BlockEntity be = RsPolymorph.getBlockEntityForContainer(rmc);
-                if (be != null) return be;
+    /**
+     * The distinct matrix containers of a menu, empty for a grid that cannot craft. Client-side menus
+     * build their matrix slots over a bare container of their own, on the crafting and pattern grids
+     * alike. A grid has only 1-2 of them, so a reference-identity linear check is enough.
+     */
+    public static List<RecipeMatrixContainer> findContainers(AbstractContainerMenu menu) {
+        List<RecipeMatrixContainer> found = new ArrayList<>(2);
+        for (Slot slot : menu.slots) {
+            if (slot.container instanceof RecipeMatrixContainer rmc && !containsRef(found, rmc)) {
+                found.add(rmc);
             }
         }
-        if (screen.getMenu() instanceof AccessorAbstractGridContainerMenu accessor) {
-            Object grid = accessor.rspolymorph$getGrid();
-            if (grid instanceof BlockEntity be) return be;
-        }
-        net.minecraft.world.entity.player.Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            BlockEntity closest = null;
-            double closestDist = Double.MAX_VALUE;
-            for (BlockEntity be : new HashSet<>(RsPolymorph.getMatrixMap().values())) {
-                if (be.getLevel() == player.level()) {
-                    double dist = be.getBlockPos().distSqr(player.blockPosition());
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closest = be;
-                    }
-                }
-            }
-            if (closest != null && closestDist <= 64) return closest;
-        }
-        return null;
+        return found;
     }
 
-    // -------------------------------------------------------------------------
-    // Container discovery + recipe query (unchanged logic)
-    // -------------------------------------------------------------------------
-
-    private void refreshFrameCache() {
-        long frame = Minecraft.getInstance().getFrameTimeNs();
-        if (frame == lastCacheFrame) return;
-        lastCacheFrame = frame;
-        cachedContainers = null;
-        cachedInputHash = Integer.MIN_VALUE;
-    }
-
-    private List<RecipeMatrixContainer> getContainers() {
-        if (cachedContainers != null) return cachedContainers;
-
-        // A grid has only 1-2 distinct matrix containers, so a reference-identity linear check is
-        // cheaper and correct (no autoboxing, no HashSet allocation, no hash-collision risk).
-        List<RecipeMatrixContainer> fromSlots = new ArrayList<>(2);
-        for (Slot slot : screen.getMenu().slots) {
-            if (slot.container instanceof RecipeMatrixContainer rmc && !containsRef(fromSlots, rmc)) {
-                fromSlots.add(rmc);
-            }
-        }
-        if (!fromSlots.isEmpty()) {
-            cachedContainers = fromSlots;
-            return cachedContainers;
-        }
-
-        if (activeBlockEntity != null) {
-            Map<RecipeMatrixContainer, BlockEntity> beMap = RsPolymorph.getMatrixMap();
-            List<RecipeMatrixContainer> fromBe = new ArrayList<>();
-            for (Map.Entry<RecipeMatrixContainer, BlockEntity> entry : beMap.entrySet()) {
-                if (entry.getValue() == activeBlockEntity) {
-                    fromBe.add(entry.getKey());
-                }
-            }
-            if (!fromBe.isEmpty()) {
-                cachedContainers = fromBe;
-                return cachedContainers;
-            }
-        }
-
-        cachedContainers = Collections.emptyList();
-        return cachedContainers;
-    }
-
-    /** Reference-identity membership test (containers are compared by identity, not equals). */
     private static boolean containsRef(List<RecipeMatrixContainer> list, RecipeMatrixContainer c) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) == c) return true;
@@ -213,71 +134,40 @@ public class RsGridRecipeWidget {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
-    private List<RecipeMatch> queryRecipes(RecipeMatrixContainer container, ClientLevel level) {
-        RecipeMatrix<?, ?> matrix = RsPolymorph.getContainerToMatrixMap().get(container);
-        if (matrix instanceof IRsRecipeMatrix<?, ?> rsMatrix) {
-            RecipeInput input = (RecipeInput) rsMatrix.rspolymorph$getInputProvider().apply(container);
-            if (input != null) {
-                RecipeType<Recipe<RecipeInput>> type =
-                        (RecipeType<Recipe<RecipeInput>>) rsMatrix.rspolymorph$getRecipeType();
-                return wrapMatches(Platform.INSTANCE.getClientRecipeProvider(level)
-                        .getRecipesFor(type, input, level).toList(), input);
-            }
-        }
-
+    private static List<RecipeMatch> queryRecipes(RecipeMatrixContainer container, ClientLevel level) {
         int size = container.getContainerSize();
-        if (size == 9) {
-            List<ItemStack> items = new ArrayList<>(9);
-            for (int i = 0; i < 9; i++) items.add(container.getItem(i));
-            CraftingInput input = CraftingInput.of(3, 3, items);
-            return wrapMatches(Platform.INSTANCE.getClientRecipeProvider(level)
-                    .getRecipesFor(RecipeType.CRAFTING, input, level).toList(), input);
-        } else if (size == 4) {
-            List<ItemStack> items = new ArrayList<>(4);
-            for (int i = 0; i < 4; i++) items.add(container.getItem(i));
-            CraftingInput input = CraftingInput.of(2, 2, items);
-            return wrapMatches(Platform.INSTANCE.getClientRecipeProvider(level)
-                    .getRecipesFor(RecipeType.CRAFTING, input, level).toList(), input);
-        }
-        return List.of();
-    }
+        int side = size == 9 ? 3 : size == 4 ? 2 : 0;
+        if (side == 0) return List.of();
 
-    private static List<RecipeMatch> wrapMatches(List<? extends RecipeHolder<?>> holders, RecipeInput input) {
-        List<RecipeMatch> matches = new ArrayList<>(holders.size());
-        for (RecipeHolder<?> holder : holders) {
+        List<ItemStack> items = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) items.add(container.getItem(i));
+        CraftingInput input = CraftingInput.of(side, side, items);
+
+        List<RecipeMatch> matches = new ArrayList<>();
+        for (RecipeHolder<?> holder : Platform.INSTANCE.getClientRecipeProvider(level)
+                .getRecipesFor(RecipeType.CRAFTING, input, level).toList()) {
             matches.add(new RecipeMatch(holder, input));
         }
         return matches;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static ItemStack assembleOutput(RecipeMatch match, ClientLevel level) {
-        Recipe<RecipeInput> recipe = (Recipe<RecipeInput>) match.holder().value();
-        return recipe.assemble(match.input());
     }
 
     // -------------------------------------------------------------------------
     // Input hash
     // -------------------------------------------------------------------------
 
+    /**
+     * Hash of what recipes match on: item and components, not the count, so a stack shrinking during
+     * a craft neither runs a new recipe query nor closes the popup.
+     */
     private int computeInputHash() {
-        if (cachedInputHash != Integer.MIN_VALUE) return cachedInputHash;
-
         int hash = 1;
-        for (RecipeMatrixContainer container : getContainers()) {
-            hash = 31 * hash + System.identityHashCode(container);
+        for (int c = 0; c < containers.size(); c++) {
+            RecipeMatrixContainer container = containers.get(c);
             for (int i = 0; i < container.getContainerSize(); i++) {
                 ItemStack stack = container.getItem(i);
-                if (stack.isEmpty()) {
-                    hash = 31 * hash;
-                } else {
-                    hash = 31 * hash + stack.getItem().hashCode();
-                    hash = 31 * hash + stack.getCount();
-                }
+                hash = 31 * hash + (stack.isEmpty() ? 0 : ItemStack.hashItemAndComponents(stack));
             }
         }
-        cachedInputHash = hash;
         return hash;
     }
 
@@ -286,11 +176,6 @@ public class RsGridRecipeWidget {
     // -------------------------------------------------------------------------
 
     public boolean hasMultipleRecipes() {
-        // The side button calls this every frame (in the screen's render, BEFORE renderPopup runs),
-        // so refresh the per-frame cache here too. Otherwise the container/hash cache is rebuilt on
-        // this call AND again in renderPopup, re-discovering containers + recomputing the hash twice
-        // per frame. Gating both render paths on the same frame check rebuilds at most once/frame.
-        refreshFrameCache();
         int hash = computeInputHash();
         if (hash != lastHashForMultipleCheck) {
             lastHashForMultipleCheck = hash;
@@ -302,7 +187,7 @@ public class RsGridRecipeWidget {
     private boolean queryHasMultipleRecipes() {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return false;
-        for (RecipeMatrixContainer container : getContainers()) {
+        for (RecipeMatrixContainer container : containers) {
             if (container.isEmpty()) continue;
             if (queryRecipes(container, level).size() > 1) return true;
         }
@@ -322,13 +207,14 @@ public class RsGridRecipeWidget {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
 
-        // Collect distinct candidate recipes (id -> output) across all containers.
-        java.util.LinkedHashMap<Identifier, ItemStack> byId = new java.util.LinkedHashMap<>();
-        for (RecipeMatrixContainer container : getContainers()) {
+        // Collect distinct candidate recipes (id -> output) across all containers. The output is
+        // assembled from the input: a dynamic recipe has no fixed result item to show.
+        Map<Identifier, ItemStack> byId = new LinkedHashMap<>();
+        for (RecipeMatrixContainer container : containers) {
             if (container.isEmpty()) continue;
             for (RecipeMatch match : queryRecipes(container, level)) {
-                byId.computeIfAbsent(match.holder().id().identifier(),
-                        k -> assembleOutput(match, level));
+                byId.computeIfAbsent(RsPolymorph.recipeId(match.holder()),
+                        k -> RsPolymorph.assemble(match.holder(), match.input(), level));
             }
         }
         if (byId.size() < 2) return;
@@ -346,23 +232,22 @@ public class RsGridRecipeWidget {
     }
 
     public void selectRecipe(Identifier recipeId) {
-        // Uniform SP/MP path via the loader-agnostic network service. The server sets and clears
-        // the static selectedRecipeId authoritatively inside applyOnServer's try/finally — we must
-        // NOT set it from the client here (in singleplayer that shared static could be left stale
-        // and mis-tag a later pattern, since the client never clears it).
-        Services.network().sendSelectToServer(recipeId);
+        // Uniform SP/MP path. The container id lets the server drop a packet that arrives after the
+        // player moved to another menu.
+        Services.network().sendSelectToServer(screen.getMenu().containerId, recipeId);
     }
 
     // -------------------------------------------------------------------------
-    // Render + click (called from MixinAbstractGridScreenRender)
+    // Render + click
     // -------------------------------------------------------------------------
 
     public void renderPopup(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        refreshFrameCache();
         // Auto-close the popup if the grid inputs changed since it opened.
         if (popup.isOpen() && computeInputHash() != popupOpenedAtHash) {
             popup.close();
         }
+
+
         // Pass the current output item so the popup can highlight the recipe that is active now.
         popup.render(graphics, mouseX, mouseY, outputSlot.getItem());
 
@@ -383,27 +268,20 @@ public class RsGridRecipeWidget {
         }
     }
 
-    /**
-     * Reads the tutorial text aloud once for screen-reader users. The 26.x narrator API is not
-     * verified here, so the whole call chain is reflective and fail-soft: it narrates when the API
-     * matches and silently no-ops otherwise — never breaking the screen.
-     */
+    /** Reads the tutorial text aloud once for screen-reader users. Fail-soft. */
     private static void announceTutorialToNarrator() {
         try {
-            net.minecraft.network.chat.Component msg =
-                    net.minecraft.network.chat.Component.translatable("rspolymorph.tutorial.title")
-                            .copy()
-                            .append(". ")
-                            .append(net.minecraft.network.chat.Component.translatable("rspolymorph.tutorial.line1"))
-                            .append(" ")
-                            .append(net.minecraft.network.chat.Component.translatable("rspolymorph.tutorial.line2"))
-                            .append(" ")
-                            .append(net.minecraft.network.chat.Component.translatable("rspolymorph.tutorial.dismiss"));
-            Object mc = Minecraft.getInstance();
-            Object narrator = mc.getClass().getMethod("getNarrator").invoke(mc);
-            narrator.getClass().getMethod("say", net.minecraft.network.chat.Component.class).invoke(narrator, msg);
+            Component msg = Component.translatable("rspolymorph.tutorial.title")
+                    .copy()
+                    .append(". ")
+                    .append(Component.translatable("rspolymorph.tutorial.line1"))
+                    .append(" ")
+                    .append(Component.translatable("rspolymorph.tutorial.line2"))
+                    .append(" ")
+                    .append(Component.translatable("rspolymorph.tutorial.dismiss"));
+            Minecraft.getInstance().getNarrator().saySystemNow(msg);
         } catch (Throwable ignored) {
-            // Narrator API differences must never break the screen.
+            // A narrator failure must never break the screen.
         }
     }
 

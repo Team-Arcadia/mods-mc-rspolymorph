@@ -15,6 +15,9 @@
  */
 package com.vyrriox.rspolymorph.mixin;
 
+import com.refinedmods.refinedstorage.common.autocrafting.patterngrid.PatternGridScreen;
+import com.refinedmods.refinedstorage.common.grid.screen.AbstractGridScreen;
+import com.refinedmods.refinedstorage.common.grid.screen.CraftingGridScreen;
 import com.vyrriox.rspolymorph.client.RsGridRecipeWidget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -24,27 +27,35 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * MC 26.1.2 fork. The 26.x render pipeline is a two-phase extract/submit flow with no
- * {@code renderTooltip(GuiGraphics,int,int)} entry on the grid screens, and the 26.x popup already
- * draws its recipe name as a fixed label above the box (so it never collides with the cursor
- * slot-tooltip) — the overlap bug is 1.21.1-only. This fork is therefore a fail-soft no-op:
- * {@code require = 0} on a best-effort vanilla target that may not exist in the extract phase, so it
- * neither suppresses anything nor risks the client load on 26.x.
+ * Suppresses the grid screen's tooltip pass while the recipe-selection popup is open, so only the
+ * popup's own recipe tooltip shows (no overlapping "Stick" double text).
+ *
+ * Why the RS grid screen classes and not {@code AbstractContainerScreen}: Refined Storage's grid
+ * screens draw tooltips through their OWN {@code extractTooltip(GuiGraphicsExtractor,int,int)} override chain
+ * (CraftingGridScreen / PatternGridScreen override it; AbstractGridScreen declares it), and those
+ * overrides may return before reaching super. Cancelling the entry override's HEAD stops the whole
+ * tooltip pass in one shot.
+ *
+ * Gate on popup-open, NOT mouse-over-popup: the slot whose tooltip RS draws can sit OUTSIDE the popup
+ * box. The popup is a modal selector.
+ *
+ * {@code require = 0}: never fails the load if a target lacks the method on some RS build.
  *
  * Author: vyrriox
  */
-@Mixin(AbstractContainerScreen.class)
+@Mixin({CraftingGridScreen.class, PatternGridScreen.class, AbstractGridScreen.class})
 public abstract class MixinScreenTooltipSuppress {
 
     @Inject(
-            method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphicsExtractor;II)V",
+            method = "extractTooltip(Lnet/minecraft/client/gui/GuiGraphicsExtractor;II)V",
             at = @At("HEAD"),
             cancellable = true,
             require = 0
     )
     private void rspolymorph$suppressSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
         RsGridRecipeWidget widget = RsGridRecipeWidget.getActiveInstance();
-        if (widget != null && widget.isPopupOpen() && widget.isMouseOverPopup(mouseX, mouseY)) {
+        if (widget != null && widget.isPopupOpen()
+                && widget.isOpenForScreen((AbstractContainerScreen<?>) (Object) this)) {
             ci.cancel();
         }
     }

@@ -33,18 +33,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * RS 3.2.0 variant of MixinPatternResolver.
+ * RS 3.x variant of MixinPatternResolver.
  *
  * In RS 3.x the private {@code getCraftingPattern} overload no longer calls
  * {@code RecipeManager.getRecipeFor}; it calls
  * {@code Platform.INSTANCE.getClientRecipeProvider(level).getRecipesFor(...)} which returns a
  * {@code Stream<RecipeHolder<T>>}, then {@code .map(...).flatMap(...).findFirst()}. So instead of a
  * {@code @Redirect} on {@code RecipeManager}, we {@code @WrapOperation} the
- * {@link RecipeProvider#getRecipesFor} call and, when a Polymorph-selected recipe id is active,
+ * {@link RecipeProvider#getRecipesFor} call and, when the pattern stores a recipe id,
  * reorder the stream so the chosen recipe is first.
  *
  * The HEAD/RETURN ThreadLocal capture pair is identical to the 1.21.1 version.
@@ -100,13 +101,15 @@ public class MixinPatternResolver {
         if (override == null) {
             return result;
         }
-        // Reorder so the override recipe (if present) is first; preserve the rest as-is.
-        // MC 26.x: RecipeHolder.id() is a ResourceKey<Recipe<?>>, so unwrap to Identifier to
-        // compare against the stored override id (mirrors MixinRecipeMatrix / RsGridRecipeWidget).
-        java.util.List<RecipeHolder<T>> list = result.toList();
-        return Stream.concat(
-                list.stream().filter(h -> h.id().identifier().equals(override)),
-                list.stream().filter(h -> !h.id().identifier().equals(override))
-        );
+        // Move the stored recipe (if present) to the front and keep the rest in order. A direct
+        // lookup as on 1.21.1 is not possible: this runs on the client too, which has no recipe
+        // manager on 26.x, so RS's provider is the only source of recipes here.
+        List<RecipeHolder<T>> list = result.toList();
+        for (RecipeHolder<T> holder : list) {
+            if (RsPolymorph.recipeId(holder).equals(override)) {
+                return Stream.concat(Stream.of(holder), list.stream().filter(h -> h != holder));
+            }
+        }
+        return list.stream();
     }
 }

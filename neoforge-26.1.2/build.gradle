@@ -44,8 +44,6 @@ def forkDir = file("../common/${minecraft_version}/src/main")
 def forkedFor261 = [
         'com/vyrriox/rspolymorph/mixin/MixinPatternResolver.java',
         'com/vyrriox/rspolymorph/RsPolymorph.java',
-        'com/vyrriox/rspolymorph/network/SelectRecipePacket.java',
-        'com/vyrriox/rspolymorph/mixin/MixinRecipeMatrix.java',
         'com/vyrriox/rspolymorph/client/RsGridRecipeWidget.java',
         'com/vyrriox/rspolymorph/client/RecipeSelectorPopup.java',
         // Uses the 26.x two-phase draw API (graphics.text / nextStratum), not just type renames.
@@ -59,10 +57,12 @@ def forkedFor261 = [
         'com/vyrriox/rspolymorph/mixin/MixinAbstractContainerScreenOffset.java',
         // 26.x has a different tooltip pipeline: the fork is a fail-soft no-op.
         'com/vyrriox/rspolymorph/mixin/MixinScreenTooltipSuppress.java',
+        // 26.x key handling takes a KeyEvent, not the three ints of 1.21.1.
+        'com/vyrriox/rspolymorph/mixin/MixinScreenKeyDismiss.java',
 ]
 
 def remappedJava = layout.buildDirectory.dir('remapped-common/java')
-def remapCommonSources = tasks.register('remapCommonSources', Copy) {
+def remapCommonSources = tasks.register('remapCommonSources', Sync) {
     from(new File(sharedDir, 'java')) {
         forkedFor261.each { exclude it }
         filter { String line ->
@@ -78,7 +78,7 @@ def remapCommonSources = tasks.register('remapCommonSources', Copy) {
 // Shared resources, with the 26.x overrides: recipe JSON (bare item-id ingredients on 26.x) and the
 // mixin config (it adds MixinScreenPopupRender).
 def mergedResources = layout.buildDirectory.dir('merged-resources')
-def mergeResources = tasks.register('mergeResources', Copy) {
+def mergeResources = tasks.register('mergeResources', Sync) {
     from(new File(sharedDir, 'resources')) {
         exclude 'data/rspolymorph/recipe/**'
         exclude 'rspolymorph-common.mixins.json'
@@ -96,6 +96,35 @@ sourceSets.main {
 tasks.named('compileJava') { dependsOn remapCommonSources }
 tasks.named('processResources') { dependsOn mergeResources }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The shared code is remapped like the mod's, SelftestCompat is forked, and the
+// jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+// Selftest only: run against another Refined Storage jar. The code still compiles against the pinned
+// version, as a released jar would, and the version floor is lifted because development jars are 0.0.0.
+def rsJar = selftest ? project.findProperty('rs_jar') : null
+if (selftest) {
+    def selftestJava = layout.buildDirectory.dir('remapped-selftest/java')
+    def remapSelftestSources = tasks.register('remapSelftestSources', Sync) {
+        from(file('../common/1.21.1/src/selftest/java')) {
+            exclude 'com/vyrriox/rspolymorph/selftest/SelftestCompat.java'
+            filter { String line ->
+                line.replaceAll(/\bResourceLocation\b/, 'Identifier')
+                    .replaceAll(/\bGuiGraphics\b/, 'GuiGraphicsExtractor')
+            }
+        }
+        from(file("../common/${minecraft_version}/src/selftest/java"))
+        into selftestJava
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+    }
+    sourceSets.main {
+        java.srcDir(selftestJava)
+        resources.srcDir(file('../common/1.21.1/src/selftest/resources'))
+    }
+    tasks.named('compileJava') { dependsOn remapSelftestSources }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 neoForge {
     version = neoforge_version
 
@@ -106,6 +135,22 @@ neoForge {
         }
         client { client() }
         server { server(); programArgument '--nogui' }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = file('run/selftest')
+                systemProperty('rspolymorph.selftest', 'true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = file('run/selftest-server')
+                systemProperty('rspolymorph.selftest.server', 'true')
+                // This development jar keeps the client classes, see ServerSelftest.
+                systemProperty('rspolymorph.selftest.joinedJar', 'true')
+                jvmArgument('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
+        }
     }
 
     mods {
@@ -117,7 +162,12 @@ neoForge {
 
 dependencies {
     // Refined Storage 3.2.0 for NeoForge, pinned by its Modrinth version id.
-    implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+    if (rsJar) {
+        compileOnly "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+        runtimeOnly files(rsJar)
+    } else {
+        implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+    }
 }
 
 processResources {
@@ -133,11 +183,20 @@ processResources {
             license                      : license,
             credits                      : credits,
             description                  : project.description,
-            refinedstorage_version_range : refinedstorage_version_range,
+            refinedstorage_version_range : rsJar ? '[0,)' : refinedstorage_version_range,
             quartz_arsenal_version_range : quartz_arsenal_version_range,
     ]
     inputs.properties(props)
     filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('META-INF/neoforge.mods.toml') {
+            filter { String line ->
+                line == 'config="rspolymorph-common.mixins.json"'
+                        ? line + '\n\n[[mixins]]\nconfig="rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

@@ -2,16 +2,20 @@ name: Build & Test
 
 on:
   push:
-    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
-    paths:
+    branches: [ main, 'neoforge-*', 'forge-*', 'fabric-*' ]
+    paths: &watched
       - 'common/**'
-      - 'neoforge-1.21.1/**'
-      - 'neoforge-26.1.2/**'
-      - 'fabric-1.21.1/**'
-      - 'fabric-26.1.2/**'
+      - 'neoforge-*/**'
+      - 'forge-*/**'
+      - 'fabric-*/**'
+      - 'tools/**'
+      - '.gitattributes'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
+    branches: [ main, 'neoforge-*', 'forge-*', 'fabric-*' ]
+    paths: *watched
+  # release.yml builds through this workflow, so there is one list of targets.
+  workflow_call:
 
 permissions:
   contents: read
@@ -23,14 +27,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Each target is a standalone Gradle project. fabric-26.1.2 joins once it builds (issue #5).
+        # Each target is a standalone Gradle project: one line per target.
+        #   java: the JVM that runs Gradle (the last JDK installed, so JAVA_HOME).
+        #   toolchain: the JDK the mod compiles with.
+        #   legacy: Gradle older than 5, which setup-gradle does not support.
         include:
-          - target: neoforge-1.21.1
-            java: '21'
-          - target: fabric-1.21.1
-            java: '21'
-          - target: neoforge-26.1.2
-            java: '25'
+          # Loom 1.18 and ModDevGradle on Gradle 9.5+, Java 25
+          - { target: neoforge-26.1.2, java: '25', toolchain: '25' }
+          - { target: fabric-26.1.2, java: '25', toolchain: '25' }
+          # Java 21
+          - { target: neoforge-1.21.1, java: '21', toolchain: '21' }
+          - { target: fabric-1.21.1, java: '21', toolchain: '21' }
+          # ModDevGradle on Gradle 9.2, compiled for Java 17
+          - { target: neoforge-1.20.4, java: '21', toolchain: '17' }
+          - { target: forge-1.20.1, java: '21', toolchain: '17' }
+          - { target: forge-1.19.2, java: '21', toolchain: '17' }
+          - { target: forge-1.18.2, java: '21', toolchain: '17' }
+          - { target: forge-1.18.1, java: '21', toolchain: '17' }
+          # ForgeGradle 6 on Gradle 8.14, compiled for Java 8
+          - { target: forge-1.16.5, java: '21', toolchain: '8' }
+          - { target: forge-1.16.4, java: '21', toolchain: '8' }
+          - { target: forge-1.16.3, java: '21', toolchain: '8' }
+          - { target: forge-1.16.2, java: '21', toolchain: '8' }
+          - { target: forge-1.16.1, java: '21', toolchain: '8' }
+          - { target: forge-1.15.2, java: '21', toolchain: '8' }
+          - { target: forge-1.15.1, java: '21', toolchain: '8' }
+          - { target: forge-1.14.4, java: '21', toolchain: '8' }
+          # RetroFuturaGradle 1.4.9 on Gradle 8.14: a Java 8 JVM cannot run it
+          - { target: forge-1.12.2, java: '21', toolchain: '8' }
+          # ForgeGradle 2.x on Gradle 3.5 or 4.10: runs on Java 8 and nothing newer
+          - { target: forge-1.12, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.11.2, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.11, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.10.2, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.10, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.9.4, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.9, java: '8', toolchain: '8', legacy: true }
 
     defaults:
       run:
@@ -40,21 +72,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK ${{ matrix.toolchain }} and ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
           distribution: 'temurin'
+          java-version: |
+            ${{ matrix.toolchain }}
+            ${{ matrix.java }}
 
       - name: Set up Gradle
+        if: ${{ !matrix.legacy }}
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Cache Gradle (legacy)
+        if: ${{ matrix.legacy }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: legacy-${{ matrix.target }}-${{ hashFiles(format('{0}/gradle/wrapper/gradle-wrapper.properties', matrix.target), format('{0}/gradle.properties', matrix.target)) }}
+
       - name: Build
-        run: ./gradlew build --no-daemon
+        run: ./gradlew build --no-daemon --stacktrace
+
+      - name: Check the jar
+        run: |
+          version=$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r' | head -n 1)
+          test -f "build/libs/rspolymorph-${{ matrix.target }}-$version.jar"
 
       - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
-          name: rspolymorph-${{ matrix.target }}-${{ github.ref_name }}
-          path: ${{ matrix.target }}/build/libs/rspolymorph-${{ matrix.target }}-*.jar
+          name: rspolymorph-${{ matrix.target }}-${{ github.sha }}
+          path: |
+            ${{ matrix.target }}/build/libs/rspolymorph-${{ matrix.target }}-*.jar
+            !${{ matrix.target }}/build/libs/*-sources.jar
+          if-no-files-found: error
           retention-days: 30

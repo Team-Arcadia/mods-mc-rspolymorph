@@ -48,6 +48,21 @@ sourceSets.main {
     resources.srcDir(new File(commonDir, 'resources'))
 }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+// Selftest only: run against another Refined Storage jar. The code still compiles against the pinned
+// version, as a released jar would, and the version floor is lifted because development jars are 0.0.0.
+def rsJar = selftest ? project.findProperty('rs_jar') : null
+if (selftest) {
+    def selftestDir = file("../common/${minecraft_version}/src/selftest")
+    sourceSets.main {
+        java.srcDir(new File(selftestDir, 'java'))
+        resources.srcDir(new File(selftestDir, 'resources'))
+    }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 neoForge {
     version = neoforge_version
 
@@ -68,6 +83,20 @@ neoForge {
             server()
             programArgument '--nogui'
         }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = file('run/selftest')
+                systemProperty('rspolymorph.selftest', 'true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = file('run/selftest-server')
+                systemProperty('rspolymorph.selftest.server', 'true')
+                jvmArgument('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
+        }
     }
 
     mods {
@@ -80,7 +109,12 @@ neoForge {
 dependencies {
     // Refined Storage 2.0.8 for NeoForge, pinned by its Modrinth version id: the same version number
     // also exists for Fabric. Provided at runtime by the player's modpack. No Polymorph dependency.
-    implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+    if (rsJar) {
+        compileOnly "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+        runtimeOnly files(rsJar)
+    } else {
+        implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+    }
 }
 
 processResources {
@@ -98,11 +132,20 @@ processResources {
             description                  : project.description,
             credits                      : credits,
             java_version                 : java_version,
-            refinedstorage_version_range : refinedstorage_version_range,
+            refinedstorage_version_range : rsJar ? '[0,)' : refinedstorage_version_range,
             quartz_arsenal_version_range : quartz_arsenal_version_range,
     ]
     inputs.properties(props)
     filesMatching(['pack.mcmeta', 'META-INF/neoforge.mods.toml', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('META-INF/neoforge.mods.toml') {
+            filter { String line ->
+                line == 'config="rspolymorph-common.mixins.json"'
+                        ? line + '\n\n[[mixins]]\nconfig="rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

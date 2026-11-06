@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.vyrriox.rspolymorph.selftest.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "rspolymorph.refmap.json",
+  "client": [
+    "MixinMinecraftSelftest"
+  ],
+  "server": [
+    "MixinGameTestServerSelftest"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

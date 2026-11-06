@@ -32,7 +32,7 @@ public class MixinCraftingGrid {
         CraftingGridBlockEntity be = (CraftingGridBlockEntity) (Object) this;
         RecipeMatrixContainer c = be.getCraftingMatrix();
         if (c != null) {
-            RsPolymorph.registerContainerBlockEntity(c, be);
+            RsPolymorph.setOwner(c, be);
         }
     }
 }

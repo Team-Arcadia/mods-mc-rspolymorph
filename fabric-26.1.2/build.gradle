@@ -1,6 +1,5 @@
-// RS Polymorph, Fabric 26.1.2. A standalone Gradle project, NOT built yet: Minecraft 26.x ships
-// unobfuscated, which needs a Fabric Loom with 26.x support (issue #5). Set the Loom version below
-// to that release, then build from this folder and add the folder to CI and tools/collect_jars.sh.
+// RS Polymorph, Fabric 26.1.2. A standalone Gradle project. Minecraft 26.x ships unobfuscated, so
+// this is the non-remapping Loom plugin: no mappings, and mods are plain implementation dependencies.
 //
 // The sources are assembled like neoforge-26.1.2: ../common/1.21.1 with the 26.x renames, plus the
 // forks in ../common/26.1.2.
@@ -9,7 +8,7 @@
 
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '1.16.3'   // needs the first stable Loom with Minecraft 26.x support
+    id 'net.fabricmc.fabric-loom' version '1.18.2'
 }
 
 version = mod_version
@@ -43,8 +42,6 @@ def forkDir = file("../common/${minecraft_version}/src/main")
 def forkedFor261 = [
         'com/vyrriox/rspolymorph/mixin/MixinPatternResolver.java',
         'com/vyrriox/rspolymorph/RsPolymorph.java',
-        'com/vyrriox/rspolymorph/network/SelectRecipePacket.java',
-        'com/vyrriox/rspolymorph/mixin/MixinRecipeMatrix.java',
         'com/vyrriox/rspolymorph/client/RsGridRecipeWidget.java',
         'com/vyrriox/rspolymorph/client/RecipeSelectorPopup.java',
         'com/vyrriox/rspolymorph/client/TutorialOverlay.java',
@@ -53,10 +50,12 @@ def forkedFor261 = [
         'com/vyrriox/rspolymorph/mixin/MixinScreenPopupRender.java',
         'com/vyrriox/rspolymorph/mixin/MixinAbstractContainerScreenOffset.java',
         'com/vyrriox/rspolymorph/mixin/MixinScreenTooltipSuppress.java',
+        // 26.x key handling takes a KeyEvent, not the three ints of 1.21.1.
+        'com/vyrriox/rspolymorph/mixin/MixinScreenKeyDismiss.java',
 ]
 
 def remappedJava = layout.buildDirectory.dir('remapped-common/java')
-def remapCommonSources = tasks.register('remapCommonSources', Copy) {
+def remapCommonSources = tasks.register('remapCommonSources', Sync) {
     from(new File(sharedDir, 'java')) {
         forkedFor261.each { exclude it }
         filter { String line ->
@@ -70,7 +69,7 @@ def remapCommonSources = tasks.register('remapCommonSources', Copy) {
 }
 
 def mergedResources = layout.buildDirectory.dir('merged-resources')
-def mergeResources = tasks.register('mergeResources', Copy) {
+def mergeResources = tasks.register('mergeResources', Sync) {
     from(new File(sharedDir, 'resources')) {
         exclude 'data/rspolymorph/recipe/**'
         exclude 'rspolymorph-common.mixins.json'
@@ -88,23 +87,73 @@ sourceSets.main {
 tasks.named('compileJava') { dependsOn remapCommonSources }
 tasks.named('processResources') { dependsOn mergeResources }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The shared code is remapped like the mod's, SelftestCompat is forked, and the
+// jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+// Selftest only: run against another Refined Storage jar. The code still compiles against the pinned
+// version, as a released jar would, and the version floor is lifted because development jars are 0.0.0.
+def rsJar = selftest ? project.findProperty('rs_jar') : null
+if (selftest) {
+    def selftestJava = layout.buildDirectory.dir('remapped-selftest/java')
+    def remapSelftestSources = tasks.register('remapSelftestSources', Sync) {
+        from(file('../common/1.21.1/src/selftest/java')) {
+            exclude 'com/vyrriox/rspolymorph/selftest/SelftestCompat.java'
+            filter { String line ->
+                line.replaceAll(/\bResourceLocation\b/, 'Identifier')
+                    .replaceAll(/\bGuiGraphics\b/, 'GuiGraphicsExtractor')
+            }
+        }
+        from(file("../common/${minecraft_version}/src/selftest/java"))
+        into selftestJava
+        duplicatesStrategy = DuplicatesStrategy.FAIL
+    }
+    sourceSets.main {
+        java.srcDir(selftestJava)
+        resources.srcDir(file('../common/1.21.1/src/selftest/resources'))
+    }
+    tasks.named('compileJava') { dependsOn remapSelftestSources }
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // Refined Storage 3.2.0 for Fabric, pinned by its Modrinth version id.
-    modImplementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    // Refined Storage for Fabric, pinned by its Modrinth version id in gradle.properties.
+    if (rsJar) {
+        compileOnly "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+        localRuntime files(rsJar)
+    } else {
+        implementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    }
+
+    // Refined Storage nests these two in its jar for players, but Gradle does not see nested jars:
+    // the development runs need them next to it (the same versions as RS 3.2.1 nests).
+    localRuntime "maven.modrinth:cloth-config:GFM8zh9J"
+    localRuntime "teamreborn:energy:5.0.0"
 }
 
 loom {
-    mixin {
-        defaultRefmapName.set("${mod_id}.refmap.json")
-    }
     runs {
         client { client(); ideConfigGenerated(true); runDir('runs/client') }
         server { server(); ideConfigGenerated(true); runDir('runs/server') }
+        if (selftest) {
+            clientSelftest {
+                client()
+                runDir('runs/selftest')
+                vmArg('-Drspolymorph.selftest=true')
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                server()
+                runDir('runs/selftest-server')
+                vmArg('-Dfabric-api.gametest')
+                vmArg('-Drspolymorph.selftest.server=true')
+                vmArg('-Xlog:class+load=info:file=rspolymorph-selftest-classload.log')
+            }
+        }
     }
 }
 
@@ -113,6 +162,7 @@ processResources {
             version              : mod_version,
             minecraft_version    : minecraft_version,
             fabric_loader_version: fabric_loader_version,
+            refinedstorage_min_version : rsJar ? '0.0.0' : refinedstorage_min_version,
             mod_id               : mod_id,
             mod_name             : mod_name,
             mod_author           : mod_author,
@@ -121,6 +171,15 @@ processResources {
     ]
     inputs.properties(props)
     filesMatching(['fabric.mod.json', 'pack.mcmeta', '*.mixins.json']) { expand props }
+    if (selftest) {
+        // A second mixin config, for the selftest only.
+        filesMatching('fabric.mod.json') {
+            filter { String line ->
+                line.trim() == '"rspolymorph-common.mixins.json"'
+                        ? line + ',\n    "rspolymorph-selftest.mixins.json"' : line
+            }
+        }
+    }
 }
 
 jar {

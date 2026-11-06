@@ -37,14 +37,15 @@ public abstract class MixinAbstractBaseScreen {
     private void RSPOLYMORPH_init(CallbackInfo ci) {
         AbstractBaseScreen<?> screen = (AbstractBaseScreen<?>) (Object) this;
 
-        // Only on crafting-capable grid screens.
+        // Only grid screens; onGridScreenInit then keeps the ones that can craft.
         if (!(screen instanceof AbstractGridScreen<?> gridScreen)) {
             return;
         }
 
         // Build the selection widget (locates the result slot, registers the active instance)
         // before adding the button, so the button's press handler has a live widget to drive.
-        ClientSetup.onGridScreenInit(gridScreen);
-        screen.addSideButton(new RecipeSelectionSideButton());
+        if (ClientSetup.onGridScreenInit(gridScreen)) {
+            screen.addSideButton(new RecipeSelectionSideButton());
+        }
     }
 }

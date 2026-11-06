@@ -1,7 +1,5 @@
 {
   "modmenu.description.rspolymorph": "Sélection de recette autonome pour les grilles de craft et de patron de Refined Storage.",
-  "rspolymorph.button.select": "Sélectionner la recette",
-  "rspolymorph.button.clear": "Effacer la sélection",
   "rspolymorph.gui.recipe_selection": "Sélection de recette",
   "rspolymorph.gui.click_to_select": "Cliquez pour sélectionner une recette",
   "rspolymorph.gui.multiple_recipes_warning": "Plusieurs recettes correspondent — choisissez-en une pour éviter un mauvais craft",

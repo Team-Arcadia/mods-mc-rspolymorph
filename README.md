@@ -2,27 +2,33 @@
 
 [Consult the full CurseForge description](./CURSEFORGE_PAGE.md)
 
-RS Polymorph is a standalone Minecraft add-on for **NeoForge and Fabric** that adds recipe selection to the [Refined Storage](https://www.curseforge.com/minecraft/mc-mods/refined-storage) crafting and pattern grids — **no Polymorph mod required**. When several recipes match the same ingredients, a side button opens a popup that lets you pick which one the Crafting Grid crafts and which one the Pattern Grid prints for autocrafting.
+RS Polymorph is a standalone Minecraft add-on for **NeoForge, Forge and Fabric** that adds recipe selection to the [Refined Storage](https://www.curseforge.com/minecraft/mc-mods/refined-storage) crafting and pattern grids — **no Polymorph mod required**. When several recipes match the same ingredients, a side button opens a popup that lets you pick which one the Crafting Grid crafts and which one the Pattern Grid prints for autocrafting.
 
 ## Features
 
 - **Crafting Grid** — Adds a recipe selection button to the Refined Storage Crafting Grid, opening a polished popup (titled header, slot frames, a gold highlight on the active recipe)
 - **Wireless Crafting Grid** — Recipe selection also works in the [Quartz Arsenal](https://www.curseforge.com/minecraft/mc-mods/refined-storage-quartz-arsenal) Wireless Crafting Grid; the choice is driven through the grid's recipe matrix even though it has no block entity (optional compat, no hard dependency)
-- **Pattern Grid** — Adds a recipe selection button to the Pattern Grid, with the selection persisted on the printed pattern via a custom data component
+- **Pattern Grid** — Adds a recipe selection button to the Pattern Grid, every printed pattern is tagged with its recipe, so autocrafting keeps your choice
 - **Non-unique craft warning** — When more than one recipe matches the current grid, the recipe button shows Refined Storage's native red warning icon (with an explanatory tooltip line) and pulses a gold halo so you never miss the choice and never craft the wrong item by accident
 - **First-open tutorial** — A one-time card explains the feature the first time you open an RS grid; dismiss it with a click or Space/Enter (with narrator support)
-- **Autocrafting integration** — `MixinPatternResolver` prefers the pattern's stored recipe ID over the default first-match, so autocrafting always resolves the recipe you chose
-- **Server-safe** — All client classes are isolated behind `FMLEnvironment.dist.isClient()`; client mixins are split into the `"client"` block of the mixin config, so dedicated servers start cleanly with no missing-class errors
+- **Autocrafting integration** — The pattern resolver prefers the pattern's stored recipe ID over the default first-match, so autocrafting always resolves the recipe you chose
+- **Server-safe** — All client classes are isolated from common code, so dedicated servers start cleanly with no missing-class errors
 - **Unified SP / MP path** — Recipe selection goes through a single `SelectRecipePacket`, which works via loopback in singleplayer and over the network in multiplayer
 - **Bilingual UI** — English and French lang files
 
 ## Commands
 
-This mod does not add any commands — it integrates transparently with the Refined Storage 2 UI.
+This mod does not add any commands — it integrates transparently with the Refined Storage UI.
 
 ## Requirements
 
-- Minecraft **1.21.1** (NeoForge or Fabric, Refined Storage 2.x) or **26.1.2** (NeoForge, Refined Storage 3.x)
+- **26.1.2** (NeoForge or Fabric, Refined Storage 3.2.0+, Java 25)
+- **1.21.1** (NeoForge or Fabric, Refined Storage 2.0.8+, Java 21)
+- **1.20.4** (NeoForge), **1.20.1** (Forge or NeoForge 47.1), **1.19.2, 1.18.2, 1.18.1** (Forge), on Refined Storage 1.x and Java 17
+- **1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4** (Forge), on Refined Storage 1.x and Java 8
+- **1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2** (Forge), on Refined Storage 1.x and Java 8
+- **1.10, 1.9.4, 1.9** (Forge), on Refined Storage 0.x and Java 8
+- Client and server must both run 1.3.0 or later: the network protocol changed
 - **No Polymorph dependency**: recipe selection is built in
 - **Optional:** Refined Storage - Quartz Arsenal 1.0.7+ for the Wireless Crafting Grid
 
@@ -46,7 +52,7 @@ Pick the jar matching your Minecraft version and loader. Versions, loaders and J
 ## Documentation
 
 - [CHANGELOG.md](CHANGELOG.md) — Version history and per-version test procedures
-- [RULES.md](RULES.md) — Project conventions, architecture, and AI assistant guidelines
+- [RULES.md](RULES.md) — Project conventions and architecture
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — Versions, loaders and Java per jar
 - [docs/BUILDING.md](docs/BUILDING.md) — Building from source
 - [CONTRIBUTING.md](CONTRIBUTING.md) — Contribution guide
@@ -66,26 +72,32 @@ Website: [arcadia-echoes-of-power.fr](https://arcadia-echoes-of-power.fr/)
 
 [Consulter la description CurseForge complète](./CURSEFORGE_PAGE.md)
 
-RS Polymorph est un add-on autonome pour Minecraft (**NeoForge et Fabric**) qui ajoute la sélection de recette aux grilles de craft et de patron de [Refined Storage](https://www.curseforge.com/minecraft/mc-mods/refined-storage) — **sans nécessiter le mod Polymorph**. Lorsque plusieurs recettes correspondent aux mêmes ingrédients, un bouton latéral ouvre un popup qui vous laisse choisir laquelle la Crafting Grid fabrique et laquelle la Pattern Grid imprime pour l'autocraft.
+RS Polymorph est un add-on autonome pour Minecraft (**NeoForge, Forge et Fabric**) qui ajoute la sélection de recette aux grilles de craft et de patron de [Refined Storage](https://www.curseforge.com/minecraft/mc-mods/refined-storage) — **sans nécessiter le mod Polymorph**. Lorsque plusieurs recettes correspondent aux mêmes ingrédients, un bouton latéral ouvre un popup qui vous laisse choisir laquelle la Crafting Grid fabrique et laquelle la Pattern Grid imprime pour l'autocraft.
 
 ## Caractéristiques
 
 - **Crafting Grid** — Ajoute un bouton de sélection de recette à la Crafting Grid de Refined Storage, ouvrant un popup soigné (en-tête titré, slots en relief, surbrillance dorée sur la recette active)
 - **Wireless Crafting Grid** — La sélection de recette fonctionne aussi dans la Wireless Crafting Grid de [Quartz Arsenal](https://www.curseforge.com/minecraft/mc-mods/refined-storage-quartz-arsenal) ; le choix est appliqué via la matrice de recette de la grille bien qu'elle n'ait aucun block entity (compat optionnelle, sans dépendance forte)
-- **Pattern Grid** — Ajoute un bouton de sélection de recette à la Pattern Grid, avec la sélection persistée sur le patron imprimé via un data component custom
+- **Pattern Grid** — Ajoute un bouton de sélection de recette à la Pattern Grid, chaque patron imprimé est marqué avec sa recette, l'autocraft garde donc votre choix
 - **Tutoriel au premier lancement** — Une carte unique explique la fonctionnalité à la première ouverture d'une grille RS ; fermez-la d'un clic ou avec Espace/Entrée (support narrateur)
-- **Intégration autocraft** — `MixinPatternResolver` privilégie l'ID de recette stocké sur le patron plutôt que le premier match par défaut, donc l'autocraft résout toujours la recette choisie
-- **Sûr côté serveur** — Toutes les classes client sont isolées derrière `FMLEnvironment.dist.isClient()` ; les mixins client sont dans le bloc `"client"` du fichier mixins, donc les serveurs dédiés démarrent proprement sans erreur de classe manquante
+- **Intégration autocraft** — La résolution de patron privilégie l'ID de recette stocké sur le patron plutôt que le premier match par défaut, donc l'autocraft résout toujours la recette choisie
+- **Sûr côté serveur** — Toutes les classes client sont isolées du code commun, donc les serveurs dédiés démarrent proprement sans erreur de classe manquante
 - **Chemin SP / MP unifié** — La sélection de recette passe par un unique `SelectRecipePacket`, fonctionnant en boucle locale en solo et sur le réseau en multijoueur
 - **Interface bilingue** — Fichiers de langue anglais et français
 
 ## Commandes
 
-Ce mod n'ajoute aucune commande — il s'intègre de manière transparente à l'interface Refined Storage 2.
+Ce mod n'ajoute aucune commande — il s'intègre de manière transparente à l'interface Refined Storage.
 
 ## Prérequis
 
-- Minecraft **1.21.1** (NeoForge ou Fabric, Refined Storage 2.x) ou **26.1.2** (NeoForge, Refined Storage 3.x)
+- **26.1.2** (NeoForge ou Fabric, Refined Storage 3.2.0+, Java 25)
+- **1.21.1** (NeoForge ou Fabric, Refined Storage 2.0.8+, Java 21)
+- **1.20.4** (NeoForge), **1.20.1** (Forge ou NeoForge 47.1), **1.19.2, 1.18.2, 1.18.1** (Forge), avec Refined Storage 1.x et Java 17
+- **1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4** (Forge), avec Refined Storage 1.x et Java 8
+- **1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2** (Forge), avec Refined Storage 1.x et Java 8
+- **1.10, 1.9.4, 1.9** (Forge), avec Refined Storage 0.x et Java 8
+- Le client et le serveur doivent tous deux être en 1.3.0 ou plus : le protocole réseau a changé
 - **Aucune dépendance à Polymorph** : la sélection de recette est intégrée
 - **Optionnel :** Refined Storage - Quartz Arsenal 1.0.7+ pour la Wireless Crafting Grid
 
@@ -109,7 +121,7 @@ Choisissez le jar correspondant à votre version de Minecraft et à votre loader
 ## Documentation
 
 - [CHANGELOG.md](CHANGELOG.md) — Historique des versions et procédures de test
-- [RULES.md](RULES.md) — Conventions du projet, architecture et règles pour les assistants IA
+- [RULES.md](RULES.md) — Conventions du projet et architecture
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — Versions, loaders et Java par jar
 - [docs/BUILDING.md](docs/BUILDING.md) — Compiler depuis les sources
 - [CONTRIBUTING.md](CONTRIBUTING.md) — Guide de contribution

@@ -1,0 +1,26 @@
+# target	minecraft	loader	refined storage	java
+neoforge-26.1.2	26.1.2	NeoForge 26.1.2.x	3.2.0+	25
+fabric-26.1.2	26.1.2	Fabric Loader 0.19.5+ and Fabric API	3.2.0+	25
+neoforge-1.21.1	1.21.1	NeoForge 21.1.219+	2.0.8+	21
+fabric-1.21.1	1.21.1	Fabric Loader 0.16.10+ and Fabric API	2.0.8+	21
+neoforge-1.20.4	1.20.4	NeoForge 20.4.x	1.13.0-beta.4+	17
+forge-1.20.1	1.20.1	Forge 47+ or NeoForge 47.1	1.12.4+	17
+forge-1.19.2	1.19.2	Forge 43+	1.11.7+	17
+forge-1.18.2	1.18.2	Forge 40+	1.10.6+	17
+forge-1.18.1	1.18.1	Forge 39+	1.10.1+	17
+forge-1.16.5	1.16.5	Forge 36+	1.9.18+	8
+forge-1.16.4	1.16.4	Forge 35	1.9.12+	8
+forge-1.16.3	1.16.3	Forge 34.1.0+	1.9.9+	8
+forge-1.16.2	1.16.2	Forge 33.0.20+	1.9.5+	8
+forge-1.16.1	1.16.1	Forge 32.0.72+	1.9.2-beta.2+	8
+forge-1.15.2	1.15.2	Forge 31.2.44+	1.8.8+	8
+forge-1.15.1	1.15.1	Forge 30.0.43 to 30.0.47	1.8.0-beta+	8
+forge-1.14.4	1.14.4	Forge 28.2.30+	1.7.3-beta+	8
+forge-1.12.2	1.12.2	Forge	1.6.16+	8
+forge-1.12	1.12 and 1.12.1	Forge	1.5.28+	8
+forge-1.11.2	1.11.2	Forge	1.4.20+	8
+forge-1.11	1.11	Forge	1.3.5+	8
+forge-1.10.2	1.10.2	Forge	1.2.26+	8
+forge-1.10	1.10	Forge	0.8.10-beta+	8
+forge-1.9.4	1.9.4	Forge	0.7.19-beta+	8
+forge-1.9	1.9	Forge	0.6.15-alpha+	8

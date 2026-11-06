@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Native RS grid side button that opens the recipe-selection popup.
- * Uses RS's sprite system for proper theming. No Polymorph dependency.
+ * Uses RS's sprite system for proper theming.
  *
  * <p>When the open grid currently has more than one candidate recipe (a non-unique craft) the
  * button advertises it two ways — see issue #3, where players reported not noticing the button and
@@ -46,6 +46,10 @@ public class RecipeSelectionSideButton extends AbstractSideButtonWidget {
     private static final int PULSE_RGB = 0xFFD24A;
     /** Pulse period in ms. */
     private static final long PULSE_MS = 1300L;
+    private static final Component WARNING = Component.translatable("rspolymorph.gui.multiple_recipes_warning");
+
+    /** The warning currently set on the button, so it is rebuilt only when it changes. */
+    private boolean warningShown = false;
 
     public RecipeSelectionSideButton() {
         super(button -> {
@@ -80,7 +84,10 @@ public class RecipeSelectionSideButton extends AbstractSideButtonWidget {
 
         // Native RS warning: red icon on the button + a red tooltip line, so a non-unique craft is
         // flagged and the popup is discoverable. Cleared (null) when the craft is unique.
-        setWarning(multiple ? Component.translatable("rspolymorph.gui.multiple_recipes_warning") : null);
+        if (multiple != warningShown) {
+            warningShown = multiple;
+            setWarning(multiple ? WARNING : null);
+        }
 
         super.extractContents(graphics, mouseX, mouseY, partialTicks);
 
