@@ -27,12 +27,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A self-contained recipe-selection popup drawn over an RS grid screen, replacing Polymorph's
- * {@code SelectionWidget}. It renders a vertical grid of candidate recipe outputs as item icons;
+ * A self-contained recipe-selection popup drawn over an RS grid screen. It renders a vertical grid of candidate recipe outputs as item icons;
  * clicking one fires the selection callback with that recipe's id.
  *
- * Pure vanilla GUI — no Polymorph, no loader API. Owned and driven by {@link RsGridRecipeWidget};
- * rendered and click-routed by {@code MixinAbstractGridScreenRender}.
+ * Pure vanilla GUI, no loader API. Owned and driven by {@link RsGridRecipeWidget};
+ * rendered and click-routed by the screen mixins.
  *
  * Author: vyrriox
  */
@@ -59,11 +58,14 @@ public final class RecipeSelectorPopup {
     private static final int HOVER = 0x80FFFFFF;        // vanilla slot-hover overlay
     private static final int SELECTED = 0xFFFFD24A;     // active-recipe frame (gold)
 
+    private static final Component HEADER_TEXT = Component.translatable("rspolymorph.gui.recipe_selection");
+
     private final List<Entry> entries = new ArrayList<>();
     private final Consumer<ResourceLocation> onSelect;
 
     private boolean open = false;
     private int x, y;          // top-left of the popup, in screen space
+    private int headerX;       // centred once in open(), not measured per frame
     private int hovered = -1;
 
     public RecipeSelectorPopup(Consumer<ResourceLocation> onSelect) {
@@ -102,6 +104,7 @@ public final class RecipeSelectorPopup {
         py = Math.max(2, Math.min(py, screenH - h - 2));
         this.x = px;
         this.y = py;
+        this.headerX = px + (w - Minecraft.getInstance().font.width(HEADER_TEXT)) / 2;
         this.open = true;
         this.hovered = -1;
     }
@@ -128,9 +131,7 @@ public final class RecipeSelectorPopup {
         graphics.fill(x, y + h - 1, x + w, y + h, BORDER_BOT);                                 // bottom
 
         // ── Header: centred title + separator ─────────────────────────────────
-        Component header = title();
-        graphics.drawString(font, header,
-                x + (w - font.width(header)) / 2, y + PADDING - 1, TITLE, false);
+        graphics.drawString(font, HEADER_TEXT, headerX, y + PADDING - 1, TITLE, false);
         int sepY = y + PADDING + HEADER - 4;
         graphics.fill(x + PADDING, sepY, x + w - PADDING, sepY + 1, SEP);
 
@@ -154,7 +155,7 @@ public final class RecipeSelectorPopup {
 
             ItemStack out = entries.get(i).output();
             // Gold frame on the recipe whose output matches the grid's current result.
-            if (hasCurrent && ItemStack.isSameItemSameComponents(out, current)) {
+            if (hasCurrent && out.getCount() == current.getCount() && ItemStack.isSameItemSameComponents(out, current)) {
                 graphics.fill(cx, cy, cx + SLOT, cy + 1, SELECTED);
                 graphics.fill(cx, cy + SLOT - 1, cx + SLOT, cy + SLOT, SELECTED);
                 graphics.fill(cx, cy, cx + 1, cy + SLOT, SELECTED);
@@ -215,14 +216,4 @@ public final class RecipeSelectorPopup {
         return true;
     }
 
-    /** Hint title for accessibility / future use. */
-    public static Component title() {
-        return Component.translatable("rspolymorph.gui.recipe_selection");
-    }
-
-    @SuppressWarnings("unused")
-    private static int fontHeight() {
-        Font f = Minecraft.getInstance().font;
-        return f.lineHeight;
-    }
 }

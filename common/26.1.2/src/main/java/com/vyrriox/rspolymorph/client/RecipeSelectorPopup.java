@@ -27,12 +27,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A self-contained recipe-selection popup drawn over an RS grid screen, replacing Polymorph's
- * {@code SelectionWidget}. It renders a vertical grid of candidate recipe outputs as item icons;
+ * A self-contained recipe-selection popup drawn over an RS grid screen. It renders a vertical grid of candidate recipe outputs as item icons;
  * clicking one fires the selection callback with that recipe's id.
  *
- * Pure vanilla GUI — no Polymorph, no loader API. Owned and driven by {@link RsGridRecipeWidget};
- * rendered and click-routed by {@code MixinAbstractGridScreenRender}.
+ * Pure vanilla GUI, no loader API. Owned and driven by {@link RsGridRecipeWidget};
+ * rendered and click-routed by the screen mixins.
  *
  * Author: vyrriox
  */
@@ -58,13 +57,15 @@ public final class RecipeSelectorPopup {
     private static final int SLOT_LITE = 0xFF44445F;
     private static final int HOVER = 0x80FFFFFF;        // vanilla slot-hover overlay
     private static final int SELECTED = 0xFFFFD24A;     // active-recipe frame (gold)
-    private static final int LABEL_TXT = 0xFFFFFFFF;
+
+    private static final Component HEADER_TEXT = Component.translatable("rspolymorph.gui.recipe_selection");
 
     private final List<Entry> entries = new ArrayList<>();
     private final Consumer<Identifier> onSelect;
 
     private boolean open = false;
     private int x, y;          // top-left of the popup, in screen space
+    private int headerX;       // centred once in open(), not measured per frame
     private int hovered = -1;
 
     public RecipeSelectorPopup(Consumer<Identifier> onSelect) {
@@ -103,6 +104,7 @@ public final class RecipeSelectorPopup {
         py = Math.max(2, Math.min(py, screenH - h - 2));
         this.x = px;
         this.y = py;
+        this.headerX = px + (w - Minecraft.getInstance().font.width(HEADER_TEXT)) / 2;
         this.open = true;
         this.hovered = -1;
     }
@@ -135,8 +137,7 @@ public final class RecipeSelectorPopup {
         graphics.fill(x + w - 1, y, x + w, y + h, BORDER_BOT);         // right
 
         // ── Header: centred title + separator ─────────────────────────────────
-        Component header = title();
-        graphics.text(font, header, x + (w - font.width(header)) / 2, y + PADDING - 1, TITLE);
+        graphics.text(font, HEADER_TEXT, headerX, y + PADDING - 1, TITLE);
         int sepY = y + PADDING + HEADER - 4;
         graphics.fill(x + PADDING, sepY, x + w - PADDING, sepY + 1, SEP);
 
@@ -160,7 +161,7 @@ public final class RecipeSelectorPopup {
 
             ItemStack out = entries.get(i).output();
             // Gold frame on the recipe whose output matches the grid's current result.
-            if (hasCurrent && ItemStack.isSameItemSameComponents(out, current)) {
+            if (hasCurrent && out.getCount() == current.getCount() && ItemStack.isSameItemSameComponents(out, current)) {
                 graphics.fill(cx, cy, cx + SLOT, cy + 1, SELECTED);
                 graphics.fill(cx, cy + SLOT - 1, cx + SLOT, cy + SLOT, SELECTED);
                 graphics.fill(cx, cy, cx + 1, cy + SLOT, SELECTED);
@@ -173,21 +174,14 @@ public final class RecipeSelectorPopup {
                 graphics.fill(cx + 1, cy + 1, cx + SLOT - 1, cy + SLOT - 1, HOVER);
             }
             graphics.item(out, cx + 1, cy + 1);
+            graphics.itemDecorations(font, out, cx + 1, cy + 1);
         }
 
-        // Name of the hovered entry, drawn as a FIXED label above the popup. The 26.x render is a
-        // two-phase extract/submit pipeline with no tooltip API in the extract phase, so we cannot
-        // emit a true vanilla tooltip here; a fixed label above the box reads cleanly and never
-        // collides with the screen's own cursor slot-tooltip.
+        // Hovered recipe as a native tooltip. It is deferred to the end of the frame, on its own
+        // stratum above this popup. The screen's own tooltip pass is suppressed while the popup is
+        // open (MixinScreenTooltipSuppress), so nothing else claims the deferred slot.
         if (hovered >= 0) {
-            Component name = entries.get(hovered).output().getHoverName();
-            int lw = font.width(name);
-            int lx = x;
-            int ly = y - font.lineHeight - 4;
-            graphics.fill(lx - 3, ly - 3, lx + lw + 3, ly + font.lineHeight + 2, BG);
-            graphics.fill(lx - 3, ly - 3, lx + lw + 3, ly - 2, BORDER_TOP);
-            graphics.fill(lx - 3, ly + font.lineHeight + 1, lx + lw + 3, ly + font.lineHeight + 2, BORDER_BOT);
-            graphics.text(font, name, lx, ly, LABEL_TXT);
+            graphics.setTooltipForNextFrame(font, entries.get(hovered).output(), mouseX, mouseY);
         }
     }
 
@@ -228,14 +222,4 @@ public final class RecipeSelectorPopup {
         return true;
     }
 
-    /** Hint title for accessibility / future use. */
-    public static Component title() {
-        return Component.translatable("rspolymorph.gui.recipe_selection");
-    }
-
-    @SuppressWarnings("unused")
-    private static int fontHeight() {
-        Font f = Minecraft.getInstance().font;
-        return f.lineHeight;
-    }
 }
