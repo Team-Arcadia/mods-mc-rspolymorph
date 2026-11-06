@@ -160,3 +160,17 @@
 **Root cause:** Gradle does not track a filter closure as an input, so assembleCommonSources stayed up to date
 **Fix:** inputs.file(buildFile) on assembleCommonSources
 **Prevention:** A Sync with a filter closure declares the file holding the closure as an input
+
+## [2026-11-06 17:01] fml.coreMods.load poisons the coremod of a jar in the mods folder
+**Context:** runObfClient of the forge-1.12.2 target, reobfuscated jar in run/obfuscated/mods
+**Error:** Coremod RsPolymorphCoremod: Unable to class load the plugin, ClassNotFoundException, so no hook applied and the grid node has no interface
+**Root cause:** The property tries the class before the jar is on the class path, and LaunchClassLoader caches the failure in invalidClasses, so the manifest attempt fails too
+**Fix:** build.gradle leaves the property out with -Pobf_run
+**Prevention:** Never pass fml.coreMods.load to a run that loads the coremod from a mods folder
+
+## [2026-11-06 17:01] Leaving a world from a scheduled client task deadlocks on 1.12.2
+**Context:** Client selftest calling Minecraft.loadWorld(null) inside addScheduledTask
+**Error:** Selftest hung, client thread parked in IntegratedServer.initiateShutdown, driver blocked in addScheduledTask
+**Root cause:** Scheduled tasks run holding the lock of the task queue while initiateShutdown waits on the server, which needs that queue
+**Fix:** The selftest leaves the world from a ClientTickEvent
+**Prevention:** Run world changes from a client tick, not from addScheduledTask
