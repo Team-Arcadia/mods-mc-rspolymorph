@@ -174,3 +174,38 @@
 **Root cause:** Scheduled tasks run holding the lock of the task queue while initiateShutdown waits on the server, which needs that queue
 **Fix:** The selftest leaves the world from a ClientTickEvent
 **Prevention:** Run world changes from a client tick, not from addScheduledTask
+
+## [2026-11-06 18:09] ForgeGradle setup fails in a reused Gradle daemon
+**Context:** First build of forge-1.16.4 right after a forge-1.16.5 run
+**Error:** Could not find net.minecraftforge:forge:1.16.4-35.1.37_mapped_official_1.16.4, caused by IllegalStateException: project services has been closed
+**Root cause:** ForgeGradle 6 keeps project state statically, and a daemon reused from another target holds a closed project
+**Fix:** org.gradle.daemon=false in the gradle.properties of the new targets
+**Prevention:** Give each ForgeGradle target a single-use daemon when several targets share one Gradle version
+
+## [2026-11-06 18:09] Mixin processor 0.8.2 cannot read TSRG v2
+**Context:** Matching the annotation processor to the Mixin that Forge 35 ships
+**Error:** Error parsing TSRG file, found inline member before class mapping: tsrg2 left right; No obfuscation mapping for @Inject target
+**Root cause:** ForgeGradle 6 writes TSRG v2, which the 0.8.2 processor does not read
+**Fix:** Keep processor 0.8.4 at compile time; its refmap runs on the older Mixin
+**Prevention:** Do not lower the Mixin processor below 0.8.4 under ForgeGradle 6
+
+## [2026-11-06 18:09] ModLauncher 8.0.x dies on recent Java 8
+**Context:** Selftest of Forge 35.1.37 and 34.1.42 on Temurin 8u504
+**Error:** NoSuchMethodError: sun.security.util.ManifestEntryVerifier.<init>(Ljava/util/jar/Manifest;)V
+**Root cause:** ModLauncher 8.0.6 and 8.0.9 call a JDK constructor removed by later Java 8 updates
+**Fix:** Force ModLauncher 8.1.3 in selftest builds of forge-1.16.4 and forge-1.16.3
+**Prevention:** Those proofs do not run the stock launcher of those Forge versions: a production launch must use an older Java 8
+
+## [2026-11-06 18:09] Duplicate Widget.getHeight in Forge 1.16.1 development
+**Context:** Client selftest and reobfJar of forge-1.16.1 with official mappings
+**Error:** ClassFormatError: Duplicate method name getHeight; reobfJar: Duplicate key Widget/getHeight()I
+**Root cause:** Forge 32 adds getHeight to Widget, and the official name of func_238483_d_ is the same
+**Fix:** A Gradle task copies the mapped game without the second method, for dev client runs and reobfJar libraries
+**Prevention:** Check that reobfJar passed, not only that a jar exists: a failed reobf leaves an unmapped jar in build/libs
+
+## [2026-11-06 18:09] Popup counts lost on 1.15.2 and stale assembled sources
+**Context:** Forking Canvas for 1.15.2, seen on the popup_open screenshot while the selftest passed
+**Error:** Item counts missing in the recipe popup, with pass=64 fail=0
+**Root cause:** The global matrix raises items as well, so the item renderer offset on top pushed the counts past the GUI far plane
+**Fix:** Do not set blitOffset in the 1.15.2 Canvas; add inputs.file(buildFile) to the Sync task so filter changes apply
+**Prevention:** Always view popup_open on a new render path: the selftest does not check how counts are drawn
