@@ -107,7 +107,7 @@
 <p>&nbsp;</p>
 <h3><span style="font-size:24px;color:#e5e5e5"><strong>Play Arcadia V2: Echoes of Power / Jouez à Arcadia V2&nbsp;: Echoes of Power</strong></span></h3>
 <p>RS Polymorph is made by Team Arcadia. Join our modpack and find its server, the <a href="https://www.arcadia-echoes-of-power.fr/" style="color:#4682c8">website</a> and the <a href="https://www.arcadia-echoes-of-power.fr/wiki" style="color:#4682c8">wiki</a>.<br><em>RS Polymorph est fait par la Team Arcadia. Rejoignez notre modpack et retrouvez son serveur, le <a href="https://www.arcadia-echoes-of-power.fr/" style="color:#4682c8">site</a> et le <a href="https://www.arcadia-echoes-of-power.fr/wiki" style="color:#4682c8">wiki</a>.</em></p>
-<p><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"><img src="https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif" alt="Arcadia V2: Echoes of Power modpack" width="800"></a></p>
+<p><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"><img src="https://team-arcadia.github.io/images/shared/arcadia-v2/server.gif" alt="Arcadia V2: Echoes of Power modpack" width="800"></a></p>
 <p><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"><img src="https://team-arcadia.github.io/images/mods/rspolymorph/curseforge/badge-extra-1-en.png" alt="Play now: Modpack"></a></p>
 </div>
 

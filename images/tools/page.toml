@@ -203,7 +203,7 @@ title.en = "Play Arcadia V2: Echoes of Power"
 title.fr = "Jouez à Arcadia V2 : Echoes of Power"
 text.en = 'RS Polymorph is made by Team Arcadia. Join our modpack and find its server, the <a href="https://www.arcadia-echoes-of-power.fr/">website</a> and the <a href="https://www.arcadia-echoes-of-power.fr/wiki">wiki</a>.'
 text.fr = 'RS Polymorph est fait par la Team Arcadia. Rejoignez notre modpack et retrouvez son serveur, le <a href="https://www.arcadia-echoes-of-power.fr/">site</a> et le <a href="https://www.arcadia-echoes-of-power.fr/wiki">wiki</a>.'
-image = "https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif"
+image = "https://team-arcadia.github.io/images/shared/arcadia-v2/server.gif"
 alt.en = "Arcadia V2: Echoes of Power modpack"
 alt.fr = "Modpack Arcadia V2 : Echoes of Power"
 url = "https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2"
