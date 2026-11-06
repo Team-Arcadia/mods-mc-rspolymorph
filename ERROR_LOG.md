@@ -286,3 +286,10 @@
 **Root cause:** forge-1.12.2 builds with RetroFuturaGradle on a newer Gradle, only forge-1.12 and below need Java 8
 **Fix:** Run forge-1.12.2 without that JAVA_HOME
 **Prevention:** Set the Java 8 JAVA_HOME only for forge-1.12 and below
+
+## [2026-11-06 20:24] A commit with a pathspec drops the exec bit when core.filemode is false
+**Context:** Fixing gradlew modes with git update-index --chmod=+x before a commit limited to explicit paths
+**Error:** CI: ./gradlew: Permission denied, exit code 126, on every target that had mode 100644
+**Root cause:** git commit -- paths rebuilds those entries from the working tree in a temporary index, and core.filemode=false on Windows keeps the mode of HEAD
+**Fix:** Committed the index with no pathspec after update-index --chmod=+x, and checked git ls-tree HEAD
+**Prevention:** After a mode change, commit without a pathspec and check git ls-tree HEAD before pushing
