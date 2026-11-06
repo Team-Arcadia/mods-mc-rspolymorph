@@ -20,6 +20,7 @@ import net.minecraft.client.MouseHelper;
 import net.minecraft.client.gui.screen.DirtMessageScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
@@ -46,11 +47,10 @@ import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.FlatChunkGenerator;
 import net.minecraft.world.gen.FlatGenerationSettings;
 import net.minecraft.world.gen.settings.DimensionGeneratorSettings;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.lwjgl.glfw.GLFW;
-
-import java.lang.reflect.Field;
 
 /**
  * Everything {@link Selftest} calls that differs between Minecraft versions, for 1.16.5. Other
@@ -149,13 +149,19 @@ final class SelftestCompat {
     /** Sets the pointer again: the real cursor, if it moves over the window, would overwrite it. */
     static void holdPointer(Minecraft mc) {
         try {
-            for (String name : new String[]{"xpos", "ypos"}) {
-                Field f = MouseHelper.class.getDeclaredField(name);
-                f.setAccessible(true);
-                f.setDouble(mc.mouseHandler, name.equals("xpos") ? pointerX : pointerY);
-            }
+            // SRG names: Forge translates them to the development names when it runs from there.
+            ObfuscationReflectionHelper.findField(MouseHelper.class, "field_198040_e").setDouble(mc.mouseHandler, pointerX);
+            ObfuscationReflectionHelper.findField(MouseHelper.class, "field_198041_f").setDouble(mc.mouseHandler, pointerY);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("cannot move the pointer", e);
+        }
+    }
+
+    static Slot hoveredSlot(ContainerScreen<?> screen) {
+        try {
+            return (Slot) ObfuscationReflectionHelper.findField(ContainerScreen.class, "field_147006_u").get(screen);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("cannot read the hovered slot", e);
         }
     }
 

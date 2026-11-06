@@ -37,6 +37,7 @@ import com.vyrriox.rspolymorph.client.SelftestAccess.PopupEntry;
 import com.vyrriox.rspolymorph.network.SelectRecipeHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
@@ -640,7 +641,7 @@ public final class Selftest {
             });
             await("the slot to be hovered", 20, () -> {
                 SelftestCompat.holdPointer(mc);
-                Slot hovered = (Slot) field(screen(), "hoveredSlot");
+                Slot hovered = SelftestCompat.hoveredSlot(screen());
                 return hovered != null && hovered.getItem().getItem() == Items.CLAY_BALL;
             });
         });
@@ -1209,11 +1210,7 @@ public final class Selftest {
     private String gridSearchText() {
         Object search = field(screen(), "searchField");
         if (search == null) return "";
-        try {
-            return (String) search.getClass().getMethod("getValue").invoke(search);
-        } catch (ReflectiveOperationException e) {
-            throw new Failure("cannot read the search box: " + e);
-        }
+        return ((TextFieldWidget) search).getValue();
     }
 
     private static List<Slot> matrixSlots(Container menu) {
