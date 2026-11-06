@@ -102,7 +102,7 @@ processResources {
             description                 : project.description,
             credits                     : credits,
             java_version                : java_version,
-            refinedstorage_version_range: refinedstorage_version_range,
+            refinedstorage_min_version  : refinedstorage_min_version,
             quartz_arsenal_version_range: quartz_arsenal_version_range,
     ]
     inputs.properties(props)
