@@ -1,6 +1,6 @@
 ## Description
 
-<!-- Target `main`, or the version branch (neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2) for a fix to one line only -->
+<!-- Target `main`, or the version branch (named like its target folder, for example forge-1.20.1) for a fix to one line only -->
 
 <!-- EN: Brief description of the changes -->
 <!-- FR: Description breve des changements -->
@@ -25,7 +25,7 @@
 
 - [ ] Tested in singleplayer / Teste en solo
 - [ ] Tested on dedicated server / Teste sur serveur dedie
-- [ ] Tested with Refined Storage 2 (1.21.1) and/or 3 (26.1.2) / Teste avec Refined Storage 2 et/ou 3
+- [ ] Tested on the affected targets / Teste sur les cibles concernees
 - [ ] Built with `tools/collect_jars.sh --build` / Compile avec `tools/collect_jars.sh --build`
 - [ ] Pattern Grid preview updates correctly on recipe selection
 - [ ] Crafting Grid preview updates correctly on recipe selection

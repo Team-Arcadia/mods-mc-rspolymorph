@@ -1,7 +1,7 @@
 <div align="center" style="text-align:center">
 <p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/hero.gif" alt="RS Polymorph: a Refined Storage network at dusk, its Crafting Grid and Pattern Grid glowing / RS Polymorph : un réseau Refined Storage au crépuscule, sa grille de craft et sa grille de patrons allumées" width="800"></p>
 <p><a href="https://discord.gg/xjF8Rtzyd4"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-discord.png" alt="Discord: Join"></a> <a href="https://www.arcadia-echoes-of-power.fr/"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-website.png" alt="Website: Arcadia"></a> <a href="https://www.arcadia-echoes-of-power.fr/wiki"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-wiki.png" alt="Wiki: Arcadia"></a> <a href="https://github.com/Team-Arcadia/mods-mc-rspolymorph"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-source.png" alt="Source: GitHub"></a> <a href="https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00"><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-donate.png" alt="Donate: Stripe"></a></p>
-<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-minecraft.png" alt="Minecraft: 1.21.1 | 26.1.2"> <img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-loaders.png" alt="Loaders: NeoForge | Fabric"> <img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-extra-for.png" alt="For: Refined Storage"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-minecraft.png" alt="Minecraft: 26.1.2 | 1.21.1 | 1.20.x down to 1.10.2"> <img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-loaders.png" alt="Loaders: NeoForge | Forge | Fabric"> <img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/badge-extra-for.png" alt="For: Refined Storage"></p>
 </div>
 
 <div align="center" style="text-align:center">
@@ -33,9 +33,15 @@
 <h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/title-compat-en.gif" alt="Compatibility" width="800"></h3>
 <div align="center" style="display:table;margin-left:auto;margin-right:auto">
 <table style="margin-left:auto;margin-right:auto">
-<tr><th>Minecraft</th><th>NeoForge</th><th>Fabric</th><th>Refined Storage</th></tr>
-<tr><td>1.21.1</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>2.x</td></tr>
-<tr><td>26.1.2</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>3.x</td></tr>
+<tr><th>Minecraft</th><th>NeoForge</th><th>Forge</th><th>Fabric</th><th>Refined Storage</th></tr>
+<tr><td>26.1.2</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>3.x</td></tr>
+<tr><td>1.21.1</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>2.x</td></tr>
+<tr><td>1.20.4</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>No</td><td>1.x</td></tr>
+<tr><td>1.20.1</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
+<tr><td>1.19.2, 1.18.2, 1.18.1</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
+<tr><td>1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
+<tr><td>1.15.2, 1.15.1, 1.14.4</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
+<tr><td>1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2</td><td>No</td><td><span style="color:#7ee0c3"><strong>Yes</strong></span></td><td>No</td><td>1.x</td></tr>
 </table>
 </div>
 <p><em>Optional: Refined Storage - Quartz Arsenal 1.0.7 or later, for its Wireless Crafting Grid.</em></p>
@@ -74,9 +80,15 @@
 <h3><img src="https://cdn.jsdelivr.net/gh/Team-Arcadia/mods-mc-rspolymorph@main/images/title-compat-fr.gif" alt="Compatibilité" width="800"></h3>
 <div align="center" style="display:table;margin-left:auto;margin-right:auto">
 <table style="margin-left:auto;margin-right:auto">
-<tr><th>Minecraft</th><th>NeoForge</th><th>Fabric</th><th>Refined Storage</th></tr>
-<tr><td>1.21.1</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>2.x</td></tr>
-<tr><td>26.1.2</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>3.x</td></tr>
+<tr><th>Minecraft</th><th>NeoForge</th><th>Forge</th><th>Fabric</th><th>Refined Storage</th></tr>
+<tr><td>26.1.2</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>3.x</td></tr>
+<tr><td>1.21.1</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>2.x</td></tr>
+<tr><td>1.20.4</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>Non</td><td>1.x</td></tr>
+<tr><td>1.20.1</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
+<tr><td>1.19.2, 1.18.2, 1.18.1</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
+<tr><td>1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
+<tr><td>1.15.2, 1.15.1, 1.14.4</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
+<tr><td>1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2</td><td>Non</td><td><span style="color:#7ee0c3"><strong>Oui</strong></span></td><td>Non</td><td>1.x</td></tr>
 </table>
 </div>
 <p><em>Optionnel&nbsp;: Refined Storage - Quartz Arsenal 1.0.7 ou plus, pour sa grille de craft sans fil.</em></p>

@@ -7,13 +7,13 @@
 | Project | RS Polymorph |
 | Mod ID | `rspolymorph` |
 | Package | `com.vyrriox.rspolymorph` |
-| Tech Stack | Java 21 (MC 1.21.1) / Java 25 (MC 26.1.2), MultiLoader (NeoForge + Fabric), Gradle 9.5.1 |
+| Tech Stack | Java 8 to 25 per target, NeoForge, Forge and Fabric, Gradle 3.5 to 9.7 per target (see docs/BUILDING.md) |
 | Author | vyrriox |
 | Organization | Team Arcadia |
 | License | Apache-2.0 (NOTICE file: attribution to "vyrriox / Team Arcadia" must be kept) |
-| Version | 1.2.2 |
-| Dependencies | **Standalone — NO Polymorph.** Refined Storage 2.x (MC 1.21.1, tested 2.0.8) or 3.x (MC 26.1.2, tested 3.2.0) |
-| Targets | 1.21.1 NeoForge ✓ · 1.21.1 Fabric ✓ · 26.1.2 NeoForge ✓ · 26.1.2 Fabric (coded, pending Loom 26.x) |
+| Version | 1.3.0 |
+| Dependencies | **Standalone — NO Polymorph.** Refined Storage 3.2.0+ (26.1.2), 2.0.8+ (1.21.1), 1.x below; floor per jar in docs/COMPATIBILITY.md |
+| Targets | NeoForge 26.1.2, 1.21.1, 1.20.4 · Fabric 26.1.2, 1.21.1 · Forge 1.20.1 (also NeoForge 47.1), 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12 (also 1.12.1), 1.11.2, 1.11, 1.10.2 |
 | Optional compat | Refined Storage - Quartz Arsenal >= 1.0.7 (wireless crafting grid) |
 
 ## 2. Git Workflow
@@ -21,14 +21,12 @@
 | Branch | Purpose | Merges into |
 |--------|---------|-------------|
 | `main` | Stable releases, tagged versions; default target of pull requests | - |
-| `neoforge-1.21.1` | Maintenance of the 1.21.1 NeoForge line | `main` (fixes carried over) |
-| `fabric-1.21.1` | Maintenance of the 1.21.1 Fabric line | `main` (fixes carried over) |
-| `neoforge-26.1.2` | Maintenance of the 26.1.2 NeoForge line | `main` (fixes carried over) |
+| `<loader>-<minecraft version>` | One per target folder, for example `forge-1.20.1`: maintenance of that line | `main` (fixes carried over) |
 | `feat/*` | New features | `main` |
 | `fix/*` | Bug fixes | `main`, or the version branch for a fix to one line only |
 | `hotfix/*` | Critical production patches | `main`, then the affected version branches |
 
-Version branches start from `main` and keep the full multiloader tree; a fix made on one is carried to `main` and to the other lines it affects. A `fabric-26.1.2` branch will be added once that build is enabled.
+Version branches start from `main` and keep the full multiloader tree; a fix made on one is carried to `main` and to the other lines it affects. `tools/make_branches.sh` points every target branch at `main` at release time; it refuses a branch that is not a fast-forward and lists what diverged (`--dry-run` to preview).
 
 **Commit conventions:** `type: descriptive message` (feat, fix, refactor, docs, perf, release)
 
@@ -76,12 +74,19 @@ mods-mc-rspolymorph/
 │   │   │   ├── mixin/                   All mixins (common + "client" split in the config)
 │   │   │   └── network/                 SelectRecipePacket
 │   │   └── resources/                   rspolymorph-common.mixins.json, assets/rspolymorph (lang, sprites), data
-│   └── 26.1.2/src/main/                 Only the files whose 26.x API differs (forks), plus 26.x resources
+│   ├── 26.1.2/src/main/                 Only the files whose 26.x API differs (forks), plus 26.x resources
+│   ├── 1.20.1/, 1.20.4/, 1.19.2/        Refined Storage 1.x with mixins: 1.20.1 is the base, the others hold forks
+│   ├── 1.16.5/, 1.16.1/, 1.15.2/        Java 8 line: 1.16.5 is the base, the others hold forks
+│   ├── 1.15.1/, 1.14.4/                 Forge JS coremods and events instead of mixins, plus forks
+│   └── 1.12.2/, 1.12/, 1.11.2/, 1.10.2/ FML coremod line: 1.12.2 is the base, the others hold forks
 ├── neoforge-1.21.1/                     NeoForge entrypoint and loader wiring only; builds rspolymorph-neoforge-1.21.1
 ├── fabric-1.21.1/                       Fabric entrypoint and loader wiring only; builds rspolymorph-fabric-1.21.1
 ├── neoforge-26.1.2/                     NeoForge 26.1.2 entrypoint; builds rspolymorph-neoforge-26.1.2
+├── neoforge-1.20.4/, forge-<mc>/        One folder per target, same role, 18 Forge folders
 ├── fabric-26.1.2/                       Fabric 26.1.2 entrypoint and loader wiring only; builds rspolymorph-fabric-26.1.2
 ├── tools/collect_jars.sh                Copies every target's jar into jars/<version>/ (local, ignored)
+├── tools/make_branches.sh               Points every target branch at main, never forces
+├── tools/targets.tsv, release_notes.sh  One row per jar; the notes of a GitHub release
 ├── docs/                                BUILDING.md, COMPATIBILITY.md
 ├── images/                              CurseForge page pictures and the tools that make them
 ├── .github/                             Issue forms, PR template, labels.json, workflows, FUNDING, COMMUNICATION
@@ -99,6 +104,14 @@ mods-mc-rspolymorph/
 > Refined Storage is a Modrinth maven dependency pinned by version id per loader
 > (`refinedstorage_neoforge` / `refinedstorage_fabric` in each `gradle.properties`): the same version
 > number exists for both loaders.
+
+### How forks assemble
+
+A fork replaces a file of the closest line; it never duplicates what stays the same. Each target's
+`build.gradle` lists its layers (`docs/BUILDING.md` has the table): a file of a later layer that an
+earlier one also holds is left out, and on the ForgeGradle 2.x targets `adaptLine` rewrites the names
+that moved between versions. Adding a target means one folder, one line in `.github/workflows/build.yml`
+and one row in `tools/targets.tsv`.
 
 ### MC 26.1.2 / RS 3.x line (`common/26.1.2`, `neoforge-26.1.2`, `fabric-26.1.2`)
 
