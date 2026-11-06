@@ -29,6 +29,10 @@ def forkedFor1192 = [
 def legacyComponents = minecraft_version.startsWith('1.18')
 def adaptLine = { String line ->
     def adapted = line.replace('Minecraft.getInstance().getNarrator().say(', 'Canvas.narrate(')
+            // The selftest's widget positions are public fields before 1.19.3.
+            .replace('b.getX() + b.getWidth()', 'b.x + b.getWidth()')
+            .replace('b.getY() + b.getHeight()', 'b.y + b.getHeight()')
+            .replace('mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0)', 'mc.options.setSoundCategoryVolume(SoundSource.MASTER, 0.0F)')
     if (legacyComponents) {
         adapted = adapted
                 .replace('Minecraft.getInstance().getNarrator().sayNow(', 'net.minecraft.client.gui.chat.NarratorChatListener.INSTANCE.sayNow(')
@@ -38,15 +42,46 @@ def adaptLine = { String line ->
     return adapted
 }
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+def auditMixins = providers.gradleProperty('auditMixins').isPresent()
+def sharedSelftestDir = file('../common/1.20.1/src/selftest')
+def forkSelftestDir = file('../common/1.19.2/src/selftest')
+if (selftest) {
+    sourceSets.main.resources.srcDir(new File(sharedSelftestDir, 'resources'))
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+} else if (auditMixins) {
+    logger.lifecycle('-PauditMixins does nothing without -Pselftest: the audit lives in the selftest sources')
+}
+
 def assembledJava = layout.buildDirectory.dir('assembled-common/java')
 def assembleCommonSources = tasks.register('assembleCommonSources', Sync) {
     inputs.property('legacyComponents', legacyComponents)
+    inputs.property('selftest', selftest)
+    inputs.file(buildFile)   // the filter below lives in this file
     from(new File(sharedDir, 'java')) {
         forkedFor1192.each { exclude it }
         filter(adaptLine)
     }
     from(new File(forkDir, 'java')) {
         filter(adaptLine)
+    }
+    if (selftest) {
+        from(new File(sharedSelftestDir, 'java')) {
+            exclude 'com/vyrriox/rspolymorph/selftest/SelftestCompat.java'
+            // 1.18.1 has no GameTestServer.create: its fork hooks initServer only.
+            if (minecraft_version == '1.18.1') {
+                exclude 'com/vyrriox/rspolymorph/selftest/mixin/MixinGameTestServerSelftest.java'
+            }
+            filter(adaptLine)
+        }
+        from(new File(forkSelftestDir, 'java')) {
+            filter(adaptLine)
+        }
+        from(file("../common/1.19.2/src/selftest-${minecraft_version}/java")) {
+            filter(adaptLine)
+        }
     }
     into assembledJava
     duplicatesStrategy = DuplicatesStrategy.FAIL   // a fork colliding with a shared file is a bug
@@ -87,9 +122,23 @@ legacyForge {
             logLevel = org.slf4j.event.Level.INFO
             // Forge 39's dev run config omits this one, later Forge lines declare it themselves.
             jvmArgument '--add-opens=java.base/java.lang.invoke=cpw.mods.securejarhandler'
-            // -PauditMixins applies every mixin at startup instead of on the first use of its target.
-            if (providers.gradleProperty('auditMixins').isPresent()) {
+            // With -Pselftest, applies every mixin at startup instead of on the first use of its target.
+            if (selftest && auditMixins) {
                 systemProperty 'rspolymorph.auditMixins', 'true'
+            }
+        }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = project.file(polymorphJar != null ? 'run-polymorph/selftest' : 'run/selftest')
+                systemProperty 'rspolymorph.selftest', 'true'
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = project.file(polymorphJar != null ? 'run-polymorph/selftest-server' : 'run/selftest-server')
+                systemProperty 'rspolymorph.selftest.server', 'true'
+                jvmArgument '-Xlog:class+load=info:file=rspolymorph-selftest-classload.log'
             }
         }
     }
@@ -104,6 +153,9 @@ legacyForge {
 mixin {
     add(sourceSets.main, "${mod_id}.refmap.json")
     config("${mod_id}-common.mixins.json")
+    if (selftest) {
+        config("${mod_id}-selftest.mixins.json")
+    }
 }
 
 repositories {
@@ -173,7 +225,7 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Version': mod_version,
                 'Implementation-Vendor' : mod_author,
                 // Forge on these versions only reads mixin configs from the manifest, not from mods.toml.
-                'MixinConfigs'          : "${mod_id}-common.mixins.json"
+                'MixinConfigs'          : "${mod_id}-common.mixins.json" + (selftest ? ",${mod_id}-selftest.mixins.json" : '')
         ])
     }
 }
