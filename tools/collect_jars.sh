@@ -21,7 +21,7 @@ for dir in */; do
     if [ "${1:-}" = "--build" ]; then
         echo "== building $target"
         java_home=${JAVA_HOME:-}
-        if grep -qE 'gradle-[34]\.[0-9.]+-bin' "$target/gradle/wrapper/gradle-wrapper.properties"; then
+        if grep -qE 'gradle-[234]\.[0-9.]+-(bin|all)' "$target/gradle/wrapper/gradle-wrapper.properties"; then
             java_home=${JAVA8_HOME:-$java_home}
         fi
         if ! (cd "$target" && JAVA_HOME="$java_home" ./gradlew build --console=plain -q); then
