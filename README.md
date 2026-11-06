@@ -26,7 +26,8 @@ This mod does not add any commands — it integrates transparently with the Refi
 - **1.21.1** (NeoForge or Fabric, Refined Storage 2.0.8+, Java 21)
 - **1.20.4** (NeoForge), **1.20.1** (Forge or NeoForge 47.1), **1.19.2, 1.18.2, 1.18.1** (Forge), on Refined Storage 1.x and Java 17
 - **1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4** (Forge), on Refined Storage 1.x and Java 8
-- **1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2, 1.10** (Forge), on Refined Storage 1.x and Java 8
+- **1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2** (Forge), on Refined Storage 1.x and Java 8
+- **1.10, 1.9.4, 1.9** (Forge), on Refined Storage 0.x and Java 8
 - Client and server must both run 1.3.0 or later: the network protocol changed
 - **No Polymorph dependency**: recipe selection is built in
 - **Optional:** Refined Storage - Quartz Arsenal 1.0.7+ for the Wireless Crafting Grid
@@ -94,7 +95,8 @@ Ce mod n'ajoute aucune commande — il s'intègre de manière transparente à l'
 - **1.21.1** (NeoForge ou Fabric, Refined Storage 2.0.8+, Java 21)
 - **1.20.4** (NeoForge), **1.20.1** (Forge ou NeoForge 47.1), **1.19.2, 1.18.2, 1.18.1** (Forge), avec Refined Storage 1.x et Java 17
 - **1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4** (Forge), avec Refined Storage 1.x et Java 8
-- **1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2, 1.10** (Forge), avec Refined Storage 1.x et Java 8
+- **1.12.2, 1.12, 1.12.1, 1.11.2, 1.11, 1.10.2** (Forge), avec Refined Storage 1.x et Java 8
+- **1.10, 1.9.4, 1.9** (Forge), avec Refined Storage 0.x et Java 8
 - Le client et le serveur doivent tous deux être en 1.3.0 ou plus : le protocole réseau a changé
 - **Aucune dépendance à Polymorph** : la sélection de recette est intégrée
 - **Optionnel :** Refined Storage - Quartz Arsenal 1.0.7+ pour la Wireless Crafting Grid

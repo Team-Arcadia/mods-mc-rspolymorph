@@ -23,8 +23,14 @@
 | `rspolymorph-forge-1.12-<version>.jar` | 1.12 and 1.12.1 | Forge | 1.5.28+ | 8 | One jar for both versions. FML coremod, nothing extra to install |
 | `rspolymorph-forge-1.11.2-<version>.jar` | 1.11.2 | Forge | 1.4.20+ | 8 | FML coremod, nothing extra to install |
 | `rspolymorph-forge-1.11-<version>.jar` | 1.11 | Forge | 1.3.5+ | 8 | FML coremod, nothing extra to install |
-| `rspolymorph-forge-1.10.2-<version>.jar` | 1.10.2 | Forge | 1.2.26+ | 8 | FML coremod, nothing extra to install |
-| `rspolymorph-forge-1.10-<version>.jar` | 1.10 | Forge | 0.8.10-beta+ | 8 | FML coremod, nothing extra to install |
+| `rspolymorph-forge-1.10.2-<version>.jar` | 1.10.2 | Forge | 1.2.26+ | 8 | FML coremod; Refined Storage 1.2.26 itself requires MCMultiPart |
+| `rspolymorph-forge-1.10-<version>.jar` | 1.10 | Forge | 0.8.10-beta+ | 8 | FML coremod; see the note on Refined Storage 0.x |
+| `rspolymorph-forge-1.9.4-<version>.jar` | 1.9.4 | Forge | 0.7.19-beta+ | 8 | FML coremod; see the note on Refined Storage 0.x |
+| `rspolymorph-forge-1.9-<version>.jar` | 1.9 | Forge | 0.6.15-alpha+ | 8 | FML coremod; see the note on Refined Storage 0.x |
+
+Refined Storage 0.x (1.10, 1.9.4, 1.9): its patterns store outputs and have no recipe, so a printed
+pattern keeps the selected output instead of being tagged with a recipe id. The selection on the
+Crafting Grid works as everywhere else.
 
 - **Polymorph is not needed**: recipe selection is built in.
 - **Install on both sides**: the client draws the button and the popup, the server applies the
@@ -80,8 +86,14 @@
 | `rspolymorph-forge-1.12-<version>.jar` | 1.12 et 1.12.1 | Forge | 1.5.28+ | 8 | Un seul jar pour les deux versions. Coremod FML, rien de plus à installer |
 | `rspolymorph-forge-1.11.2-<version>.jar` | 1.11.2 | Forge | 1.4.20+ | 8 | Coremod FML, rien de plus à installer |
 | `rspolymorph-forge-1.11-<version>.jar` | 1.11 | Forge | 1.3.5+ | 8 | Coremod FML, rien de plus à installer |
-| `rspolymorph-forge-1.10.2-<version>.jar` | 1.10.2 | Forge | 1.2.26+ | 8 | Coremod FML, rien de plus à installer |
-| `rspolymorph-forge-1.10-<version>.jar` | 1.10 | Forge | 0.8.10-beta+ | 8 | Coremod FML, rien de plus à installer |
+| `rspolymorph-forge-1.10.2-<version>.jar` | 1.10.2 | Forge | 1.2.26+ | 8 | Coremod FML ; Refined Storage 1.2.26 demande lui-même MCMultiPart |
+| `rspolymorph-forge-1.10-<version>.jar` | 1.10 | Forge | 0.8.10-beta+ | 8 | Coremod FML ; voir la note sur Refined Storage 0.x |
+| `rspolymorph-forge-1.9.4-<version>.jar` | 1.9.4 | Forge | 0.7.19-beta+ | 8 | Coremod FML ; voir la note sur Refined Storage 0.x |
+| `rspolymorph-forge-1.9-<version>.jar` | 1.9 | Forge | 0.6.15-alpha+ | 8 | Coremod FML ; voir la note sur Refined Storage 0.x |
+
+Refined Storage 0.x (1.10, 1.9.4, 1.9) : ses patrons stockent des sorties et n'ont pas de recette :
+un patron imprimé garde donc la sortie choisie au lieu d'être marqué avec un identifiant de recette.
+La sélection sur la grille de craft fonctionne comme partout ailleurs.
 
 - **Polymorph n'est pas nécessaire** : la sélection de recette est intégrée.
 - **À installer des deux côtés** : le client affiche le bouton et le popup, le serveur applique le

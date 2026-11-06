@@ -13,7 +13,7 @@
 | License | Apache-2.0 (NOTICE file: attribution to "vyrriox / Team Arcadia" must be kept) |
 | Version | 1.3.0 |
 | Dependencies | **Standalone — NO Polymorph.** Refined Storage 3.2.0+ (26.1.2), 2.0.8+ (1.21.1), 1.x below; floor per jar in docs/COMPATIBILITY.md |
-| Targets | NeoForge 26.1.2, 1.21.1, 1.20.4 · Fabric 26.1.2, 1.21.1 · Forge 1.20.1 (also NeoForge 47.1), 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12 (also 1.12.1), 1.11.2, 1.11, 1.10.2, 1.10 |
+| Targets | NeoForge 26.1.2, 1.21.1, 1.20.4 · Fabric 26.1.2, 1.21.1 · Forge 1.20.1 (also NeoForge 47.1), 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12 (also 1.12.1), 1.11.2, 1.11, 1.10.2, 1.10, 1.9.4, 1.9 |
 | Optional compat | Refined Storage - Quartz Arsenal >= 1.0.7 (wireless crafting grid) |
 
 ## 2. Git Workflow
@@ -78,7 +78,7 @@ mods-mc-rspolymorph/
 │   ├── 1.20.1/, 1.20.4/, 1.19.2/        Refined Storage 1.x with mixins: 1.20.1 is the base, the others hold forks
 │   ├── 1.16.5/, 1.16.1/, 1.15.2/        Java 8 line: 1.16.5 is the base, the others hold forks
 │   ├── 1.15.1/, 1.14.4/                 Forge JS coremods and events instead of mixins, plus forks
-│   └── 1.12.2/, 1.12/, 1.11.2/, 1.10.2/ FML coremod line: 1.12.2 is the base, the others hold forks
+│   └── 1.12.2/, 1.12/, 1.11.2/, 1.10.2/, 1.10/, 1.9.4/, 1.9/ FML coremod line: 1.12.2 is the base, the others hold forks
 ├── neoforge-1.21.1/                     NeoForge entrypoint and loader wiring only; builds rspolymorph-neoforge-1.21.1
 ├── fabric-1.21.1/                       Fabric entrypoint and loader wiring only; builds rspolymorph-fabric-1.21.1
 ├── neoforge-26.1.2/                     NeoForge 26.1.2 entrypoint; builds rspolymorph-neoforge-26.1.2
