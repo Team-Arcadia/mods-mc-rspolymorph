@@ -44,9 +44,11 @@ String adaptLine(String line) {
             .replace('.getGridType()', '.getType()')
             // The server's log4j console appender does not start in a dev run: write past it.
             .replace('System.out.println("RSP-SELFTEST " + text);', 'new java.io.PrintStream(new java.io.FileOutputStream(java.io.FileDescriptor.out), true).println("RSP-SELFTEST " + text);')
-            // On RS 1.5.28 a stack of the processing matrix comes back in the crafting matrix after a
-            // reload (seen in the selftest, cause not found): the reload check takes a new grid that never held one.
-            .replace('// Selection survives on the pattern grid too, checked after the reload in persist.', 'closeScreen(); server(s -> { s.getWorld(0).setBlockToAir(pattern); s.getWorld(0).setBlockState(pattern, gridState(GridType.PATTERN)); return null; }); pause(300); open(pattern);')
+            // Plain RS 1.5.28: reading a pattern in the output slot copies its inputs to the crafting matrix,
+            // processing or not, over the saved matrix. PlainRsProbe shows it without this mod (see below). The
+            // reload check keeps its grid and takes the pattern out, as a player can; the rest is reported.
+            .replace('// Selection survives on the pattern grid too, checked after the reload in persist.', 'server(s -> { ((ItemHandlerBase) node(s, pattern).getPatterns()).setStackInSlot(1, ItemStack.EMPTY); return null; }); skip("persist.processing_pattern_in_output_through_reload", "plain RS 1.5.28 behaviour, its output slot handler overwrites the matrix on read, same with the coremod off in PlainRsProbe");')
+            .replace('Class.forName("com.vyrriox.rspolymorph.selftest.Selftest")', 'Class.forName(System.getProperty("rspolymorph.selftest.driver", "com.vyrriox.rspolymorph.selftest.Selftest"))')
             .replace('refinedstorage.block.enums.ControllerType', 'refinedstorage.block.ControllerType')
             .replace('refinedstorage.inventory.item.ItemHandlerBase', 'refinedstorage.inventory.ItemHandlerBase')
             // No @MCVersion: FML would refuse the coremod on the other version of the shared jar.
@@ -83,6 +85,7 @@ sourceSets.main.java.srcDir(new File(assembled, 'main/java'))
 sourceSets.main.resources.srcDir(new File(assembled, 'main/resources'))
 if (selftest) {
     sourceSets.main.java.srcDir(new File(assembled, 'selftest/java'))
+    sourceSets.main.java.srcDir(file('src/selftest/java'))
 }
 // FML reads a mod's metadata and assets from the folder of its classes, in a dev run too.
 sourceSets.main.output.resourcesDir = sourceSets.main.java.outputDir
@@ -91,8 +94,9 @@ tasks.matching { it.name in ['sourceMainJava', 'compileJava', 'processResources'
     dependsOn assembleCommonSources
 }
 
-def coremods = 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod' +
-        (selftest ? ',com.vyrriox.rspolymorph.selftest.SelftestCoremod' : '')
+// -Pprobe runs PlainRsProbe instead of the selftest, -Pplain_rs without the transformers of this mod.
+def coremods = (project.hasProperty('plain_rs') ? '' : 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod,') +
+        (selftest ? 'com.vyrriox.rspolymorph.selftest.SelftestCoremod' : '')
 
 minecraft {
     version = "${targetMc}-${forgeVersion}"
@@ -106,6 +110,9 @@ minecraft {
     if (selftest) {
         clientJvmArgs += '-Drspolymorph.selftest=true'
         clientJvmArgs += '-Drspolymorph.selftest.server=true'
+        if (project.hasProperty('probe')) {
+            clientJvmArgs += '-Drspolymorph.selftest.driver=com.vyrriox.rspolymorph.selftest.PlainRsProbe'
+        }
     }
 }
 
@@ -143,8 +150,11 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     includeEmptyDirs = false
     manifest {
+        // GradleStart also finds the coremod here, in the jar on the class path of a dev run.
+        if (!project.hasProperty('plain_rs')) {
+            attributes('FMLCorePlugin': 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod')
+        }
         attributes(
-                'FMLCorePlugin': 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod',
                 'FMLCorePluginContainsFMLMod': 'true',
                 'ForceLoadAsMod': 'true',
                 'Specification-Title': mod_id,
