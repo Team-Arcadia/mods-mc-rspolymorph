@@ -27,3 +27,31 @@
 **Root cause:** remapCommonSources and mergeResources were Copy tasks: they never delete from build/remapped-common or build/merged-resources, so a source removed from common stayed in the generated tree.
 **Fix:** Made both tasks Sync in neoforge-26.1.2/build.gradle and fabric-26.1.2/build.gradle.
 **Prevention:** Generated source folders must be produced by a Sync task, never Copy.
+
+## [2026-11-06 13:23] Gradle project property named description breaks generateModMetadata
+**Context:** Adding forge-1.20.1 with a mods.toml template expanded from gradle.properties
+**Error:** Type ProcessResources property 'description' doesn't have a configured value
+**Root cause:** Inside the task closure the names description and license resolve to fields of the task or project first, so the task's null description was passed to inputs.properties
+**Fix:** Renamed the properties to mod_description, mod_license and mod_credits
+**Prevention:** Prefix every metadata property with mod_ in target gradle.properties
+
+## [2026-11-06 13:23] Polymorph+ jar does not run in a ModDevGradle legacy dev run
+**Context:** Proving coexistence of forge-1.20.1 with Polymorph+ 1.4.2 through modRuntimeOnly
+**Error:** polymorph.mixins.json:MixinSmithingMenu @Shadow field f_40242_ was not located in the target class, then NoSuchMethodError on Commands and MinecraftServer SRG methods
+**Root cause:** The jar keeps SRG member names in its mixin classes and in its nested spectrelib jar, which the dev remap does not rewrite. Nothing to do with RS Polymorph
+**Fix:** For the proof only, a scratch copy of the jar with its SRG constants renamed to dev names, including the nested jar; the original stays untouched
+**Prevention:** Dev-run coexistence proofs with Polymorph+ need the renamed copy; mixin failures in polymorph.mixins.json in dev are not a bug of this mod
+
+## [2026-11-06 13:48] Slot isActive of RS pattern slots throws on the server
+**Context:** Selftest reading the Pattern Grid result slot from the server menu, with Slot isActive to skip the hidden smithing slot.
+**Error:** ClassCastException: ServerProperty cannot be cast to ClientProperty, thrown from the anonymous slots of PatternGridContainerMenu.
+**Root cause:** RS reads its pattern type through a client-only property cast in isActive, which only ever runs client side in RS itself.
+**Fix:** The selftest locates the preview slot by position, right after the crafting matrix slots.
+**Prevention:** Never call Slot isActive on an RS pattern grid menu from server code, including in mod logic.
+
+## [2026-11-06 13:48] Exit 0 does not prove a Fabric dedicated server ran
+**Context:** Using runServer on fabric-1.21.1 and fabric-26.1.2 as server proof.
+**Error:** OK (exit 0) although the server stopped at You need to agree to the EULA, before Done.
+**Root cause:** A server without an accepted EULA exits normally and eula.txt stays false in a development run.
+**Fix:** Added runServerSelftest through the game test launch, which needs no EULA, and which reports RSP-SELFTEST lines.
+**Prevention:** Trust the RSP-SELFTEST DONE line of the run, never the exit code. Never accept the EULA for the user.
