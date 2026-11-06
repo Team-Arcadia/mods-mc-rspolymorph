@@ -26,6 +26,7 @@ import com.refinedmods.refinedstorage.blockentity.ControllerBlockEntity;
 import com.refinedmods.refinedstorage.container.GridContainerMenu;
 import com.refinedmods.refinedstorage.item.PatternItem;
 import com.refinedmods.refinedstorage.screen.grid.GridScreen;
+import com.refinedmods.refinedstorage.inventory.item.BaseItemHandler;
 import com.vyrriox.rspolymorph.GridOwnership;
 import com.vyrriox.rspolymorph.IRsPolymorphGrid;
 import com.vyrriox.rspolymorph.RecipeAccess;
@@ -759,7 +760,25 @@ public final class Selftest {
         });
         takePatternOutput();
 
-        line("SKIP pattern.reload_restores_selection: this line keeps the grid's selection when a pattern is reloaded");
+        // The grid shows the first recipe here: reloading the other pattern must bring its recipe back.
+        check("pattern.reload_restores_selection", () -> {
+            require(firstId.equals(server(this::selection)), "before the reload: " + server(this::selection));
+            server(() -> {
+                ((BaseItemHandler) gridOf(serverPlayer().containerMenu).getPatterns()).setStackInSlot(1, tagged.copy());
+                return null;
+            });
+            await("the reloaded preview", 40, () -> isStack(serverResult(), other) && isStack(clientResult(), other));
+            require(otherId.equals(server(this::selection)), "stored: " + server(this::selection));
+        });
+        takePatternOutput();
+        ItemStack reprinted = print();
+        check("pattern.reload_then_print_keeps_tag", () -> require(otherId.equals(tagOf(reprinted)), "tag: " + tagOf(reprinted)));
+        takePatternOutput();
+        check("pattern.select_first_after_reload", () -> {
+            clickSideButton();
+            clickPopupEntry(first.getItem());
+            await("the preview to change back", 20, () -> isStack(serverResult(), first) && isStack(clientResult(), first));
+        });
 
         // A different recipe must not inherit the tag of the selected one.
         check("pattern.different_recipe_no_stale_tag", () -> {
