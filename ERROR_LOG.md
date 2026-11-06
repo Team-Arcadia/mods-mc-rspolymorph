@@ -209,3 +209,31 @@
 **Root cause:** The global matrix raises items as well, so the item renderer offset on top pushed the counts past the GUI far plane
 **Fix:** Do not set blitOffset in the 1.15.2 Canvas; add inputs.file(buildFile) to the Sync task so filter changes apply
 **Prevention:** Always view popup_open on a new render path: the selftest does not check how counts are drawn
+
+## [2026-11-06 18:29] Crafting result selection never reached the client before RS 1.6
+**Context:** Selftest of forge-1.12 on RS 1.5.28
+**Error:** Timed out waiting for selected result on the client
+**Root cause:** The client grid recomputes the result from its matrix and vanilla sends no slot updates for SlotCrafting
+**Fix:** SelectionSync sends the selection to the client on open and on change
+**Prevention:** Before RS 1.6 sync any server grid state the client result depends on
+
+## [2026-11-06 18:29] Stray processing stack in the crafting matrix after reload on RS 1.5.28
+**Context:** Selftest persist check of the pattern grid on forge-1.12
+**Error:** Pattern result after reload timed out, crafting matrix slot 0 held the processing matrix stack
+**Root cause:** Not found; emptying the processing matrix first did not help and no mod code writes the matrix
+**Fix:** The reload check takes a new pattern grid
+**Prevention:** Do not share a grid between processing checks and reload checks on RS 1.5.28
+
+## [2026-11-06 18:29] Dedicated server selftest prints nothing under ForgeGradle 2
+**Context:** runServerSelftest of forge-1.12
+**Error:** Exit 0 and no RSP-SELFTEST lines
+**Root cause:** The server log4j console appender needs a class missing from the dev class path, so redirected stdout is lost
+**Fix:** The legacy Sync filter prints straight to FileDescriptor.out
+**Prevention:** A run with exit 0 and no DONE line is no verdict
+
+## [2026-11-06 18:29] ForgeGradle 2 jar fails on duplicate resources
+**Context:** Pointing the resources output at the classes folder for FML dev runs
+**Error:** reobfJar ZipException duplicate entry assets/rspolymorph/lang/en_us.lang
+**Root cause:** The source set output lists the folder twice
+**Fix:** jar duplicatesStrategy EXCLUDE and includeEmptyDirs false
+**Prevention:** Build release jars after removing build/classes: a selftest build leaves stale folders
