@@ -293,3 +293,38 @@
 **Root cause:** git commit -- paths rebuilds those entries from the working tree in a temporary index, and core.filemode=false on Windows keeps the mode of HEAD
 **Fix:** Committed the index with no pathspec after update-index --chmod=+x, and checked git ls-tree HEAD
 **Prevention:** After a mode change, commit without a pathspec and check git ls-tree HEAD before pushing
+
+## [2026-11-06 20:57] Refined Storage 1.2.26 does not load without MCMultiPart
+**Context:** First client run of the Forge 1.10.2 target
+**Error:** The mod refinedstorage requires mods [mcmultipart] to be available; the game stops at the title screen and the selftest never starts, with no RSP-SELFTEST line
+**Root cause:** RS 1.2.26 declares required-after:mcmultipart@[1.2.1,) and the earlier stub never ran the game
+**Fix:** deobfCompile and obfMods on curse.maven:mcmultipart-239431:2340729 in forge-1.10.2
+**Prevention:** Read the dependencies string of the RS tag before the first run; no RSP-SELFTEST line at all means the mods did not load
+
+## [2026-11-06 20:57] ForgeGradle 2.x asset download gets HTTP 400 on old indexes
+**Context:** getAssets of the 1.10 and 1.9 asset indexes
+**Error:** Server returned HTTP response code: 400 for URL: http://resources.download.minecraft.net/..., five tries per object, about four minutes per run
+**Root cause:** ForgeGradle asks over http, and the CDN refuses it for objects not cached yet
+**Fix:** Download the missing objects of the index over https into ~/.gradle/caches/minecraft/assets/objects once; the game also runs without them, only sounds are missing
+**Prevention:** Prefill the assets over https before the first run of a target on a new asset index; 1.10.2 uses index 1.10 and 1.9.4 uses index 1.9, which runObfClient must name
+
+## [2026-11-06 20:57] A second init of an RS 0.x grid screen made the side button toggle twice
+**Context:** Popup checks of the Forge 1.10 target on RS 0.8.10
+**Error:** crafting.button_opens_popup: closed, popup_lists_both_outputs: []
+**Root cause:** An init of the screen without a resize keeps buttonList and restarts the ids, so the old plain button of the side button fires with the same id as the new one
+**Fix:** RecipeSelectionSideButton.detach removes the old plain button before the widget attaches a new one
+**Prevention:** RS 0.x side buttons are not widgets: treat the plain button with the same id as owned by the mod's button
+
+## [2026-11-06 20:57] containsVersion throws on an unlabelled version on Forge 1.10 and older
+**Context:** metadata.requires_refinedstorage_floor on the Forge 1.10 target
+**Error:** NullPointerException at DefaultArtifactVersion.containsVersion
+**Root cause:** This Forge compares the labels first, and new DefaultArtifactVersion(version) has none
+**Fix:** The selftest asks with new DefaultArtifactVersion(refinedstorage, version) from the forge-1.10 line down; the check itself is unchanged
+**Prevention:** Use a labelled version whenever a dependency range is asked about
+
+## [2026-11-06 20:57] A shift click on the RS 0.6.15 result slot is not a window click
+**Context:** crafting.shift_craft_full_stack on the Forge 1.9 target
+**Error:** selected=0 default=0
+**Root cause:** ContainerGrid sends MessageGridCraftingShift when the Shift key is down, and transferStackInSlot does nothing, so the window click of the selftest could not craft
+**Fix:** On forge-1.9 the selftest sends that message, which is what a real shift click sends; the expected 15 selected items and no default are unchanged
+**Prevention:** Read slotClick of the target's container before saying a shift craft is broken
