@@ -18,7 +18,6 @@ package com.vyrriox.rspolymorph.forge;
 import com.vyrriox.rspolymorph.RsPolymorph;
 import com.vyrriox.rspolymorph.platform.Services;
 import net.minecraftforge.fml.common.Mod;
-import org.spongepowered.asm.mixin.MixinEnvironment;
 
 /**
  * Forge entry point (also loaded by NeoForge 47.1 on 1.20.1). Only wires the packet channel: the
@@ -31,9 +30,5 @@ public final class RsPolymorphForge {
 
     public RsPolymorphForge() {
         Services.setNetwork(new ForgeNetwork());
-        // Proof runs only: mixin targets load lazily, this applies every mixin now so a failure shows.
-        if (Boolean.getBoolean("rspolymorph.auditMixins")) {
-            MixinEnvironment.getCurrentEnvironment().audit();
-        }
     }
 }

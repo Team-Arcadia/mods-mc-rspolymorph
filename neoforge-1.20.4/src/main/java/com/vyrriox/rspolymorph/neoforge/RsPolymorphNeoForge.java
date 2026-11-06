@@ -19,7 +19,6 @@ import com.vyrriox.rspolymorph.RsPolymorph;
 import com.vyrriox.rspolymorph.platform.Services;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import org.spongepowered.asm.mixin.MixinEnvironment;
 
 /**
  * NeoForge entry point. Only wires the packet channel: the logic and the mixins live in common/.
@@ -34,9 +33,5 @@ public final class RsPolymorphNeoForge {
         NeoForgeNetwork network = new NeoForgeNetwork();
         modBus.addListener(network::register);
         Services.setNetwork(network);
-        // Proof runs only: mixin targets load lazily, this applies every mixin now so a failure shows.
-        if (Boolean.getBoolean("rspolymorph.auditMixins")) {
-            MixinEnvironment.getCurrentEnvironment().audit();
-        }
     }
 }

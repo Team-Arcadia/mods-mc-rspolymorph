@@ -26,6 +26,19 @@ def useNeoForge = providers.gradleProperty('useNeoForge').isPresent()
 // folder, to prove both mods load together. It is never compiled against or shipped.
 def polymorphJar = providers.gradleProperty('polymorphJar').map { new File(it) }.getOrNull()
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+def auditMixins = providers.gradleProperty('auditMixins').isPresent()
+if (selftest) {
+    def selftestDir = file("../common/${minecraft_version}/src/selftest")
+    sourceSets.main.java.srcDir(new File(selftestDir, 'java'))
+    sourceSets.main.resources.srcDir(new File(selftestDir, 'resources'))
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+} else if (auditMixins) {
+    logger.lifecycle('-PauditMixins does nothing without -Pselftest: the audit lives in the selftest sources')
+}
+
 legacyForge {
     enable {
         if (useNeoForge) {
@@ -55,9 +68,23 @@ legacyForge {
         configureEach {
             gameDirectory = project.file(polymorphJar != null ? 'run-polymorph' : useNeoForge ? 'run-neoforge' : 'run')
             logLevel = org.slf4j.event.Level.INFO
-            // -PauditMixins applies every mixin at startup instead of on the first use of its target.
-            if (providers.gradleProperty('auditMixins').isPresent()) {
+            // With -Pselftest, applies every mixin at startup instead of on the first use of its target.
+            if (selftest && auditMixins) {
                 systemProperty 'rspolymorph.auditMixins', 'true'
+            }
+        }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = project.file(polymorphJar != null ? 'run-polymorph/selftest' : 'run/selftest')
+                systemProperty 'rspolymorph.selftest', 'true'
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = project.file(polymorphJar != null ? 'run-polymorph/selftest-server' : 'run/selftest-server')
+                systemProperty 'rspolymorph.selftest.server', 'true'
+                jvmArgument '-Xlog:class+load=info:file=rspolymorph-selftest-classload.log'
             }
         }
     }
@@ -72,6 +99,9 @@ legacyForge {
 mixin {
     add(sourceSets.main, "${mod_id}.refmap.json")
     config("${mod_id}-common.mixins.json")
+    if (selftest) {
+        config("${mod_id}-selftest.mixins.json")
+    }
 }
 
 repositories {
@@ -141,7 +171,7 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Version': mod_version,
                 'Implementation-Vendor' : mod_author,
                 // Forge 1.20.1 only reads mixin configs from the manifest, not from mods.toml.
-                'MixinConfigs'          : "${mod_id}-common.mixins.json"
+                'MixinConfigs'          : "${mod_id}-common.mixins.json" + (selftest ? ",${mod_id}-selftest.mixins.json" : '')
         ])
     }
 }

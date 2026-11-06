@@ -52,6 +52,13 @@ cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # any of the f
   code: a server that stops early exits 0 and prints nothing.
 - To test next to another mod, drop its jar in the `mods` folder of that run folder. The run keeps the
   same checks.
+- On the Refined Storage 1.x line (`forge-1.20.1`, `neoforge-1.20.4`) the sources are in
+  `common/1.20.1/src/selftest`, and what differs by Minecraft version is forked in
+  `common/<minecraft version>/src/selftest`. The run folders are `run/selftest` and `run/selftest-server`.
+- On `forge-1.20.1`, `-PpolymorphJar=<a jar with development names>` runs in `run-polymorph/selftest` a scenario
+  of its own: this mod stays out of selection and printed patterns are still tagged.
+- On that line `-PauditMixins` works only with `-Pselftest`: it applies every mixin as soon as the game reaches
+  the selftest's hooks, in any run, and logs `RSP-AUDIT`. A released jar has no such code.
 
 ---
 
@@ -110,3 +117,10 @@ cd neoforge-1.21.1 && ./gradlew runClientSelftest -Pselftest      # n'importe la
   `DONE`, jamais à un code de sortie : un serveur arrêté tôt sort avec 0 et n'affiche rien.
 - Pour tester à côté d'un autre mod, déposer son jar dans le dossier `mods` de ce dossier de lancement. Les
   vérifications restent les mêmes.
+- Sur la ligne Refined Storage 1.x (`forge-1.20.1`, `neoforge-1.20.4`) les sources sont dans
+  `common/1.20.1/src/selftest`, et ce qui change selon la version de Minecraft est forké dans
+  `common/<version de minecraft>/src/selftest`. Les dossiers de lancement sont `run/selftest` et `run/selftest-server`.
+- Sur `forge-1.20.1`, `-PpolymorphJar=<un jar aux noms de développement>` joue dans `run-polymorph/selftest` un scénario
+  à part : ce mod reste hors de la sélection et les patterns imprimés restent marqués.
+- Sur cette ligne, `-PauditMixins` ne marche qu'avec `-Pselftest` : il applique tous les mixins dès que le jeu atteint
+  les points d'entrée du test, dans n'importe quel lancement, et écrit `RSP-AUDIT` au log. Un jar publié n'a pas ce code.

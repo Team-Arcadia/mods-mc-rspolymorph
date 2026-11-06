@@ -33,6 +33,21 @@ repositories {
 def sharedDir = file('../common/1.20.1/src/main')
 def forkDir = file("../common/${minecraft_version}/src/main")
 
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+def auditMixins = providers.gradleProperty('auditMixins').isPresent()
+def sharedSelftestDir = file('../common/1.20.1/src/selftest')
+def forkSelftestDir = file("../common/${minecraft_version}/src/selftest")
+def forkedSelftestFor1204 = [
+        'com/vyrriox/rspolymorph/selftest/SelftestCompat.java',
+]
+if (selftest) {
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+} else if (auditMixins) {
+    logger.lifecycle('-PauditMixins does nothing without -Pselftest: the audit lives in the selftest sources')
+}
+
 // Files of ../common/1.20.1 replaced by a fork in ../common/1.20.4.
 def forkedFor1204 = [
         // Recipes no longer know their id: RecipeManager lookups go through RecipeHolder.
@@ -47,6 +62,12 @@ def assembleCommonSources = tasks.register('assembleCommonSources', Sync) {
         forkedFor1204.each { exclude it }
     }
     from(new File(forkDir, 'java'))
+    if (selftest) {
+        from(new File(sharedSelftestDir, 'java')) {
+            forkedSelftestFor1204.each { exclude it }
+        }
+        from(new File(forkSelftestDir, 'java'))
+    }
     into assembledJava
     duplicatesStrategy = DuplicatesStrategy.FAIL   // a fork colliding with a shared file is a bug
 }
@@ -58,6 +79,10 @@ def assembleCommonResources = tasks.register('assembleCommonResources', Sync) {
         exclude 'rspolymorph-common.mixins.json'
     }
     from(new File(forkDir, 'resources'))
+    if (selftest) {
+        // Its fork of the mixin config drops the refmap, like the main one.
+        from(new File(forkSelftestDir, 'resources'))
+    }
     into assembledResources
     duplicatesStrategy = DuplicatesStrategy.FAIL
 }
@@ -93,9 +118,23 @@ neoForge {
         configureEach {
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
             logLevel = org.slf4j.event.Level.INFO
-            // -PauditMixins applies every mixin at startup instead of on the first use of its target.
-            if (providers.gradleProperty('auditMixins').isPresent()) {
+            // With -Pselftest, applies every mixin at startup instead of on the first use of its target.
+            if (selftest && auditMixins) {
                 systemProperty 'rspolymorph.auditMixins', 'true'
+            }
+        }
+        if (selftest) {
+            clientSelftest {
+                client()
+                gameDirectory = file('run/selftest')
+                systemProperty 'rspolymorph.selftest', 'true'
+            }
+            // The dedicated server distribution, through the game test launch: needs no EULA.
+            serverSelftest {
+                type = 'gameTestServer'
+                gameDirectory = file('run/selftest-server')
+                systemProperty 'rspolymorph.selftest.server', 'true'
+                jvmArgument '-Xlog:class+load=info:file=rspolymorph-selftest-classload.log'
             }
         }
     }
@@ -126,6 +165,15 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
             mod_description             : mod_description,
     ]
     inputs.properties replaceProperties
+    // A second mixin config, for the selftest only. Declared as an input: filters are not.
+    def selftestMixins = selftest ? "${mod_id}-selftest.mixins.json" : ''
+    inputs.property 'selftestMixins', selftestMixins
+    if (selftest) {
+        doLast {
+            file('build/generated/sources/modMetadata/META-INF/mods.toml')
+                    .append("\n[[mixins]]\nconfig = \"${selftestMixins}\"\n")
+        }
+    }
     expand replaceProperties
     from 'src/main/templates'
     into 'build/generated/sources/modMetadata'
