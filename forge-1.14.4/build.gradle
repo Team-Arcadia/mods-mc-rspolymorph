@@ -1,0 +1,209 @@
+plugins {
+    id 'java-library'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-forge-${minecraft_version}"
+}
+
+// Minecraft 1.14.4 runs on Java 8, whatever JDK starts Gradle.
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
+// This Forge bundles no Mixin: the hooks are Forge coremods and Forge events, in ../common/1.15.1. The rest is
+// shared with 1.16.5 and 1.15.2, whose mixins stay out, with Refined Storage's package of the time. What this game's
+// API forces to fork is in ../common/1.14.4.
+def commonDir = file('../common/1.16.5/src')
+def sharedDir = file('../common/1.15.2/src')
+def forkDir = file('../common/1.15.1/src')
+def targetDir = file('../common/1.14.4/src')
+def forkedShared = [
+        'com/vyrriox/rspolymorph/mixin/**',
+        'com/vyrriox/rspolymorph/client/Canvas.java',
+]
+def forkedMain = [
+        'com/vyrriox/rspolymorph/mixin/**',
+        'com/vyrriox/rspolymorph/IRsPolymorphGrid.java',
+        'com/vyrriox/rspolymorph/client/Canvas.java',
+        'com/vyrriox/rspolymorph/client/RecipeSelectionSideButton.java',
+]
+def forkedSelftest = [
+        'com/vyrriox/rspolymorph/selftest/mixin/**',
+        'com/vyrriox/rspolymorph/selftest/SelftestCompat.java',
+        'com/vyrriox/rspolymorph/selftest/SelftestMixins.java',
+]
+
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+if (selftest) {
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
+def assembleCommonSources = tasks.register('assembleCommonSources', Sync) {
+    inputs.property('selftest', selftest)
+    inputs.file(buildFile)   // the filters below live in this file
+    from(new File(commonDir, 'main/java')) {
+        exclude(forkedMain)
+    }
+    from(new File(sharedDir, 'main/java')) {
+        exclude(forkedShared)
+    }
+    from(new File(forkDir, 'main/java'))
+    from(new File(targetDir, 'main/java'))
+    if (selftest) {
+        from(new File(commonDir, 'selftest/java')) {
+            exclude(forkedSelftest)
+            // A line or two away from 1.16 in long files: adapted rather than forked.
+            filter { String line ->
+                line.replace('mc.player.blockPosition()', 'new net.minecraft.util.math.BlockPos(mc.player)')
+                        .replace('ServerModLoader.load();', 'ServerLoad.loadMods();')
+                        .replace('import org.spongepowered.asm.mixin.MixinEnvironment;', '')
+                        .replace('MixinEnvironment.Side side = MixinEnvironment.getCurrentEnvironment().getSide();',
+                                'net.minecraftforge.api.distmarker.Dist side = net.minecraftforge.fml.loading.FMLEnvironment.dist;')
+                        .replace('side == MixinEnvironment.Side.SERVER', 'side == net.minecraftforge.api.distmarker.Dist.DEDICATED_SERVER')
+                        .replace('"com.vyrriox.rspolymorph.mixin.RsPolymorphMixinPlugin"', '"com.vyrriox.rspolymorph.coremod.GridHooks"')
+                        // The next click is on the same slot: within 250 ms the game takes it for a double click.
+                        .replace('await("the server\'s picked up stack", 20, () -> server(() -> !serverPlayer().inventory.getCarried().isEmpty()));',
+                                'await("the server\'s picked up stack", 20, () -> server(() -> !serverPlayer().inventory.getCarried().isEmpty())); waitTicks(8);')
+            }
+        }
+        from(new File(sharedDir, 'selftest/java')) {
+            include('com/vyrriox/rspolymorph/selftest/ServerLoad.java')
+        }
+        from(new File(forkDir, 'selftest/java'))
+    }
+    // Refined Storage's package before it moved to com.refinedmods.
+    filter { String line ->
+        // Also the one accessor of the game the selftest uses that this Minecraft does not have yet.
+        line.replace('mc.getWindow()', 'mc.window')
+                .replace('com.refinedmods.refinedstorage', 'com.raoulvdberge.refinedstorage')
+                .replace('com/refinedmods/refinedstorage', 'com/raoulvdberge/refinedstorage')
+    }
+    into layout.buildDirectory.dir('assembled-common/java')
+    duplicatesStrategy = DuplicatesStrategy.FAIL   // a fork colliding with a shared file is a bug
+}
+sourceSets.main.java.srcDir(assembleCommonSources)
+
+def assembleCommonResources = tasks.register('assembleCommonResources', Sync) {
+    inputs.property('selftest', selftest)
+    from(new File(commonDir, 'main/resources')) {
+        exclude('rspolymorph-common.mixins.json')
+    }
+    from(new File(forkDir, 'main/resources')) {
+        // The selftest declares the same coremods and one of its own.
+        if (selftest) {
+            exclude('META-INF/coremods.json')
+        }
+    }
+    if (selftest) {
+        from(new File(forkDir, 'selftest/resources'))
+    }
+    into layout.buildDirectory.dir('assembled-common/resources')
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+sourceSets.main.resources.srcDir(assembleCommonResources)
+
+minecraft {
+    // Mojang's method and field names over the class names of the time (PlayerEntity, IRecipe).
+    mappings channel: 'official', version: minecraft_version
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+        client {
+        }
+        server {
+            args '--nogui'
+        }
+        if (selftest) {
+            clientSelftest {
+                parent runs.client
+                taskName 'runClientSelftest'
+                workingDirectory project.file('run/selftest')
+                property 'rspolymorph.selftest', 'true'
+            }
+            // The dedicated server distribution. This Minecraft has no game test launch: the selftest takes
+            // over at the first line of the server's main method, before eula.txt is even read, and never
+            // starts a server (see ServerSelftest).
+            serverSelftest {
+                parent runs.server
+                taskName 'runServerSelftest'
+                workingDirectory project.file('run/selftest-server')
+                property 'rspolymorph.selftest.server', 'true'
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    // fg.deobf remaps the jar from SRG names to the development mappings.
+    implementation fg.deobf("maven.modrinth:refined-storage:${refinedstorage_version_id}")
+}
+
+def replaceProperties = [
+        minecraft_version_range     : minecraft_version_range,
+        forge_version_range         : forge_version_range,
+        loader_version_range        : loader_version_range,
+        refinedstorage_version_range: refinedstorage_version_range,
+        mod_id                      : mod_id,
+        mod_name                    : mod_name,
+        mod_author                  : mod_author,
+        mod_version                 : mod_version,
+        mod_license                 : mod_license,
+        mod_credits                 : mod_credits,
+        mod_description             : mod_description,
+]
+def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// These versions run on SRG names outside of development: reobfJar rewrites the jar in place.
+tasks.named('jar', Jar).configure {
+    from(file('../LICENSE')) {
+        rename { "LICENSE_${mod_id}" }
+    }
+    from(file('../NOTICE')) {
+        rename { "NOTICE_${mod_id}" }
+    }
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_id,
+                'Specification-Vendor'  : mod_author,
+                'Specification-Version' : '1',
+                'Implementation-Title'  : mod_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor' : mod_author,
+        ])
+    }
+    finalizedBy 'reobfJar'
+}
