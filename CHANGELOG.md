@@ -8,7 +8,7 @@ All notable changes to RS Polymorph are documented here.
 
 ### Added
 
-- **Forge and NeoForge targets for older Minecraft versions** — RS Polymorph now ships for NeoForge 1.20.4 and for Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11, 1.10.2, 1.10, 1.9.4 and 1.9. The 1.20.1 jar also runs on NeoForge 47.1 and the 1.12 jar also runs on 1.12.1. Versions, floors and Java per jar are in `docs/COMPATIBILITY.md`.
+- **Forge and NeoForge targets for older Minecraft versions** — RS Polymorph now ships for NeoForge 1.20.4 and for Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11, 1.10.2, 1.10, 1.9.4 and 1.9. The 1.20.1 jar also runs on NeoForge 47.1 and the 1.12 jar also runs on 1.12.1. Forge 1.16.3 and 1.16.4 need Java 8u312 or older because of the launcher of those Forge versions, and Forge 1.15.1 is limited to 30.0.43 to 30.0.47 by Refined Storage 1.8. On Refined Storage 0.x (1.10, 1.9.4, 1.9) a printed pattern keeps the selected output, since those patterns have no recipe. Versions, floors and Java per jar are in `docs/COMPATIBILITY.md`.
 - **Fabric on Minecraft 26.1.2** — The `fabric-26.1.2` target is enabled and released, with Refined Storage 3.x and Java 25.
 - **Coexistence with Polymorph and Polymorph+** — Both mods work next to RS Polymorph. On 1.16.5, 1.18.2, 1.19.2 and 1.20.1 Polymorph+ has its own Refined Storage integration, so RS Polymorph leaves the crafting grid selection to it and keeps tagging patterns.
 - **In-game selftest** — `-Pselftest` compiles an automated test of the real screens and of the dedicated server distribution, for development only. A build without the flag holds none of it, and a build with it names its jar `-SELFTEST`.
@@ -18,6 +18,7 @@ All notable changes to RS Polymorph are documented here.
 - **Every printed crafting pattern is tagged with its recipe** — A printed pattern now always records the recipe of the crafting matrix, even when only one recipe matches, so a recipe added later by a mod or a pack cannot change what that pattern crafts.
 - **Plain storage grids no longer show the button** — The recipe button only appears on grids that craft or print patterns.
 - **The network protocol changed: update client and server together** — The selection packet now carries the container id, so mixing a 1.3.0 client with an older server, or the reverse, is not supported.
+- **Known issue on Forge 1.20.1** — Joining a server can stall on a freshly started game and time out after 30 seconds; joining again works. It fits a race between Forge's connection code and Netty, and this mod has no code in the login, but it was seen only with the mod installed (2 of 11 joins, against 0 of 20) and that difference is not explained. Details in `docs/COMPATIBILITY.md`.
 - **Refined Storage 2.0.9 and 3.2.1** — The mod is built against those versions. The minimum rises to Refined Storage 2.0.8 on 1.21.1 (it was 2.0.1) and stays 3.2.0 on 26.1.2, and the Fabric jars now declare these minimums too.
 
 ### Fixed
@@ -39,7 +40,7 @@ All notable changes to RS Polymorph are documented here.
 
 ### Ajouts
 
-- **Cibles Forge et NeoForge pour les anciennes versions de Minecraft** — RS Polymorph sort désormais pour NeoForge 1.20.4 et pour Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11, 1.10.2, 1.10, 1.9.4 et 1.9. Le jar 1.20.1 fonctionne aussi sur NeoForge 47.1 et le jar 1.12 aussi sur 1.12.1. Les versions, minimums et Java par jar sont dans `docs/COMPATIBILITY.md`.
+- **Cibles Forge et NeoForge pour les anciennes versions de Minecraft** — RS Polymorph sort désormais pour NeoForge 1.20.4 et pour Forge 1.20.1, 1.19.2, 1.18.2, 1.18.1, 1.16.5, 1.16.4, 1.16.3, 1.16.2, 1.16.1, 1.15.2, 1.15.1, 1.14.4, 1.12.2, 1.12, 1.11.2, 1.11, 1.10.2, 1.10, 1.9.4 et 1.9. Le jar 1.20.1 fonctionne aussi sur NeoForge 47.1 et le jar 1.12 aussi sur 1.12.1. Forge 1.16.3 et 1.16.4 demandent Java 8u312 ou plus ancien à cause du lanceur de ces versions de Forge, et Forge 1.15.1 est limité à 30.0.43 à 30.0.47 par Refined Storage 1.8. Sur Refined Storage 0.x (1.10, 1.9.4, 1.9), un patron imprimé garde la sortie choisie, car ces patrons n'ont pas de recette. Les versions, minimums et Java par jar sont dans `docs/COMPATIBILITY.md`.
 - **Fabric sur Minecraft 26.1.2** — La cible `fabric-26.1.2` est activée et publiée, avec Refined Storage 3.x et Java 25.
 - **Cohabitation avec Polymorph et Polymorph+** — Les deux mods fonctionnent à côté de RS Polymorph. En 1.16.5, 1.18.2, 1.19.2 et 1.20.1, Polymorph+ a sa propre intégration Refined Storage : RS Polymorph lui laisse la sélection de la grille de craft et continue de marquer les patrons.
 - **Test automatique en jeu** — `-Pselftest` compile un test automatique des vrais écrans et de la distribution serveur dédié, pour le développement uniquement. Un build sans cette option n'en contient rien, et un build avec nomme son jar `-SELFTEST`.
@@ -49,6 +50,7 @@ All notable changes to RS Polymorph are documented here.
 - **Chaque patron de craft imprimé est marqué avec sa recette** — Un patron imprimé enregistre désormais toujours la recette de la matrice de craft, même quand une seule recette correspond : une recette ajoutée plus tard par un mod ou un pack ne peut pas changer ce que ce patron crafte.
 - **Les grilles de stockage simples n'affichent plus le bouton** — Le bouton de recette n'apparaît que sur les grilles qui craftent ou impriment des patrons.
 - **Le protocole réseau a changé : mettre à jour le client et le serveur ensemble** — Le paquet de sélection porte désormais l'identifiant du conteneur : mélanger un client 1.3.0 et un serveur plus ancien, ou l'inverse, n'est pas pris en charge.
+- **Problème connu sur Forge 1.20.1** — Rejoindre un serveur peut bloquer sur un jeu tout juste lancé et expirer au bout de 30 secondes ; rejoindre à nouveau fonctionne. Cela correspond à une condition de course entre le code de connexion de Forge et Netty, et ce mod n'a aucun code dans la connexion, mais le blocage n'a été vu qu'avec le mod installé (2 connexions sur 11, contre 0 sur 20) et cet écart n'est pas expliqué. Détails dans `docs/COMPATIBILITY.md`.
 - **Refined Storage 2.0.9 et 3.2.1** — Le mod est compilé avec ces versions. Le minimum passe à Refined Storage 2.0.8 en 1.21.1 (il était de 2.0.1) et reste 3.2.0 en 26.1.2, et les jars Fabric déclarent désormais aussi ces minimums.
 
 ### Correctifs
