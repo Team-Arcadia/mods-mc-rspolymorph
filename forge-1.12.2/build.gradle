@@ -1,0 +1,144 @@
+// RetroFuturaGradle: ForgeGradle 2.x does not run on current Gradle. It decompiles Minecraft on the
+// first build (several minutes) and caches the result in the Gradle home.
+plugins {
+    id 'java'
+    id 'com.gtnewhorizons.retrofuturagradle' version '1.4.9'
+}
+
+def commonDir = new File(rootDir, "../common/${minecraft_version}/src")
+
+group = mod_group_id
+version = mod_version
+base.archivesName = "${mod_id}-forge-${minecraft_version}"
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:-options'
+}
+
+sourceSets.main.java.srcDir(new File(commonDir, 'main/java'))
+sourceSets.main.resources.srcDir(new File(commonDir, 'main/resources'))
+// FML reads a mod's metadata and assets from the folder of its classes, in a dev run too.
+sourceSets.main.output.resourcesDir = sourceSets.main.java.classesDirectory.get().asFile
+
+// In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
+// packages none of it. The jar gets another name, so that it can never pass for a release.
+def selftest = project.hasProperty('selftest')
+if (selftest) {
+    sourceSets.main.java.srcDir(new File(commonDir, 'selftest/java'))
+    sourceSets.main.resources.srcDir(new File(commonDir, 'selftest/resources'))
+    base.archivesName = "${base.archivesName.get()}-SELFTEST"
+}
+
+def coremods = 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod' +
+        (selftest ? ',com.vyrriox.rspolymorph.selftest.SelftestCoremod' : '')
+
+minecraft {
+    mcVersion = minecraft_version
+    mcpMappingChannel = 'stable'
+    mcpMappingVersion = '39'
+    username = 'Dev'
+    // In a dev run FML only finds a coremod that this property names. Left out with -Pobf_run for
+    // runObfClient, which takes the built jar from a mods folder like a real install: there the property
+    // would fail first, and FML's class loader remembers a class it could not find.
+    if (!project.hasProperty('obf_run')) {
+        extraRunJvmArguments.add("-Dfml.coreMods.load=${coremods}".toString())
+    }
+    if (selftest) {
+        extraRunJvmArguments.addAll('-Drspolymorph.selftest=true', '-Drspolymorph.selftest.server=true')
+    }
+}
+
+repositories {
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+}
+
+dependencies {
+    // RS 1.6.16 is released in SRG names: this remaps it to the MCP names of the dev run.
+    implementation rfg.deobf("maven.modrinth:refined-storage:${refinedstorage_version_id}")
+}
+
+// Optional coexistence run: runObfClient -Pobf_run -Pcompat_dir=<folder of other mod jars>, which need MixinBooter.
+if (project.hasProperty('compat_dir')) {
+    repositories {
+        maven {
+            name = 'CleanroomMC'
+            url = 'https://maven.cleanroommc.com'
+        }
+    }
+    dependencies {
+        runtimeOnly 'zone.rong:mixinbooter:12.3'
+    }
+    // Only for the reobfuscated run, whose mods folder is built before the game starts.
+    tasks.named('runObfClient') {
+        doFirst {
+            copy {
+                from fileTree(project.property('compat_dir')).include('*.jar')
+                into file('run/obfuscated/mods')
+            }
+        }
+    }
+}
+
+processResources {
+    def props = [
+            mod_id                     : mod_id,
+            mod_name                   : mod_name,
+            mod_version                : mod_version,
+            mod_author                 : mod_author,
+            mod_credits                : mod_credits,
+            mod_description            : mod_description,
+            minecraft_version          : minecraft_version
+    ]
+    inputs.properties(props)
+    filesMatching('mcmod.info') {
+        expand(props)
+    }
+}
+
+// The coremod ships in the same jar as the mod: the two attributes tell FML to load both from it.
+tasks.withType(Jar).configureEach {
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod',
+                'FMLCorePluginContainsFMLMod': 'true',
+                'ForceLoadAsMod': 'true',
+                'Specification-Title': mod_id,
+                'Specification-Vendor': mod_author,
+                'Specification-Version': '1',
+                'Implementation-Title': mod_name,
+                'Implementation-Version': mod_version,
+                'Implementation-Vendor': mod_author
+        )
+    }
+}
+
+// The dedicated server half of the selftest. RFG's runServer refuses to start without an accepted EULA,
+// and rightly: this task never starts a server. It takes the same classes down FML's server launch path
+// and stops at the first line of the server's main method, before eula.txt is read (see ServerSelftest).
+if (selftest) {
+    tasks.register('runServerSelftest', JavaExec) {
+        def run = tasks.named('runServer').get()
+        dependsOn run.dependsOn, 'jar'
+        group = 'verification'
+        mainClass = 'GradleStartServer'
+        javaLauncher = javaToolchains.launcherFor(java.toolchain)
+        def dir = file('run/selftest-server')
+        workingDir = dir
+        doFirst {
+            dir.mkdirs()
+            classpath = run.classpath
+        }
+        jvmArgs "-Dfml.coreMods.load=${coremods}".toString(), '-Drspolymorph.selftest.server=true', '-Xmx1G'
+    }
+}
