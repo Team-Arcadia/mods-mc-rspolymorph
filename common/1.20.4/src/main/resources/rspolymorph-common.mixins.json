@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.vyrriox.rspolymorph.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "com.vyrriox.rspolymorph.mixin.RsPolymorphMixinPlugin",
+  "mixins": [
+    "MixinCraftingPatternFactory",
+    "MixinGridNetworkNode",
+    "MixinGridNetworkNodePattern"
+  ],
+  "client": [
+    "MixinGridScreen"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
