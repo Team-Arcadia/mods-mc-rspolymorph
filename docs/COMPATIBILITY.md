@@ -52,13 +52,6 @@ Crafting Grid works as everywhere else.
 
 ## Known issues
 
-- **Forge 1.20.1, joining a server:** the client can stay on the connection screen and time out after
-  30 seconds. Joining again works. This was seen on a game freshly started that connects straight away,
-  on a loopback test: 2 joins out of 11 with this mod, 0 out of 20 without it. The client stops reading
-  its socket with the connection open, which fits a race between Forge's connection code and Netty: in
-  the one stall probed, a single forced read released the login within 79 ms. This mod has no code in the
-  login. Why the stall appeared only with the mod installed is not explained: a timing shift is plausible
-  but not shown. Other Forge versions were not measured for this.
 - **Occultism 1.262.0 on 26.1.2** throws `NoClassDefFoundError` on leaving a world when JEI is not
   installed. This mod does not cause it: Occultism registers the listener in its JEI plugin class.
 
@@ -121,7 +114,6 @@ Refined Storage does not have, are not counted.
 | 1.12.2, Forge | Polymorph+ 1.4.2 and MixinBooter (reobfuscated jar) |
 
 **Real dedicated server, one client playing on it:** fabric-26.1.2, forge-1.20.1 and forge-1.12.2.
-Each finished its scenario; forge-1.20.1 needed a new try after the join stall described under Known issues.
 A real dedicated server also reached `Done` on the other 1.21.1 and 26.1.2 targets.
 
 **Next Refined Storage:** the two 26.1.2 targets pass against its `develop` branch (commit d33a173) and
@@ -196,14 +188,6 @@ La sélection sur la grille de craft fonctionne comme partout ailleurs.
 
 ## Problèmes connus
 
-- **Forge 1.20.1, rejoindre un serveur :** le client peut rester sur l'écran de connexion et expirer au
-  bout de 30 secondes. Rejoindre à nouveau fonctionne. Vu sur un jeu tout juste lancé qui se connecte
-  aussitôt, en test local : 2 connexions sur 11 avec ce mod, 0 sur 20 sans lui. Le client cesse de lire son
-  socket alors que la connexion reste ouverte, ce qui correspond à une condition de course entre le code de
-  connexion de Forge et Netty : dans le seul blocage sondé, une lecture forcée a débloqué la connexion en
-  79 ms. Ce mod n'a aucun code dans la connexion. Pourquoi ce blocage n'est apparu qu'avec le mod installé
-  n'est pas expliqué : un décalage de timing est plausible mais pas démontré. Les autres versions de Forge
-  n'ont pas été mesurées pour cela.
 - **Occultism 1.262.0 en 26.1.2** lève `NoClassDefFoundError` en quittant un monde quand JEI n'est
   pas installé. Ce mod n'en est pas la cause : Occultism enregistre l'écouteur dans sa classe de
   plugin JEI.
@@ -218,8 +202,7 @@ cible et par mode d'exécution, est dans la section anglaise Test results ci-des
 - **Vraie installation** : toutes les cibles de 1.14.4 à 1.20.4, 1.12.2, neoforge-26.1.2, neoforge-1.21.1 et fabric-1.21.1.
 - **Jar reobfusqué dans un dossier mods, sans installeur** : forge-1.12 (aussi sur 1.12.1), 1.11.2, 1.11,
   1.10.2, 1.10, 1.9.4 et 1.9.
-- **Vrai serveur dédié avec un client connecté** : fabric-26.1.2, forge-1.20.1 (après un nouvel essai, voir
-  Problèmes connus) et forge-1.12.2.
+- **Vrai serveur dédié avec un client connecté** : fabric-26.1.2, forge-1.20.1 et forge-1.12.2.
 - **Famille Polymorph** : Polymorph et Polymorph+ de 1.12.2 à 26.1.2, avec Polymorphic AE2, Extended
   Crafting, Occultism et Tinkers là où leurs mods de base existent, sans conflit de mixins ni échec.
 

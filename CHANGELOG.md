@@ -18,7 +18,6 @@ All notable changes to RS Polymorph are documented here.
 - **Every printed crafting pattern is tagged with its recipe** — A printed pattern now always records the recipe of the crafting matrix, even when only one recipe matches, so a recipe added later by a mod or a pack cannot change what that pattern crafts.
 - **Plain storage grids no longer show the button** — The recipe button only appears on grids that craft or print patterns.
 - **The network protocol changed: update client and server together** — The selection packet now carries the container id, so mixing a 1.3.0 client with an older server, or the reverse, is not supported.
-- **Known issue on Forge 1.20.1** — Joining a server can stall on a freshly started game and time out after 30 seconds; joining again works. It fits a race between Forge's connection code and Netty, and this mod has no code in the login, but it was seen only with the mod installed (2 of 11 joins, against 0 of 20) and that difference is not explained. Details in `docs/COMPATIBILITY.md`.
 - **Refined Storage 2.0.9 and 3.2.1** — The mod is built against those versions. The minimum rises to Refined Storage 2.0.8 on 1.21.1 (it was 2.0.1) and stays 3.2.0 on 26.1.2, and the Fabric jars now declare these minimums too.
 
 ### Fixed
@@ -50,7 +49,6 @@ All notable changes to RS Polymorph are documented here.
 - **Chaque patron de craft imprimé est marqué avec sa recette** — Un patron imprimé enregistre désormais toujours la recette de la matrice de craft, même quand une seule recette correspond : une recette ajoutée plus tard par un mod ou un pack ne peut pas changer ce que ce patron crafte.
 - **Les grilles de stockage simples n'affichent plus le bouton** — Le bouton de recette n'apparaît que sur les grilles qui craftent ou impriment des patrons.
 - **Le protocole réseau a changé : mettre à jour le client et le serveur ensemble** — Le paquet de sélection porte désormais l'identifiant du conteneur : mélanger un client 1.3.0 et un serveur plus ancien, ou l'inverse, n'est pas pris en charge.
-- **Problème connu sur Forge 1.20.1** — Rejoindre un serveur peut bloquer sur un jeu tout juste lancé et expirer au bout de 30 secondes ; rejoindre à nouveau fonctionne. Cela correspond à une condition de course entre le code de connexion de Forge et Netty, et ce mod n'a aucun code dans la connexion, mais le blocage n'a été vu qu'avec le mod installé (2 connexions sur 11, contre 0 sur 20) et cet écart n'est pas expliqué. Détails dans `docs/COMPATIBILITY.md`.
 - **Refined Storage 2.0.9 et 3.2.1** — Le mod est compilé avec ces versions. Le minimum passe à Refined Storage 2.0.8 en 1.21.1 (il était de 2.0.1) et reste 3.2.0 en 26.1.2, et les jars Fabric déclarent désormais aussi ces minimums.
 
 ### Correctifs
