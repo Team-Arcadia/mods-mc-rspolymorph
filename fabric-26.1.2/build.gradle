@@ -1,6 +1,5 @@
-// RS Polymorph, Fabric 26.1.2. A standalone Gradle project, NOT built yet: Minecraft 26.x ships
-// unobfuscated, which needs a Fabric Loom with 26.x support (issue #5). Set the Loom version below
-// to that release, then build from this folder and add the folder to CI and tools/collect_jars.sh.
+// RS Polymorph, Fabric 26.1.2. A standalone Gradle project. Minecraft 26.x ships unobfuscated, so
+// this is the non-remapping Loom plugin: no mappings, and mods are plain implementation dependencies.
 //
 // The sources are assembled like neoforge-26.1.2: ../common/1.21.1 with the 26.x renames, plus the
 // forks in ../common/26.1.2.
@@ -9,7 +8,7 @@
 
 plugins {
     id 'java-library'
-    id 'fabric-loom' version '1.16.3'   // needs the first stable Loom with Minecraft 26.x support
+    id 'net.fabricmc.fabric-loom' version '1.18.2'
 }
 
 version = mod_version
@@ -90,18 +89,19 @@ tasks.named('processResources') { dependsOn mergeResources }
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // Refined Storage 3.2.0 for Fabric, pinned by its Modrinth version id.
-    modImplementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    // Refined Storage for Fabric, pinned by its Modrinth version id in gradle.properties.
+    implementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+
+    // Refined Storage nests these two in its jar for players, but Gradle does not see nested jars:
+    // the development runs need them next to it (the same versions as RS 3.2.1 nests).
+    localRuntime "maven.modrinth:cloth-config:GFM8zh9J"
+    localRuntime "teamreborn:energy:5.0.0"
 }
 
 loom {
-    mixin {
-        defaultRefmapName.set("${mod_id}.refmap.json")
-    }
     runs {
         client { client(); ideConfigGenerated(true); runDir('runs/client') }
         server { server(); ideConfigGenerated(true); runDir('runs/server') }

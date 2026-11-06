@@ -60,6 +60,11 @@ dependencies {
     // Refined Storage 2.0.8 for Fabric, pinned by its Modrinth version id: the same version number
     // also exists for NeoForge. No Polymorph dependency.
     modImplementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+
+    // Refined Storage nests these two in its jar for players, but Loom strips nested jars from a
+    // dependency: the development runs need them next to it (the same versions as RS 2.0.9 nests).
+    modLocalRuntime "maven.modrinth:cloth-config:HpMb5wGb"
+    modLocalRuntime "teamreborn:energy:4.1.0"
 }
 
 loom {

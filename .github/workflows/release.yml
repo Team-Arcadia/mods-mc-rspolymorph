@@ -36,7 +36,7 @@ jobs:
       # Each target is a standalone Gradle project; Gradle toolchains pick Java 21 or 25 per target.
       - name: Build every target
         run: |
-          for target in neoforge-1.21.1 fabric-1.21.1 neoforge-26.1.2; do
+          for target in neoforge-1.21.1 fabric-1.21.1 neoforge-26.1.2 fabric-26.1.2; do
             (cd "$target" && ./gradlew build --no-daemon)
           done
 
@@ -50,6 +50,7 @@ jobs:
             echo "- rspolymorph-neoforge-1.21.1-$V.jar: Minecraft 1.21.1, NeoForge 21.1.219+, Refined Storage 2.x"
             echo "- rspolymorph-fabric-1.21.1-$V.jar: Minecraft 1.21.1, Fabric Loader 0.16.10+ and Fabric API, Refined Storage 2.x"
             echo "- rspolymorph-neoforge-26.1.2-$V.jar: Minecraft 26.1.2, NeoForge 26.1.2, Refined Storage 3.x"
+            echo "- rspolymorph-fabric-26.1.2-$V.jar: Minecraft 26.1.2, Fabric Loader 0.19.5+ and Fabric API, Refined Storage 3.x"
             echo ""
             echo "No Polymorph needed. Optional: Refined Storage - Quartz Arsenal 1.0.7+ for its Wireless Crafting Grid."
             echo ""
@@ -64,6 +65,7 @@ jobs:
             neoforge-1.21.1/build/libs/rspolymorph-neoforge-1.21.1-${{ steps.version.outputs.VERSION }}.jar
             fabric-1.21.1/build/libs/rspolymorph-fabric-1.21.1-${{ steps.version.outputs.VERSION }}.jar
             neoforge-26.1.2/build/libs/rspolymorph-neoforge-26.1.2-${{ steps.version.outputs.VERSION }}.jar
+            fabric-26.1.2/build/libs/rspolymorph-fabric-26.1.2-${{ steps.version.outputs.VERSION }}.jar
           fail_on_unmatched_files: true
           draft: false
           prerelease: false

@@ -2,7 +2,7 @@ name: Build & Test
 
 on:
   push:
-    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
+    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2, fabric-26.1.2 ]
     paths:
       - 'common/**'
       - 'neoforge-1.21.1/**'
@@ -11,7 +11,7 @@ on:
       - 'fabric-26.1.2/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2 ]
+    branches: [ main, neoforge-1.21.1, fabric-1.21.1, neoforge-26.1.2, fabric-26.1.2 ]
 
 permissions:
   contents: read
@@ -23,13 +23,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Each target is a standalone Gradle project. fabric-26.1.2 joins once it builds (issue #5).
+        # Each target is a standalone Gradle project.
         include:
           - target: neoforge-1.21.1
             java: '21'
           - target: fabric-1.21.1
             java: '21'
           - target: neoforge-26.1.2
+            java: '25'
+          - target: fabric-26.1.2
             java: '25'
 
     defaults:

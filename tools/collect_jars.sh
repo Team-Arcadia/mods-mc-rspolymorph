@@ -2,8 +2,7 @@
 # Copies the mod jar of every target into jars/<mod version>/ at the repository root (a local
 # folder, not in git): jars/1.2.2/, jars/1.2.3/... so the jars of earlier versions are kept.
 # Run it after building: "./gradlew build" in each target folder, or pass --build to build them all
-# first. A target is a folder named <loader>-<minecraft version> with a build.gradle; a target that
-# is not built yet (fabric-26.1.2) is reported and skipped.
+# first. A target is a folder named <loader>-<minecraft version> with a build.gradle.
 #
 # Author: vyrriox
 set -euo pipefail
