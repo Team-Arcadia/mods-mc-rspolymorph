@@ -138,7 +138,7 @@ dependencies {
 
 // In development Forge 32's own Widget.getHeight() and Mojang's name for func_238483_d_ collide: the class holds
 // the same method twice and the JVM refuses it. Outside of development the names differ, so this only concerns
-// dev clients: they run on a copy of the game without the second one.
+// development tools: they run on a copy of the game without the second one.
 def fixedGameJar = layout.buildDirectory.file('dev-fix/game-fixed.jar')
 def isGameJar = { File file -> file.name.startsWith('forge-') && file.name.contains('_mapped_official') }
 def fixDevWidget = tasks.register('fixDevWidget') {
@@ -168,6 +168,14 @@ def fixDevWidget = tasks.register('fixDevWidget') {
                 }
             }
         }
+    }
+}
+// The renamer of the release jar reads the same class and refuses it for the same reason.
+afterEvaluate {
+    tasks.named('reobfJar').configure { reobf ->
+        reobf.dependsOn fixDevWidget
+        def libraries = files(reobf.libraries.from.toList())
+        reobf.libraries.setFrom(files(fixedGameJar) + libraries.filter { !isGameJar(it) })
     }
 }
 tasks.matching { it.name == 'runClient' || it.name == 'runClientSelftest' }.configureEach { run ->
