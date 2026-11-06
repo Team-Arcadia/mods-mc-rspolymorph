@@ -60,6 +60,7 @@ jobs:
           - { target: forge-1.11.2, java: '8', toolchain: '8', legacy: true }
           - { target: forge-1.11, java: '8', toolchain: '8', legacy: true }
           - { target: forge-1.10.2, java: '8', toolchain: '8', legacy: true }
+          - { target: forge-1.10, java: '8', toolchain: '8', legacy: true }
 
     defaults:
       run:
