@@ -114,14 +114,18 @@ final class SelftestCompat {
         holdPointer(mc);
     }
 
+    /** A released Fabric jar runs on intermediary names, where named reflection on vanilla differs from dev. */
+    static final boolean INTERMEDIARY = net.minecraft.client.MouseHandler.class.getName().contains("class_");
+
     /** Sets the pointer again: the real cursor, if it moves over the window, would overwrite it. */
     static void holdPointer(Minecraft mc) {
         try {
-            for (String name : new String[]{"xpos", "ypos"}) {
-                Field f = net.minecraft.client.MouseHandler.class.getDeclaredField(name);
-                f.setAccessible(true);
-                f.setDouble(mc.mouseHandler, name.equals("xpos") ? pointerX : pointerY);
-            }
+            Field x = net.minecraft.client.MouseHandler.class.getDeclaredField(INTERMEDIARY ? "field_1795" : "xpos");
+            Field y = net.minecraft.client.MouseHandler.class.getDeclaredField(INTERMEDIARY ? "field_1794" : "ypos");
+            x.setAccessible(true);
+            y.setAccessible(true);
+            x.setDouble(mc.mouseHandler, pointerX);
+            y.setDouble(mc.mouseHandler, pointerY);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("cannot move the pointer", e);
         }

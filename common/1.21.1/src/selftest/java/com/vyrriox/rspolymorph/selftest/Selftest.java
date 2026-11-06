@@ -699,7 +699,7 @@ public final class Selftest {
             });
             await("the slot to be hovered", 20, () -> {
                 SelftestCompat.holdPointer(mc);
-                Slot hovered = (Slot) field(screen(), "hoveredSlot");
+                Slot hovered = (Slot) field(screen(), SelftestCompat.INTERMEDIARY ? "field_2787" : "hoveredSlot");
                 return hovered != null && hovered.getItem().getItem() == Items.CLAY_BALL;
             });
         });
@@ -1143,11 +1143,8 @@ public final class Selftest {
     private String gridSearchText() {
         Object search = field(screen(), "searchField");
         if (search == null) return "";
-        try {
-            return (String) search.getClass().getMethod("getValue").invoke(search);
-        } catch (ReflectiveOperationException e) {
-            throw new Failure("cannot read the search box: " + e);
-        }
+        // A cast, not reflection by name: a released Fabric jar runs on intermediary names.
+        return ((net.minecraft.client.gui.components.EditBox) search).getValue();
     }
 
     private static List<Slot> matrixSlots(AbstractContainerMenu menu) {
