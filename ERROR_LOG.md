@@ -237,3 +237,52 @@
 **Root cause:** The source set output lists the folder twice
 **Fix:** jar duplicatesStrategy EXCLUDE and includeEmptyDirs false
 **Prevention:** Build release jars after removing build/classes: a selftest build leaves stale folders
+
+## [2026-11-06 18:33] Refined Storage 1.8 does not load on Forge 30.0.48 and later
+**Context:** Adding forge-1.15.1 on the newest Forge in the maven metadata, 30.0.51
+**Error:** NoSuchMethodError: net.minecraft.item.Item$Properties.setTEISR at RS PatternItem.<init>, during load_registries
+**Root cause:** Forge renamed setTEISR to setISTER between 30.0.43 and 30.0.48, and the only RS build for 1.15.1 was compiled against 30.0.41
+**Fix:** Pin forge_version to 30.0.43 and limit the metadata range to [30.0.43,30.0.48)
+**Prevention:** On a beta RS line, boot the RS jar on the chosen Forge before anything else; the newest Forge of a version is not always the one its mods run on
+
+## [2026-11-06 18:33] A coremod script cannot reach the java global
+**Context:** Marker field added by a Forge JS coremod on Forge 30.0.x
+**Error:** IllegalArgumentException: value [JavaPackage java.lang.Boolean.TRUE] from ASM SymbolTable.addConstant when the class is written
+**Root cause:** The coremod engine filters classes: java.lang.Boolean.TRUE resolves to a JavaPackage object, not a value, and only fails when ASM writes the field
+**Fix:** Pass the plain JS value true to FieldNode
+**Prevention:** In a coremod use only Java.type on the allowed classes and plain JS values
+
+## [2026-11-06 19:07] Refined Storage calls init() directly, past Forge's init event
+**Context:** Attaching the side button from GuiScreenEvent.InitGuiEvent.Post on forge-1.15.1, which has no Mixin
+**Error:** Selftest: 0 side buttons on the screen, 22 checks failed, while the widget existed
+**Root cause:** RS re-inits the screen by calling init() itself (tabs, grid size), which clears its buttons without firing the event; only the final init(Minecraft,int,int) fires it
+**Fix:** A coremod hook at the end of GridScreen.onPostInit, RS's own method, attaches the button
+**Prevention:** Attach anything that lives in a screen's button list from the screen's own post init, not from the Forge init event
+
+## [2026-11-06 19:07] Item lighting darkens overlays on Minecraft 1.14.4
+**Context:** Popup screenshot on forge-1.14.4 using the 1.15.2 Canvas with GlStateManager
+**Error:** Popup title, frame and icons drawn too dark, only visible on a screenshot; no check fails
+**Root cause:** 1.14.4's fixed pipeline keeps the lighting state on after the screen and after item decorations; 1.15 draws without it
+**Fix:** RenderHelper.turnOff when an overlay layer opens and after each item, turnOnGui before each item
+**Prevention:** Look at a popup screenshot on every Minecraft below 1.15
+
+## [2026-11-06 19:30] Stray stack after reload on RS 1.5.28 is plain RS behaviour
+**Context:** Finding the cause of the crafting matrix slot 0 stack seen by the forge-1.12 selftest after a reload
+**Error:** After a reload slot 0 held the input of the processing pattern and slot 1 was empty
+**Root cause:** The onContentsChanged of the patterns handler in RS 1.5.28 copies a pattern in output slot 1 to the matrix when the grid is not in processing mode, and read fires it after the matrix was read. Same result with the coremod off
+**Fix:** The reload check keeps its grid and empties the output slot, the kept pattern case is reported as SKIP, PlainRsProbe reproduces it
+**Prevention:** Compare with the transformers off before changing a test to avoid a symptom
+
+## [2026-11-06 19:30] Removing a coremod from fml.coreMods.load does not disable it in a ForgeGradle 2.3 dev run
+**Context:** Running forge-1.12 without the transformers of the mod
+**Error:** The probe run with the flag still printed node_patched=true
+**Root cause:** GradleStart also reads FMLCorePlugin from the manifest of the mod jar on the class path and adds the coremod back
+**Fix:** The plain_rs property also drops that manifest attribute
+**Prevention:** Print the applied transformers in any run that claims to be without them
+
+## [2026-11-06 19:30] A Java 8 JAVA_HOME breaks the forge-1.12.2 Gradle build
+**Context:** Running the selftests of forge-1.12.2 with the script made for the ForgeGradle 2.3 targets
+**Error:** Could not resolve org.gradle.toolchains:foojay-resolver:1.0.0
+**Root cause:** forge-1.12.2 builds with RetroFuturaGradle on a newer Gradle, only forge-1.12 and below need Java 8
+**Fix:** Run forge-1.12.2 without that JAVA_HOME
+**Prevention:** Set the Java 8 JAVA_HOME only for forge-1.12 and below
