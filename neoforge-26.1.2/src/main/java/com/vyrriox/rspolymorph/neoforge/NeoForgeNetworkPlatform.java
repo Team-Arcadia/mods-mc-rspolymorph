@@ -33,7 +33,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 public final class NeoForgeNetworkPlatform implements NetworkPlatform {
 
     @Override
-    public void sendSelectToServer(Identifier recipeId) {
-        ClientPacketDistributor.sendToServer(new SelectRecipePacket(recipeId));
+    public void sendSelectToServer(int containerId, Identifier recipeId) {
+        ClientPacketDistributor.sendToServer(new SelectRecipePacket(containerId, recipeId));
     }
 }

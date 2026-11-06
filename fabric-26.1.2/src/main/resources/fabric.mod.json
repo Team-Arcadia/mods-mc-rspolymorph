@@ -16,9 +16,6 @@
   "entrypoints": {
     "main": [
       "com.vyrriox.rspolymorph.fabric.RsPolymorphFabric"
-    ],
-    "client": [
-      "com.vyrriox.rspolymorph.fabric.client.RsPolymorphFabricClient"
     ]
   },
   "mixins": [
@@ -29,7 +26,7 @@
     "fabric-api": "*",
     "minecraft": "~${minecraft_version}",
     "java": ">=25",
-    "refinedstorage": "*"
+    "refinedstorage": ">=${refinedstorage_min_version}"
   },
   "suggests": {
     "refinedstorage_quartz_arsenal": "*"

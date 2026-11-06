@@ -25,7 +25,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -76,12 +75,12 @@ public final class RsPolymorphNeoForge {
     }
 
     private void registerPayloads(final RegisterPayloadHandlersEvent event) {
-        event.registrar("1").playToServer(
+        event.registrar("2").playToServer(
                 SelectRecipePacket.TYPE,
                 SelectRecipePacket.STREAM_CODEC,
                 (packet, context) -> context.enqueueWork(() -> {
                     if (context.player() instanceof ServerPlayer player) {
-                        SelectRecipePacket.applyOnServer(player, packet.recipeId());
+                        SelectRecipePacket.applyOnServer(player, packet.containerId(), packet.recipeId());
                     }
                 })
         );
@@ -95,11 +94,5 @@ public final class RsPolymorphNeoForge {
 
         // Bind the attachment-backed grid selection store used by NeoForgeGridRecipeStore.
         NeoForgeGridRecipeStore.bind(GRID_SELECTION);
-
-        // Client widget registration lives in a separate class to keep client-only type
-        // references out of this class's constant pool / lambda methods on a dedicated server.
-        if (FMLEnvironment.dist.isClient()) {
-            com.vyrriox.rspolymorph.client.ClientSetup.init();
-        }
     }
 }

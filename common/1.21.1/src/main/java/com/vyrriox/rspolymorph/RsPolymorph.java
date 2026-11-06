@@ -20,6 +20,7 @@ import com.refinedmods.refinedstorage.common.support.RecipeMatrixContainer;
 import com.vyrriox.rspolymorph.platform.Services;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
@@ -27,23 +28,19 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * Loader-agnostic core for RS Polymorph — integrates Polymorph recipe selection with the
- * Refined Storage 2 grids. This class holds the cross-thread registry maps and the selection
- * state and is shared by both the NeoForge and Fabric entrypoints.
+ * Loader-agnostic core for RS Polymorph, which adds recipe selection to the Refined Storage grids.
+ * It holds the data component, the grid links and the selection logic, and is shared by the NeoForge
+ * and Fabric entrypoints. It keeps no per-grid or per-player state: the links are fields on RS's
+ * own objects (see {@link IRsMatrixContainer} and {@link IRsRecipeMatrix}).
  *
  * IMPORTANT: This class must NEVER reference loader-specific types (NeoForge {@code @Mod},
- * Fabric {@code ModInitializer}, {@code DeferredRegister}, {@code PacketDistributor}, …) or
+ * Fabric {@code ModInitializer}, {@code DeferredRegister}, {@code PacketDistributor}, ...) or
  * client-only types. Loader wiring lives in the {@code neoforge}/{@code fabric} subprojects;
  * the data-component instance is injected by each loader via {@link #setSelectedRecipeComponent}.
  *
- * All client code lives in {@code com.vyrriox.rspolymorph.client} and is reached only on the
- * client dist.
+ * The methods under "Version-specific recipe API" are what differs between Minecraft versions, and
+ * why this class is forked under {@code common/26.1.2}. Keep everything else identical in both.
  *
  * Author: vyrriox
  */
@@ -53,11 +50,12 @@ public final class RsPolymorph {
 
     private RsPolymorph() {}
 
-    // ── Data component ────────────────────────────────────────────────────────
+    // Data component
     /**
      * The {@code selected_recipe} data component, stored on crafting pattern items to persist the
-     * user's Polymorph recipe selection. Registered by each loader (NeoForge {@code DeferredRegister}
-     * / Fabric {@code Registry.register}) and injected here via {@link #setSelectedRecipeComponent}.
+     * recipe the pattern was printed with. Registered by each loader (NeoForge
+     * {@code DeferredRegister} / Fabric {@code Registry.register}) and injected here via
+     * {@link #setSelectedRecipeComponent}.
      */
     private static volatile DataComponentType<ResourceLocation> selectedRecipeComponent;
 
@@ -79,151 +77,90 @@ public final class RsPolymorph {
         return c;
     }
 
-    // ── Registry maps ─────────────────────────────────────────────────────────
-    /** RecipeMatrixContainer → the BlockEntity that owns it. Populated on BE construction. */
-    private static final Map<RecipeMatrixContainer, BlockEntity> CONTAINER_TO_BE =
-            new ConcurrentHashMap<>();
+    // Grid links
 
-    /** RecipeMatrixContainer → the RecipeMatrix wrapping it. Populated on RecipeMatrix construction. */
-    private static final Map<RecipeMatrixContainer, RecipeMatrix<?, ?>> CONTAINER_TO_MATRIX =
-            new ConcurrentHashMap<>();
+    /** Records the block entity owning {@code container}. Called from the grid constructors. */
+    public static void setOwner(RecipeMatrixContainer container, BlockEntity owner) {
+        ((IRsMatrixContainer) container).rspolymorph$setOwner(owner);
+    }
+
+    /** The block entity owning {@code container}, or {@code null} for a BlockEntity-free grid. */
+    public static BlockEntity ownerOf(RecipeMatrixContainer container) {
+        return ((IRsMatrixContainer) container).rspolymorph$getOwner();
+    }
+
+    /** The matrix wrapping {@code container}, or {@code null} for a bare client-side container. */
+    public static RecipeMatrix<?, ?> matrixOf(RecipeMatrixContainer container) {
+        return ((IRsMatrixContainer) container).rspolymorph$getRecipeMatrix();
+    }
+
+    // Selection
 
     /**
-     * RecipeMatrix → the recipe selection chosen for it, for grids that have NO BlockEntity
-     * (e.g. the Quartz Arsenal wireless crafting grid). The BlockEntity-keyed Polymorph
-     * capability cannot persist a selection for these, so we keep it here keyed by the matrix.
-     *
-     * Reclamation is deterministic via {@link #unregisterMatrix} on menu close — that is the
-     * load-bearing mechanism, because {@code CONTAINER_TO_MATRIX} strong-pins each matrix and
-     * would otherwise keep this entry reachable forever. The WeakHashMap with weak keys is kept
-     * only as a best-effort safety net (e.g. if a close hook is ever missed). Wrapped in a
-     * synchronized map because it is touched from the server thread (packet handler), the matrix
-     * mixin's updateResult, and the menu-close hook.
+     * The recipe selected for {@code matrix}: from the persistent store if the grid has a block
+     * entity, otherwise from the matrix itself (e.g. the Quartz Arsenal wireless crafting grid).
      */
-    private static final Map<RecipeMatrix<?, ?>, ResourceLocation> MATRIX_SELECTION =
-            Collections.synchronizedMap(new WeakHashMap<>());
-
-    // ── Selection state ───────────────────────────────────────────────────────
-    /**
-     * Recipe ID chosen by the client via the Polymorph popup.
-     * In singleplayer the JVM is shared, so server-side code reads this directly.
-     * Volatile for cross-thread visibility.
-     */
-    private static volatile ResourceLocation selectedRecipeId = null;
-
-    // ── Public API ────────────────────────────────────────────────────────────
-
-    public static void setSelectedRecipeId(ResourceLocation id) {
-        selectedRecipeId = id;
+    public static ResourceLocation selectionOf(RecipeMatrix<?, ?> matrix) {
+        IRsRecipeMatrix<?, ?> rsMatrix = (IRsRecipeMatrix<?, ?>) matrix;
+        BlockEntity owner = ownerOf(matrix.getMatrix());
+        return owner != null
+                ? Services.GRID_STORE.get(owner, rsMatrix.rspolymorph$getRecipeType())
+                : rsMatrix.rspolymorph$getSelection();
     }
 
-    public static ResourceLocation getSelectedRecipeId() {
-        return selectedRecipeId;
-    }
-
-    public static Map<RecipeMatrixContainer, BlockEntity> getMatrixMap() {
-        return CONTAINER_TO_BE;
-    }
-
-    public static Map<RecipeMatrixContainer, RecipeMatrix<?, ?>> getContainerToMatrixMap() {
-        return CONTAINER_TO_MATRIX;
-    }
-
-    public static void registerContainerBlockEntity(RecipeMatrixContainer container, BlockEntity be) {
-        CONTAINER_TO_BE.put(container, be);
-        reapStaleEntries();
-    }
-
-    public static BlockEntity getBlockEntityForContainer(RecipeMatrixContainer container) {
-        return CONTAINER_TO_BE.get(container);
-    }
-
-    public static void registerMatrixToContainer(RecipeMatrixContainer container, RecipeMatrix<?, ?> matrix) {
-        CONTAINER_TO_MATRIX.put(container, matrix);
-    }
-
-    /**
-     * Reclaims registrations whose owning grid BlockEntity has been removed (block broken / chunk
-     * unloaded). Without this, the strong {@code CONTAINER_TO_BE} / {@code CONTAINER_TO_MATRIX} maps
-     * would pin every wired-grid BlockEntity — and through it an entire {@code ServerLevel} — for
-     * the server lifetime. Called opportunistically at the registration sites, so growth is matched
-     * by cleanup and the maps stay bounded to live grids. Uses the stable vanilla
-     * {@code BlockEntity#isRemoved()}, so it behaves identically across MC versions.
-     */
-    public static void reapStaleEntries() {
-        CONTAINER_TO_BE.entrySet().removeIf(e -> {
-            if (!e.getValue().isRemoved()) return false;
-            RecipeMatrix<?, ?> m = CONTAINER_TO_MATRIX.remove(e.getKey());
-            if (m != null) MATRIX_SELECTION.remove(m);
-            return true;
-        });
-    }
-
-    // ── Per-matrix selection (BlockEntity-free grids, e.g. wireless crafting grid) ──
-
-    /**
-     * Persists a recipe selection for a grid that has no BlockEntity. {@code null} clears it.
-     *
-     * Guarded so the per-matrix store can NEVER shadow a BlockEntity-backed matrix: if the
-     * matrix's container is registered to a BlockEntity, the selection must go through the
-     * persistent grid store ({@code Services.GRID_STORE}) instead, and we ignore the store request.
-     * This keeps path-2 in {@code MixinRecipeMatrix} exclusively the non-BE channel.
-     */
-    public static void setMatrixSelection(RecipeMatrix<?, ?> matrix, ResourceLocation recipeId) {
-        if (matrix == null) return;
-        if (recipeId == null) {
-            MATRIX_SELECTION.remove(matrix);
-            return;
+    /** Stores the selection in the place {@link #selectionOf} reads it from. */
+    public static void select(RecipeMatrix<?, ?> matrix, ResourceLocation recipeId) {
+        IRsRecipeMatrix<?, ?> rsMatrix = (IRsRecipeMatrix<?, ?>) matrix;
+        BlockEntity owner = ownerOf(matrix.getMatrix());
+        if (owner != null) {
+            Services.GRID_STORE.set(owner, rsMatrix.rspolymorph$getRecipeType(), recipeId);
+        } else {
+            rsMatrix.rspolymorph$setSelection(recipeId);
         }
-        // BE-backed matrix → use the persistent grid store path, not this in-memory store.
-        if (CONTAINER_TO_BE.get(matrix.getMatrix()) != null) return;
-        MATRIX_SELECTION.put(matrix, recipeId);
-    }
-
-    /** Returns the per-matrix recipe selection, or {@code null} if none was stored. */
-    public static ResourceLocation getMatrixSelection(RecipeMatrix<?, ?> matrix) {
-        if (matrix == null) return null;
-        return MATRIX_SELECTION.get(matrix);
     }
 
     /**
-     * Deterministically reclaims the registrations for a BlockEntity-free grid's crafting matrix
-     * when its menu closes. Removes the strong {@code CONTAINER_TO_MATRIX} entry (the actual leak
-     * root — the WeakHashMap selection store alone cannot collect because this map strong-pins the
-     * matrix) and the per-matrix selection in one go.
+     * Resolves {@code recipeId} for a matrix of the given type and input. The type is checked BEFORE
+     * {@code matches}: a recipe of another type expects another input class, and its bridge method
+     * would throw ClassCastException.
      *
-     * CONTRACT: only call for grids that have NO BlockEntity. For BE-backed grids the mapping is
-     * owned by the BlockEntity lifecycle and must not be dropped on menu close.
-     */
-    public static void unregisterMatrix(RecipeMatrixContainer container) {
-        if (container == null) return;
-        RecipeMatrix<?, ?> m = CONTAINER_TO_MATRIX.remove(container);
-        if (m != null) MATRIX_SELECTION.remove(m);
-    }
-
-    /**
-     * Returns the Polymorph-persisted recipe for the given matrix, if one was selected
-     * and still matches the current grid inputs. Returns null otherwise.
+     * @return the recipe, or {@code null} if it is unknown, of another type, or does not match
      */
     @SuppressWarnings("unchecked")
-    public static RecipeHolder<?> getRecipe(RecipeMatrix<?, ?> matrix, Level level) {
-        if (matrix.getMatrix().isEmpty()) return null;
+    public static <T extends Recipe<I>, I extends RecipeInput> RecipeHolder<T> resolve(
+            Level level, ResourceLocation recipeId, RecipeType<T> type, I input) {
+        RecipeHolder<?> holder = findRecipe(level, recipeId);
+        if (holder == null) return null;
+        RecipeType<?> actualType = holder.value().getType();
+        if (actualType != type) return null;
+        return ((Recipe<I>) holder.value()).matches(input, level) ? (RecipeHolder<T>) holder : null;
+    }
 
-        BlockEntity be = CONTAINER_TO_BE.get(matrix.getMatrix());
-        if (be == null) return null;
-        if (!(matrix instanceof IRsRecipeMatrix<?, ?> rsMatrix)) return null;
+    /** True if {@code recipeId} is a recipe of the matrix's type that matches its current input. */
+    @SuppressWarnings("unchecked")
+    public static boolean matchesCurrentInput(RecipeMatrix<?, ?> matrix, ResourceLocation recipeId, Level level) {
+        IRsRecipeMatrix<Recipe<RecipeInput>, RecipeInput> rsMatrix =
+                (IRsRecipeMatrix<Recipe<RecipeInput>, RecipeInput>) (Object) matrix;
+        RecipeInput input = rsMatrix.rspolymorph$getInputProvider().apply(matrix.getMatrix());
+        return input != null
+                && resolve(level, recipeId, rsMatrix.rspolymorph$getRecipeType(), input) != null;
+    }
 
-        RecipeType<?> type = rsMatrix.rspolymorph$getRecipeType();
-        ResourceLocation selectedId = Services.GRID_STORE.get(be, type);
-        if (selectedId == null) return null;
+    // Version-specific recipe API
 
-        RecipeHolder<?> selected = level.getRecipeManager().byKey(selectedId).orElse(null);
-        if (selected == null) return null;
+    /** The recipe with this id, or {@code null}. Server side only on the 26.x line. */
+    public static RecipeHolder<?> findRecipe(Level level, ResourceLocation recipeId) {
+        return level.getRecipeManager().byKey(recipeId).orElse(null);
+    }
 
-        // Validate the stored selection is still of the right type and matches the current inputs.
-        if (selected.value().getType() != type) return null;
-        Recipe<RecipeInput> recipe = (Recipe<RecipeInput>) selected.value();
-        RecipeInput input = (RecipeInput) rsMatrix.rspolymorph$getInputProvider().apply(matrix.getMatrix());
-        return (input != null && recipe.matches(input, level)) ? selected : null;
+    /** The id of {@code holder} as the type stored in selections and on patterns. */
+    public static ResourceLocation recipeId(RecipeHolder<?> holder) {
+        return holder.id();
+    }
+
+    /** Assembles the output of {@code holder} for {@code input}. */
+    @SuppressWarnings("unchecked")
+    public static ItemStack assemble(RecipeHolder<?> holder, RecipeInput input, Level level) {
+        return ((Recipe<RecipeInput>) holder.value()).assemble(input, level.registryAccess());
     }
 }

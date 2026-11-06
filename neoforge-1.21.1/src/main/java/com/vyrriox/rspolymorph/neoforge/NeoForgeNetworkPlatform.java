@@ -29,7 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public final class NeoForgeNetworkPlatform implements NetworkPlatform {
 
     @Override
-    public void sendSelectToServer(ResourceLocation recipeId) {
-        PacketDistributor.sendToServer(new SelectRecipePacket(recipeId));
+    public void sendSelectToServer(int containerId, ResourceLocation recipeId) {
+        PacketDistributor.sendToServer(new SelectRecipePacket(containerId, recipeId));
     }
 }

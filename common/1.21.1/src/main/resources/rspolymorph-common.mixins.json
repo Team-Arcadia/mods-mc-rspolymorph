@@ -6,10 +6,8 @@
   "refmap": "rspolymorph.refmap.json",
   "mixins": [
     "MixinRecipeMatrix",
-    "AccessorAbstractGridContainerMenu",
-    "AccessorAbstractCraftingGridContainerMenu",
     "AccessorRecipeMatrix",
-    "MixinAbstractGridContainerMenu",
+    "MixinRecipeMatrixContainer",
     "MixinCraftingGrid",
     "MixinPatternGrid",
     "MixinPatternResolver"
@@ -19,7 +17,8 @@
     "MixinAbstractGridScreenRender",
     "MixinAbstractContainerScreenOffset",
     "MixinScreenTooltipSuppress",
-    "MixinScreenKeyDismiss"
+    "MixinScreenKeyDismiss",
+    "MixinContainerScreenRemoved"
   ],
   "injectors": {
     "defaultRequire": 1

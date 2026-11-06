@@ -42,8 +42,6 @@ def forkDir = file("../common/${minecraft_version}/src/main")
 def forkedFor261 = [
         'com/vyrriox/rspolymorph/mixin/MixinPatternResolver.java',
         'com/vyrriox/rspolymorph/RsPolymorph.java',
-        'com/vyrriox/rspolymorph/network/SelectRecipePacket.java',
-        'com/vyrriox/rspolymorph/mixin/MixinRecipeMatrix.java',
         'com/vyrriox/rspolymorph/client/RsGridRecipeWidget.java',
         'com/vyrriox/rspolymorph/client/RecipeSelectorPopup.java',
         'com/vyrriox/rspolymorph/client/TutorialOverlay.java',
@@ -52,10 +50,12 @@ def forkedFor261 = [
         'com/vyrriox/rspolymorph/mixin/MixinScreenPopupRender.java',
         'com/vyrriox/rspolymorph/mixin/MixinAbstractContainerScreenOffset.java',
         'com/vyrriox/rspolymorph/mixin/MixinScreenTooltipSuppress.java',
+        // 26.x key handling takes a KeyEvent, not the three ints of 1.21.1.
+        'com/vyrriox/rspolymorph/mixin/MixinScreenKeyDismiss.java',
 ]
 
 def remappedJava = layout.buildDirectory.dir('remapped-common/java')
-def remapCommonSources = tasks.register('remapCommonSources', Copy) {
+def remapCommonSources = tasks.register('remapCommonSources', Sync) {
     from(new File(sharedDir, 'java')) {
         forkedFor261.each { exclude it }
         filter { String line ->
@@ -69,7 +69,7 @@ def remapCommonSources = tasks.register('remapCommonSources', Copy) {
 }
 
 def mergedResources = layout.buildDirectory.dir('merged-resources')
-def mergeResources = tasks.register('mergeResources', Copy) {
+def mergeResources = tasks.register('mergeResources', Sync) {
     from(new File(sharedDir, 'resources')) {
         exclude 'data/rspolymorph/recipe/**'
         exclude 'rspolymorph-common.mixins.json'
@@ -113,6 +113,7 @@ processResources {
             version              : mod_version,
             minecraft_version    : minecraft_version,
             fabric_loader_version: fabric_loader_version,
+            refinedstorage_min_version: refinedstorage_min_version,
             mod_id               : mod_id,
             mod_name             : mod_name,
             mod_author           : mod_author,

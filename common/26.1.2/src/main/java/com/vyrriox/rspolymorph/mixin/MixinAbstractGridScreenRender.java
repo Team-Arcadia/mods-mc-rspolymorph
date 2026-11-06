@@ -17,6 +17,7 @@ package com.vyrriox.rspolymorph.mixin;
 
 import com.refinedmods.refinedstorage.common.grid.screen.AbstractGridScreen;
 import com.vyrriox.rspolymorph.client.RsGridRecipeWidget;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,9 +52,10 @@ public abstract class MixinAbstractGridScreenRender {
     )
     private void rspolymorph$popupClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         RsGridRecipeWidget widget = RsGridRecipeWidget.getActiveInstance();
-        // Route the click when EITHER the popup or the first-open tutorial card is up — both are
-        // handled by handleClick. Gating only on isPopupOpen() left the tutorial undismissable.
-        if (widget == null || (!widget.isPopupOpen() && !widget.isShowingTutorial())) return;
+        if (widget == null || !widget.isOpenForScreen((AbstractContainerScreen<?>) (Object) this)) return;
+        // Route the click when EITHER the popup or the first-open tutorial card is up: both are
+        // handled by handleClick.
+        if (!widget.isPopupOpen() && !widget.isShowingTutorial()) return;
         if (widget.handleClick(event.x(), event.y())) {
             cir.setReturnValue(true); // consumed — don't let the click reach slots
         }
