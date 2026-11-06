@@ -146,3 +146,17 @@
 **Root cause:** Reobfuscation rewrites code references but not the strings given to reflection
 **Fix:** ObfuscationReflectionHelper with SRG names for the fields, a plain cast for the search box
 **Prevention:** A selftest meant to prove the released jar reflects only on the mod's own names or through SRG names
+
+## [2026-11-06 16:18] Forge 1.18.1 selftest server hook
+**Context:** Porting MixinGameTestServerSelftest to forge-1.18.1
+**Error:** IllegalArgumentException: No test batches were given, then Redirector failed injection check (0/1), scanned 1 target
+**Root cause:** 1.18.1 has no GameTestServer.create and its private constructor throws on an empty list before initServer; method <init> matched only the first constructor
+**Fix:** A 1.18.1 fork redirects Collection.isEmpty in method <init>* and starts the selftest there
+**Prevention:** Read the constructors of the target when a mixin hook must run before them; use <init>* when a class has several
+
+## [2026-11-06 16:18] Sync task keeps stale filtered sources
+**Context:** Changing adaptLine in forge-1.19.2/build.gradle
+**Error:** javac kept reporting the line the new filter should have rewritten
+**Root cause:** Gradle does not track a filter closure as an input, so assembleCommonSources stayed up to date
+**Fix:** inputs.file(buildFile) on assembleCommonSources
+**Prevention:** A Sync with a filter closure declares the file holding the closure as an input
