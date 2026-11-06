@@ -47,6 +47,8 @@ public final class NeoForgeGridRecipeStore implements GridRecipeStore {
     @Override
     public ResourceLocation get(BlockEntity be, RecipeType<?> type) {
         if (be == null || attachment == null) return null;
+        // getData would create and attach the default value on every grid that is only read.
+        if (!be.hasData(attachment.get())) return null;
         ResourceLocation typeId = GridSelectionData.typeId(type);
         if (typeId == null) return null;
         Map<ResourceLocation, ResourceLocation> map = be.getData(attachment.get());
@@ -65,11 +67,7 @@ public final class NeoForgeGridRecipeStore implements GridRecipeStore {
         // back (setData also marks the BE dirty so the change is saved).
         Map<ResourceLocation, ResourceLocation> current = be.getData(attachment.get());
         Map<ResourceLocation, ResourceLocation> next = new HashMap<>(current);
-        if (recipeId == null) {
-            next.remove(typeId);
-        } else {
-            next.put(typeId, recipeId);
-        }
+        next.put(typeId, recipeId);
         be.setData(attachment.get(), next);
         be.setChanged();
     }

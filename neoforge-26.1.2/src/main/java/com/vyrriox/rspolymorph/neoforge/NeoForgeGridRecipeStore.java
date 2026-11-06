@@ -47,6 +47,8 @@ public final class NeoForgeGridRecipeStore implements GridRecipeStore {
     @Override
     public Identifier get(BlockEntity be, RecipeType<?> type) {
         if (be == null || attachment == null) return null;
+        // getData would create and attach the default value on every grid that is only read.
+        if (!be.hasData(attachment.get())) return null;
         Identifier typeId = GridSelectionData.typeId(type);
         if (typeId == null) return null;
         Map<Identifier, Identifier> map = be.getData(attachment.get());
@@ -64,11 +66,7 @@ public final class NeoForgeGridRecipeStore implements GridRecipeStore {
         // UnsupportedOperationException. Copy-on-write into a fresh mutable map, then setData it back.
         Map<Identifier, Identifier> current = be.getData(attachment.get());
         Map<Identifier, Identifier> next = new HashMap<>(current);
-        if (recipeId == null) {
-            next.remove(typeId);
-        } else {
-            next.put(typeId, recipeId);
-        }
+        next.put(typeId, recipeId);
         be.setData(attachment.get(), next);
         be.setChanged();
     }

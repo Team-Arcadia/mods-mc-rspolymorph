@@ -62,11 +62,7 @@ public final class FabricGridRecipeStore implements GridRecipeStore {
         Map<Identifier, Identifier> map = be.getAttached(GRID_SELECTION);
         // Copy-on-write: never mutate a possibly-shared default instance in place.
         Map<Identifier, Identifier> next = map == null ? new HashMap<>() : new HashMap<>(map);
-        if (recipeId == null) {
-            next.remove(typeId);
-        } else {
-            next.put(typeId, recipeId);
-        }
+        next.put(typeId, recipeId);
         be.setAttached(GRID_SELECTION, next);
         be.setChanged();
     }

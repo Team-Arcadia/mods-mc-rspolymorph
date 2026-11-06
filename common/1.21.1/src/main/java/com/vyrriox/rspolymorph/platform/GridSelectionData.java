@@ -28,7 +28,7 @@ import java.util.Map;
  * implementations. The selection is a small map of {@code recipeTypeId -> recipeId}.
  *
  * {@link RecipeType} has no built-in codec, so it is keyed by its registry id via
- * {@link BuiltInRegistries#RECIPE_TYPE}. Unresolved type ids are skipped on read.
+ * {@link BuiltInRegistries#RECIPE_TYPE}. An entry whose type or recipe is gone is simply never read.
  *
  * Author: vyrriox
  */
