@@ -145,6 +145,7 @@ processResources {
 jar {
     // The resources sit in the folder of the classes, so the output lists them twice.
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    includeEmptyDirs = false
     manifest {
         attributes(
                 'FMLCorePlugin': 'com.vyrriox.rspolymorph.coremod.RsPolymorphCoremod',
