@@ -97,3 +97,52 @@
 **Root cause:** RS discovers nodes from the entity place event only, which setblock does not fire, so the first run tested the no-network path of RS
 **Fix:** The selftest asks the controller's node graph to invalidate after each placed block and waits for the connected state before opening the grid
 **Prevention:** A selftest on RS 1.x checks isGridActive before trusting a crafting result
+
+## [2026-11-06 15:11] fg.deobf on a flat folder jar needs a version in the coordinate
+**Context:** Adding a Polymorph+ jar to the forge-1.16.5 dev runs with -PpolymorphJar, through ForgeGradle 6
+**Error:** Could not find local.polymorph:polymorph_plus-forge-1.4.2+1.16.5:null_mapped_official_1.16.5
+**Root cause:** fg.deobf builds the mapped coordinate from group, name and version; a coordinate with no version turns into the literal null
+**Fix:** Split the jar name at the first dash followed by a digit into name and version, a flat folder finds name-version.jar again
+**Prevention:** On ForgeGradle always give fg.deobf a full group:name:version coordinate, also for local jars
+
+## [2026-11-06 15:11] 1.16.5 selftest server has neither game test launch nor class load log
+**Context:** Porting the dedicated server selftest to Forge 36 on Java 8
+**Error:** No GameTestServer class in 1.16.5, -Xlog:class+load does not exist on Java 8, and four net.minecraft.client classes count as loaded on a dedicated server
+**Root cause:** The game test launch came with 1.17; Main reads the EULA before Bootstrap and ServerModLoader; the mappings of the time name some common classes under net.minecraft.client
+**Fix:** A selftest mixin at the head of net.minecraft.server.Main loads the mods itself and halts before eula.txt is read; ClassLoader.classes replaces the class load log; the four shared classes are listed by name
+**Prevention:** On the Java 8 line prove the server distribution from Main HEAD and never accept the EULA; world and packet proofs come from the client run
+
+## [2026-11-06 15:32] Selftest shift craft check flaky under machine load
+**Context:** forge-1.16.5 client selftest with many other JVMs running, server 11 s behind
+**Error:** RSP-SELFTEST FAIL crafting.shift_craft_full_stack: timed out waiting for the result, while the next check on the same selection passed
+**Root cause:** Most likely a race in the test: clicks read the client copy of the inventory right after the server count matched, and the wait was 20 ticks. Inferred from the log, not reproduced in isolation
+**Fix:** Wait for the client copy and for the first stack in the matrix before the next click, and 100 ticks for the result. The next run gave fail=0
+**Prevention:** A selftest click must wait on the client state it reads, never only on the server state
+
+## [2026-11-06 16:06] Forge 1.12.2 mod lang files ignored without pack.mcmeta
+**Context:** First selftest screenshot of the forge-1.12.2 target
+**Error:** Tutorial card shows raw keys such as rspolymorph.tutorial.title
+**Root cause:** FML treats a mod with no pack.mcmeta as pack format 2 and wraps it in LegacyV2Adapter, which looks for en_US.lang rather than en_us.lang
+**Fix:** Added pack.mcmeta with pack_format 3 to common/1.12.2/src/main/resources and a selftest check of both languages
+**Prevention:** Any 1.11 or 1.12 target with lowercase lang files ships a pack.mcmeta of format 3
+
+## [2026-11-06 16:06] RS re-inits GuiGrid with no Forge event and drops the side button
+**Context:** Side button added from InitGuiEvent.Post on the 1.12.2 grid screen
+**Error:** Selftest: crafting.button_opens_popup closed, and the button missing from the popup screenshot though visible was true
+**Root cause:** TileGrid parameters call GuiBase.initGui through executeLater directly, which clears buttonList without firing InitGuiEvent
+**Fix:** ClientEvents re-attaches the button when the last frame did not draw it
+**Prevention:** Do not assume a button added from InitGuiEvent stays on an RS screen; check the real button list in the selftest, not only a flag
+
+## [2026-11-06 16:06] RetroFuturaGradle 2.x needs a Java 25 Gradle JVM
+**Context:** forge-1.12.2 toolchain with RFG 2.0.6 and 2.0.3 on JDK 21
+**Error:** UnsupportedClassVersionError: UserDevPlugin class file version 69.0
+**Root cause:** RFG 2.0.x is compiled for Java 25
+**Fix:** Pinned RFG 1.4.9 on Gradle 8.14.4, which runs on JDK 21 and still compiles for Java 8
+**Prevention:** Pin RFG 1.4.9 unless the daemon runs on Java 25
+
+## [2026-11-06 16:10] Selftest reflected on development names, unusable on a production client
+**Context:** Running the forge-1.16.5 selftest jar in a Forge client installed by its installer, on SRG names
+**Error:** Fields hoveredSlot, xpos, ypos and the method getValue exist only under development names
+**Root cause:** Reobfuscation rewrites code references but not the strings given to reflection
+**Fix:** ObfuscationReflectionHelper with SRG names for the fields, a plain cast for the search box
+**Prevention:** A selftest meant to prove the released jar reflects only on the mod's own names or through SRG names
