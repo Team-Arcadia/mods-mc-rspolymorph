@@ -15,10 +15,11 @@
  */
 package com.vyrriox.rspolymorph.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.refinedmods.refinedstorage.common.autocrafting.PatternResolver;
 import com.refinedmods.refinedstorage.common.autocrafting.PatternState;
 import com.vyrriox.rspolymorph.RsPolymorph;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -31,19 +32,18 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
 /**
- * Forces PatternResolver to use the Polymorph-selected recipe when resolving a crafting pattern
- * that was created with a specific recipe choice stored in a custom data component.
+ * Makes PatternResolver use the recipe stored in a crafting pattern's data component.
  *
  * Flow:
  *  1. HEAD injection on the public getCraftingPattern(ItemStack, ...) reads the stored recipe ID
  *     into a ThreadLocal.
- *  2. @Redirect on the getRecipeFor call inside the private overload prefers that recipe.
+ *  2. @WrapOperation on the getRecipeFor call inside the private overload prefers that recipe: a
+ *     direct lookup, with no scan of the recipe list unless it no longer applies.
  *  3. RETURN injection cleans up the ThreadLocal.
  *
  * Author: vyrriox
@@ -51,7 +51,7 @@ import java.util.Optional;
 @Mixin(value = PatternResolver.class, remap = false)
 public class MixinPatternResolver {
 
-    /** Per-thread override: set while resolving a pattern that has a Polymorph selection. */
+    /** Per-thread override: set while resolving a pattern that stores a recipe. */
     private static final ThreadLocal<ResourceLocation> ACTIVE_RECIPE_OVERRIDE = new ThreadLocal<>();
 
     @Inject(
@@ -64,8 +64,7 @@ public class MixinPatternResolver {
             Level level,
             PatternState patternState,
             CallbackInfoReturnable<Optional<?>> cir) {
-        DataComponentType<ResourceLocation> comp = RsPolymorph.selectedRecipeComponent();
-        ACTIVE_RECIPE_OVERRIDE.set(stack.get(comp));
+        ACTIVE_RECIPE_OVERRIDE.set(stack.get(RsPolymorph.selectedRecipeComponent()));
     }
 
     @Inject(
@@ -81,12 +80,7 @@ public class MixinPatternResolver {
         ACTIVE_RECIPE_OVERRIDE.remove();
     }
 
-    /**
-     * Redirects the getRecipeFor call inside the private getCraftingPattern overload.
-     * When a Polymorph override is active, prefers the specifically-selected recipe
-     * over the first match returned by getRecipeFor.
-     */
-    @Redirect(
+    @WrapOperation(
         method = "getCraftingPattern(Lnet/minecraft/world/level/Level;Lcom/refinedmods/refinedstorage/common/autocrafting/PatternState;Lcom/refinedmods/refinedstorage/common/autocrafting/CraftingPatternState;)Ljava/util/Optional;",
         at = @At(
             value = "INVOKE",
@@ -94,23 +88,21 @@ public class MixinPatternResolver {
         ),
         remap = false
     )
-    private Optional<RecipeHolder<CraftingRecipe>> RSPOLYMORPH_redirectGetRecipeFor(
+    private Optional<RecipeHolder<CraftingRecipe>> RSPOLYMORPH_wrapGetRecipeFor(
             RecipeManager manager,
             RecipeType<CraftingRecipe> type,
             RecipeInput input,
-            Level level) {
-        // PatternResolver always passes CraftingInput here — cast is safe
-        CraftingInput craftingInput = (CraftingInput) input;
+            Level level,
+            Operation<Optional<RecipeHolder<CraftingRecipe>>> original) {
         ResourceLocation override = ACTIVE_RECIPE_OVERRIDE.get();
         if (override != null) {
-            Optional<RecipeHolder<CraftingRecipe>> found =
-                    manager.getRecipesFor(type, craftingInput, level).stream()
-                            .filter(h -> h.id().equals(override))
-                            .findFirst();
-            if (found.isPresent()) {
-                return found;
+            // PatternResolver always passes a CraftingInput here.
+            RecipeHolder<CraftingRecipe> selected =
+                    RsPolymorph.resolve(level, override, type, (CraftingInput) input);
+            if (selected != null) {
+                return Optional.of(selected);
             }
         }
-        return manager.getRecipeFor(type, craftingInput, level);
+        return original.call(manager, type, input, level);
     }
 }
