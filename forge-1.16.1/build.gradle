@@ -40,6 +40,7 @@ if (selftest) {
 
 def assembleCommonSources = tasks.register('assembleCommonSources', Sync) {
     inputs.property('selftest', selftest)
+    inputs.file(buildFile)
     from(new File(commonDir, 'main/java')) {
         exclude(forkedMain)
     }
