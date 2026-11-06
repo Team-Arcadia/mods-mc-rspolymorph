@@ -18,10 +18,13 @@ package com.vyrriox.rspolymorph.selftest;
 import com.vyrriox.rspolymorph.RecipeAccess;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -46,6 +49,8 @@ public final class SelftestMod {
     public static final String ID = "rspolymorph_selftest";
     public static ResourceLocation RECIPE_DIAMOND;
     public static ResourceLocation RECIPE_EMERALD;
+    public static ResourceLocation RECIPE_REMAINDER_STICK;
+    public static ResourceLocation RECIPE_REMAINDER_BONE;
     /** A real recipe that never matches the conflict. */
     public static ResourceLocation RECIPE_STICK;
 
@@ -53,6 +58,8 @@ public final class SelftestMod {
     public void preInit(FMLPreInitializationEvent event) {
         RECIPE_DIAMOND = conflict(new ItemStack(Items.DIAMOND));
         RECIPE_EMERALD = conflict(new ItemStack(Items.EMERALD));
+        RECIPE_REMAINDER_STICK = withRemainder(new ItemStack(Items.COAL), Items.STICK);
+        RECIPE_REMAINDER_BONE = withRemainder(new ItemStack(Items.REDSTONE), Items.BONE);
     }
 
     private static ResourceLocation conflict(ItemStack output) {
@@ -60,6 +67,23 @@ public final class SelftestMod {
         inputs.add(new ItemStack(Blocks.GRAVEL));
         inputs.add(new ItemStack(Items.FLINT));
         IRecipe recipe = new ShapelessRecipes(output, inputs);
+        GameRegistry.addRecipe(recipe);
+        return RecipeAccess.idOf(recipe);
+    }
+
+    /** Same ingredients for both, and a remainder that tells which recipe was crafted. */
+    private static ResourceLocation withRemainder(ItemStack output, Item remainder) {
+        List<ItemStack> inputs = new ArrayList<>();
+        inputs.add(new ItemStack(Items.CLAY_BALL));
+        inputs.add(new ItemStack(Blocks.SAND));
+        IRecipe recipe = new ShapelessRecipes(output, inputs) {
+            @Override
+            public NonNullList<ItemStack> getRemainingItems(InventoryCrafting matrix) {
+                NonNullList<ItemStack> left = NonNullList.withSize(matrix.getSizeInventory(), ItemStack.EMPTY);
+                left.set(0, new ItemStack(remainder));
+                return left;
+            }
+        };
         GameRegistry.addRecipe(recipe);
         return RecipeAccess.idOf(recipe);
     }

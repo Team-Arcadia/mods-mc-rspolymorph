@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -55,6 +56,17 @@ public final class GridHooks {
         }
         grid.rspolymorph$setCurrentRecipe(recipe);
         return recipe == null ? ItemStack.EMPTY : recipe.getCraftingResult(matrix);
+    }
+
+    /**
+     * In place of {@code CraftingManager.getRemainingItems} in {@code onCrafted}: vanilla would give the
+     * remainders of its first match, not those of the recipe that was just crafted.
+     */
+    public static NonNullList<ItemStack> remainders(CraftingManager manager, InventoryCrafting matrix, World world, IRsPolymorphGrid grid) {
+        IRecipe current = grid.rspolymorph$getCurrentRecipe();
+        return current != null && current.matches(matrix, world)
+                ? current.getRemainingItems(matrix)
+                : manager.getRemainingItems(matrix, world);
     }
 
     /** At the head of the grid's {@code read}: reading the matrix fires the method above. */

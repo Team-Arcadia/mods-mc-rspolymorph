@@ -39,8 +39,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * The only bytecode this mod changes, in two Refined Storage classes:
  * <ul>
  * <li>{@code NetworkNodeGrid}: a field for the selection with its accessors, a call at the head of
- * {@code onCraftingMatrixChanged}, {@code read} and {@code write}, and one on the stack that
- * {@code onCreatePattern} puts in the output slot;</li>
+ * {@code onCraftingMatrixChanged}, {@code read} and {@code write}, one on the stack that
+ * {@code onCreatePattern} puts in the output slot, and the vanilla remainder lookup of
+ * {@code onCrafted} replaced;</li>
  * <li>{@code CraftingPattern}: one call on the recipe iterator of the constructor.</li>
  * </ul>
  * No Minecraft method name appears here, so nothing depends on the mappings. No branch is added
@@ -61,6 +62,9 @@ public final class GridTransformer implements IClassTransformer {
     private static final String HOOKS = "com/vyrriox/rspolymorph/GridHooks";
     private static final String GRID_ITF = "com/vyrriox/rspolymorph/IRsPolymorphGrid";
     private static final String L_GRID_ITF = "L" + GRID_ITF + ";";
+    private static final String L_MATRIX = "Lnet/minecraft/inventory/InventoryCrafting;";
+    private static final String L_WORLD = "Lnet/minecraft/world/World;";
+    private static final String L_LIST = "Lnet/minecraft/util/NonNullList;";
     private static final String L_STACK = "Lnet/minecraft/item/ItemStack;";
     private static final String L_TAG = "Lnet/minecraft/nbt/NBTTagCompound;";
     private static final String L_RECIPE = "Lnet/minecraft/item/crafting/IRecipe;";
@@ -120,7 +124,8 @@ public final class GridTransformer implements IClassTransformer {
         MethodNode write = find(node, "write", "(" + L_TAG + ")" + L_TAG);
         MethodNode create = find(node, "onCreatePattern", "()V");
         AbstractInsnNode setSlot = create == null ? null : findSetOutputSlot(create);
-        if (!hasRecipeField || changed == null || read == null || write == null || setSlot == null) {
+        AbstractInsnNode[] remainders = findRemainderLookup(node);
+        if (!hasRecipeField || changed == null || read == null || write == null || setSlot == null || remainders == null) {
             return null;
         }
 
@@ -141,12 +146,48 @@ public final class GridTransformer implements IClassTransformer {
                 "(" + L_STACK + L_GRID_ITF + ")" + L_STACK, false));
         create.instructions.insertBefore(setSlot, tag);
 
+        // The matrix and world are on the stack already. Local 0 is the grid: this, or the first
+        // parameter of the static onCrafted that the other grids of Refined Storage share.
+        InsnList remainder = new InsnList();
+        remainder.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        remainder.add(new MethodInsnNode(Opcodes.INVOKESTATIC, HOOKS, "remainders",
+                "(" + L_MATRIX + L_WORLD + "Ljava/lang/Object;)" + L_LIST, false));
+        MethodNode crafted = onCraftedOf(node, remainders[0]);
+        crafted.instructions.insert(remainders[0], remainder);
+        crafted.instructions.remove(remainders[0]);
+
         List<String> hooks = new ArrayList<>();
         hooks.add("onCraftingMatrixChanged");
         hooks.add("read");
         hooks.add("write");
         hooks.add("onCreatePattern");
+        hooks.add("onCrafted");
         return hooks;
+    }
+
+    /** {@code CraftingManager.getRemainingItems}, found by its owner and descriptor: the name is obfuscated. */
+    private static AbstractInsnNode[] findRemainderLookup(ClassNode node) {
+        String desc = "(" + L_MATRIX + L_WORLD + ")" + L_LIST;
+        for (MethodNode method : node.methods) {
+            if ("onCrafted".equals(method.name)) {
+                for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+                    if (insn instanceof MethodInsnNode && CRAFTING_MANAGER.equals(((MethodInsnNode) insn).owner)
+                            && desc.equals(((MethodInsnNode) insn).desc)) {
+                        return new AbstractInsnNode[]{insn};
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static MethodNode onCraftedOf(ClassNode node, AbstractInsnNode insn) {
+        for (MethodNode method : node.methods) {
+            if ("onCrafted".equals(method.name) && method.instructions.contains(insn)) {
+                return method;
+            }
+        }
+        throw new IllegalStateException("onCrafted");
     }
 
     private static List<String> patchPattern(ClassNode node) {

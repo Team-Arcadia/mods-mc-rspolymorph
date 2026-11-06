@@ -121,7 +121,7 @@ public final class ServerSelftest {
         Class.forName("com.raoulvdberge.refinedstorage.apiimpl.autocrafting.CraftingPattern", true, Launch.classLoader);
         Class<?> transformer = Class.forName(GridTransformer.class.getName(), true, Launch.classLoader);
         Object hooks = transformer.getMethod("applied").invoke(null);
-        check("dist.all_hooks_applied", ((List<?>) hooks).size() == 5, String.valueOf(hooks));
+        check("dist.all_hooks_applied", ((List<?>) hooks).size() == 6, String.valueOf(hooks));
 
         // The server's proxy resolves; its class is what @SidedProxy names for this side.
         Class<?> proxy = Class.forName("com.vyrriox.rspolymorph.forge.CommonProxy", true, Launch.classLoader);

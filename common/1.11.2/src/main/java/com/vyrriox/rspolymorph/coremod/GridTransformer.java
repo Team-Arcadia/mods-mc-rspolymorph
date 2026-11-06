@@ -39,8 +39,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * The only bytecode this mod changes, in two Refined Storage classes:
  * <ul>
  * <li>the grid: two fields with their accessors, the vanilla recipe lookup of
- * {@code onCraftingMatrixChanged} replaced, a call at the head of {@code read} and {@code write}, and
- * one on the stack that {@code onCreatePattern} puts in the output slot;</li>
+ * {@code onCraftingMatrixChanged} and the vanilla remainder lookup of {@code onCrafted} replaced, a
+ * call at the head of {@code read} and {@code write}, and one on the stack that
+ * {@code onCreatePattern} puts in the output slot;</li>
  * <li>{@code CraftingPattern}: one call on the recipe list of the constructor.</li>
  * </ul>
  * Vanilla methods are found by owner and descriptor, so no Minecraft method name appears here and
@@ -64,6 +65,7 @@ public final class GridTransformer implements IClassTransformer {
     private static final String L_MANAGER = "L" + CRAFTING_MANAGER + ";";
     private static final String L_MATRIX = "Lnet/minecraft/inventory/InventoryCrafting;";
     private static final String L_WORLD = "Lnet/minecraft/world/World;";
+    private static final String L_NON_NULL = "Lnet/minecraft/util/NonNullList;";
     private static final String L_STACK = "Lnet/minecraft/item/ItemStack;";
     private static final String L_TAG = "Lnet/minecraft/nbt/NBTTagCompound;";
     private static final String L_RECIPE = "Lnet/minecraft/item/crafting/IRecipe;";
@@ -122,7 +124,10 @@ public final class GridTransformer implements IClassTransformer {
         MethodNode create = find(node, "onCreatePattern", "()V");
         AbstractInsnNode lookup = changed == null ? null : findRecipeLookup(changed);
         AbstractInsnNode setSlot = create == null ? null : findSetOutputSlot(create);
-        if (lookup == null || read == null || write == null || setSlot == null) {
+        MethodNode crafted = find(node, "onCrafted", "(Lnet/minecraft/entity/player/EntityPlayer;)V");
+        AbstractInsnNode remainders = crafted == null ? null
+                : findManagerCall(crafted, "(" + L_MATRIX + L_WORLD + ")" + L_NON_NULL);
+        if (lookup == null || read == null || write == null || setSlot == null || remainders == null) {
             return null;
         }
 
@@ -142,6 +147,13 @@ public final class GridTransformer implements IClassTransformer {
         changed.instructions.insert(lookup, result);
         changed.instructions.remove(lookup);
 
+        InsnList remainder = new InsnList();
+        remainder.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        remainder.add(new MethodInsnNode(Opcodes.INVOKESTATIC, HOOKS, "remainders",
+                "(" + L_MANAGER + L_MATRIX + L_WORLD + L_GRID_ITF + ")" + L_NON_NULL, false));
+        crafted.instructions.insert(remainders, remainder);
+        crafted.instructions.remove(remainders);
+
         read.instructions.insert(headCall("readSelection"));
         write.instructions.insert(headCall("writeSelection"));
 
@@ -156,6 +168,7 @@ public final class GridTransformer implements IClassTransformer {
         hooks.add("read");
         hooks.add("write");
         hooks.add("onCreatePattern");
+        hooks.add("onCrafted");
         return hooks;
     }
 

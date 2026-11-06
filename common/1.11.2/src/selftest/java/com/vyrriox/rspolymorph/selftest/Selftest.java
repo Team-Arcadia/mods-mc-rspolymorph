@@ -128,6 +128,8 @@ public final class Selftest {
             section("packet", this::packets);
             section("unique", this::unique);
             section("plain", this::plainGrid);
+            section("remainders", this::remainders);
+            section("sync", this::syncList);
             section("pattern", this::patternGrid);
             section("persist", this::persistence);
         } catch (Throwable t) {
@@ -239,7 +241,7 @@ public final class Selftest {
         });
         pause(500);
         Class.forName("com.raoulvdberge.refinedstorage.apiimpl.autocrafting.CraftingPattern");
-        check("audit.all_hooks_applied", GridTransformer.applied().size() == 5, GridTransformer.applied().toString());
+        check("audit.all_hooks_applied", GridTransformer.applied().size() == 6, GridTransformer.applied().toString());
         check("audit.node_implements_interface",
                 server(s -> node(s, crafting) instanceof IRsPolymorphGrid), "no interface");
     }
@@ -549,6 +551,87 @@ public final class Selftest {
         });
         waitFor("selection before reload", () -> isItem(resultOnClient(), otherItem));
         closeScreen();
+    }
+
+    /** The remainders follow the recipe the grid shows, not the first match of vanilla. */
+    private void remainders() throws Exception {
+        BlockPos at = base.down();
+        server(s -> {
+            s.getWorld(0).setBlockState(at, gridState(GridType.CRAFTING));
+            return null;
+        });
+        pause(300);
+        open(at);
+        fillRemainderConflict(at);
+        boolean coalFirst = waitResult().getItem() == Items.COAL;
+        Item defaultRemainder = coalFirst ? Items.STICK : Items.BONE;
+        Item otherRemainder = coalFirst ? Items.BONE : Items.STICK;
+        Item otherOutput = coalFirst ? Items.REDSTONE : Items.COAL;
+        ResourceLocation otherId = coalFirst ? SelftestMod.RECIPE_REMAINDER_BONE : SelftestMod.RECIPE_REMAINDER_STICK;
+
+        clientClick(ClickType.PICKUP);
+        pause(300);
+        check("crafting.remainders_of_default_recipe",
+                server(s -> isItem(node(s, at).getCraftingMatrix().getStackInSlot(0), defaultRemainder)),
+                server(s -> str(node(s, at).getCraftingMatrix().getStackInSlot(0))));
+        emptyHand();
+
+        fillRemainderConflict(at);
+        waitResult();
+        client(() -> {
+            RsPolymorphNetwork.channel().sendToServer(new SelectRecipeMessage(mc.player.openContainer.windowId, otherId));
+            return null;
+        });
+        waitFor("selected remainder recipe", () -> isItem(resultOnClient(), otherOutput));
+        clientClick(ClickType.PICKUP);
+        pause(300);
+        check("crafting.remainders_follow_selection",
+                server(s -> isItem(node(s, at).getCraftingMatrix().getStackInSlot(0), otherRemainder)),
+                server(s -> str(node(s, at).getCraftingMatrix().getStackInSlot(0))));
+        emptyHand();
+        closeScreen();
+    }
+
+    /** Where the selection is synced, a change reaches everyone with the grid open: see SelftestSync. */
+    private void syncList() throws Exception {
+        Class<?> type = syncCheck();
+        if (type == null) {
+            skip("sync.sent_to_every_viewer", "Refined Storage 1.6 and later send the result slot, there is no selection message");
+            return;
+        }
+        open(crafting);
+        String problem = server(s -> (String) type.getMethod("viewers", WorldServer.class, EntityPlayerMP.class, Object.class, Object.class)
+                .invoke(null, s.getWorld(0), player(s), node(s, crafting), node(s, second)));
+        check("sync.sent_to_every_viewer", problem == null, problem);
+        closeScreen();
+    }
+
+    private static Class<?> syncCheck() {
+        try {
+            return Class.forName("com.vyrriox.rspolymorph.selftest.SelftestSync");
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    private void fillRemainderConflict(BlockPos pos) throws Exception {
+        server(s -> {
+            NetworkNodeGrid n = node(s, pos);
+            clearMatrix(n);
+            n.getCraftingMatrix().setInventorySlotContents(0, new ItemStack(Items.CLAY_BALL));
+            n.getCraftingMatrix().setInventorySlotContents(1, new ItemStack(Blocks.SAND));
+            return null;
+        });
+    }
+
+    private void emptyHand() throws Exception {
+        server(s -> {
+            player(s).inventory.setItemStack(ItemStack.EMPTY);
+            player(s).updateHeldItem();
+            player(s).inventory.clear();
+            return null;
+        });
+        pause(100);
     }
 
     private void persistence() throws Exception {

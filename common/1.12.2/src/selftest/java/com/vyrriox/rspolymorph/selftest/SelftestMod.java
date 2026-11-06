@@ -17,6 +17,8 @@ package com.vyrriox.rspolymorph.selftest;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
@@ -44,6 +46,8 @@ public final class SelftestMod {
     public static final String ID = "rspolymorph_selftest";
     public static final ResourceLocation RECIPE_DIAMOND = new ResourceLocation(ID, "conflict_diamond");
     public static final ResourceLocation RECIPE_EMERALD = new ResourceLocation(ID, "conflict_emerald");
+    public static final ResourceLocation RECIPE_REMAINDER_STICK = new ResourceLocation(ID, "remainder_stick");
+    public static final ResourceLocation RECIPE_REMAINDER_BONE = new ResourceLocation(ID, "remainder_bone");
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -54,6 +58,8 @@ public final class SelftestMod {
     public void onRecipes(RegistryEvent.Register<IRecipe> event) {
         event.getRegistry().register(conflict(RECIPE_DIAMOND, new ItemStack(Items.DIAMOND)));
         event.getRegistry().register(conflict(RECIPE_EMERALD, new ItemStack(Items.EMERALD)));
+        event.getRegistry().register(withRemainder(RECIPE_REMAINDER_STICK, new ItemStack(Items.COAL), Items.STICK));
+        event.getRegistry().register(withRemainder(RECIPE_REMAINDER_BONE, new ItemStack(Items.REDSTONE), Items.BONE));
     }
 
     private static IRecipe conflict(ResourceLocation id, ItemStack output) {
@@ -61,6 +67,21 @@ public final class SelftestMod {
         inputs.add(Ingredient.fromStacks(new ItemStack(Blocks.GRAVEL)));
         inputs.add(Ingredient.fromStacks(new ItemStack(Items.FLINT)));
         return new ShapelessRecipes("", output, inputs).setRegistryName(id);
+    }
+
+    /** Same ingredients for both, and a remainder that tells which recipe was crafted. */
+    private static IRecipe withRemainder(ResourceLocation id, ItemStack output, Item remainder) {
+        NonNullList<Ingredient> inputs = NonNullList.create();
+        inputs.add(Ingredient.fromStacks(new ItemStack(Items.CLAY_BALL)));
+        inputs.add(Ingredient.fromStacks(new ItemStack(Blocks.SAND)));
+        return new ShapelessRecipes("", output, inputs) {
+            @Override
+            public NonNullList<ItemStack> getRemainingItems(InventoryCrafting matrix) {
+                NonNullList<ItemStack> left = NonNullList.withSize(matrix.getSizeInventory(), ItemStack.EMPTY);
+                left.set(0, new ItemStack(remainder));
+                return left;
+            }
+        }.setRegistryName(id);
     }
 
     @Mod.EventHandler
