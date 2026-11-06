@@ -91,6 +91,9 @@ tasks.named('processResources') { dependsOn mergeResources }
 // packages none of it. The shared code is remapped like the mod's, SelftestCompat is forked, and the
 // jar gets another name, so that it can never pass for a release.
 def selftest = project.hasProperty('selftest')
+// Selftest only: run against another Refined Storage jar. The code still compiles against the pinned
+// version, as a released jar would, and the version floor is lifted because development jars are 0.0.0.
+def rsJar = selftest ? project.findProperty('rs_jar') : null
 if (selftest) {
     def selftestJava = layout.buildDirectory.dir('remapped-selftest/java')
     def remapSelftestSources = tasks.register('remapSelftestSources', Sync) {
@@ -119,7 +122,12 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     // Refined Storage for Fabric, pinned by its Modrinth version id in gradle.properties.
-    implementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    if (rsJar) {
+        compileOnly "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+        localRuntime files(rsJar)
+    } else {
+        implementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    }
 
     // Refined Storage nests these two in its jar for players, but Gradle does not see nested jars:
     // the development runs need them next to it (the same versions as RS 3.2.1 nests).
@@ -154,7 +162,7 @@ processResources {
             version              : mod_version,
             minecraft_version    : minecraft_version,
             fabric_loader_version: fabric_loader_version,
-            refinedstorage_min_version: refinedstorage_min_version,
+            refinedstorage_min_version : rsJar ? '0.0.0' : refinedstorage_min_version,
             mod_id               : mod_id,
             mod_name             : mod_name,
             mod_author           : mod_author,

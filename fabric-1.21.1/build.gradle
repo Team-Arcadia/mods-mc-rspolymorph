@@ -51,6 +51,9 @@ sourceSets.main {
 // In-game functional test, only with -Pselftest (see docs/BUILDING.md). A default build compiles and
 // packages none of it. The jar gets another name, so that it can never pass for a release.
 def selftest = project.hasProperty('selftest')
+// Selftest only: run against another Refined Storage jar. The code still compiles against the pinned
+// version, as a released jar would, and the version floor is lifted because development jars are 0.0.0.
+def rsJar = selftest ? project.findProperty('rs_jar') : null
 if (selftest) {
     def selftestDir = file("../common/${minecraft_version}/src/selftest")
     sourceSets.main {
@@ -71,7 +74,12 @@ dependencies {
 
     // Refined Storage 2.0.8 for Fabric, pinned by its Modrinth version id: the same version number
     // also exists for NeoForge. No Polymorph dependency.
-    modImplementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    if (rsJar) {
+        modCompileOnly "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+        modLocalRuntime files(rsJar)
+    } else {
+        modImplementation "maven.modrinth:refined-storage:${refinedstorage_fabric}"
+    }
 
     // Refined Storage nests these two in its jar for players, but Loom strips nested jars from a
     // dependency: the development runs need them next to it (the same versions as RS 2.0.9 nests).
@@ -130,7 +138,7 @@ processResources {
             description                 : project.description,
             credits                     : credits,
             java_version                : java_version,
-            refinedstorage_min_version  : refinedstorage_min_version,
+            refinedstorage_min_version : rsJar ? '0.0.0' : refinedstorage_min_version,
             quartz_arsenal_version_range: quartz_arsenal_version_range,
     ]
     inputs.properties(props)

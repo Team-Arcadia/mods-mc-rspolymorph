@@ -100,6 +100,9 @@ tasks.named('processResources') { dependsOn mergeResources }
 // packages none of it. The shared code is remapped like the mod's, SelftestCompat is forked, and the
 // jar gets another name, so that it can never pass for a release.
 def selftest = project.hasProperty('selftest')
+// Selftest only: run against another Refined Storage jar. The code still compiles against the pinned
+// version, as a released jar would, and the version floor is lifted because development jars are 0.0.0.
+def rsJar = selftest ? project.findProperty('rs_jar') : null
 if (selftest) {
     def selftestJava = layout.buildDirectory.dir('remapped-selftest/java')
     def remapSelftestSources = tasks.register('remapSelftestSources', Sync) {
@@ -159,7 +162,12 @@ neoForge {
 
 dependencies {
     // Refined Storage 3.2.0 for NeoForge, pinned by its Modrinth version id.
-    implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+    if (rsJar) {
+        compileOnly "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+        runtimeOnly files(rsJar)
+    } else {
+        implementation "maven.modrinth:refined-storage:${refinedstorage_neoforge}"
+    }
 }
 
 processResources {
@@ -175,7 +183,7 @@ processResources {
             license                      : license,
             credits                      : credits,
             description                  : project.description,
-            refinedstorage_version_range : refinedstorage_version_range,
+            refinedstorage_version_range : rsJar ? '[0,)' : refinedstorage_version_range,
             quartz_arsenal_version_range : quartz_arsenal_version_range,
     ]
     inputs.properties(props)
