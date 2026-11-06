@@ -335,3 +335,10 @@
 **Root cause:** Reflection strings are not remapped by reobf; SRG names apply in production
 **Fix:** Cast to EditBox and look up the SRG field names first
 **Prevention:** Never reflect on Minecraft members by development name in code that runs in production
+
+## [2026-11-06 22:18] Forge 1.20.1 multiplayer login stall not explained
+**Context:** Real install, dedicated server and client, selftest driver, three fresh tries
+**Error:** Client stays on Connecting with no handshake line; server logs lost connection: Disconnected 30 s later; 2 of 3 tries
+**Root cause:** Unknown. Not reproduced in 3 connect-only tries of the same jars; no thread dump was caught during a stall
+**Fix:** None yet. Fabric selftest reflection was fixed separately with intermediary names and a cast
+**Prevention:** Take jstack of both sides 20 s after Connecting; a fresh game folder needs onboardAccessibility:false, and --server did not connect on 1.20.1 in the scratch launcher
