@@ -20,7 +20,7 @@ import com.vyrriox.rspolymorph.platform.Services;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Forge entry point. Only wires the packet channel: the logic and the mixins live in common/1.16.5.
+ * Forge entry point. Only wires the packet channel: the logic is shared, the hooks are the coremod of common/1.15.1.
  * Must never reference a client class.
  *
  * Author: vyrriox
