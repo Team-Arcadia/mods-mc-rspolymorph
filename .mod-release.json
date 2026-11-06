@@ -1,6 +1,9 @@
 {
   "curseforge": { "project_id": 1492934 },
   "modrinth": { "project_id": "x9SSMbo6" },
+  "dependencies": {
+    "refinedstorage_quartz_arsenal": { "modrinth": "refined-storage-quartz-arsenal", "curseforge": "refined-storage-quartz-arsenal" }
+  },
   "targets": {
     "forge-1.20.1": { "extra_loaders": ["neoforge"] },
     "forge-1.12": { "extra_minecraft": ["1.12.1"] }
